@@ -1,0 +1,101 @@
+"use client";
+
+import { motion } from "framer-motion";
+import Logo3D from "./logo3d";
+import ThreeHero from "./three-hero";
+import { CircuitBand, Equations, GridBG, Orb } from "./fx-deco";
+import { Btn } from "./ui";
+import { SITE } from "@/config";
+
+export function BridgeSVG({ className = "" }: { className?: string }) {
+  const cable = (x: number) => `M150 30 L${x} 120`;
+  return (
+    <motion.svg viewBox="0 0 300 150" fill="none" className={className} aria-hidden>
+      <motion.path
+        d="M10 120 H290" stroke="#E3A82B" strokeWidth="2"
+        initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 1.4, ease: "easeInOut" }}
+      />
+      <motion.path
+        d="M146 120 V22 M154 120 V22 M146 26 L154 22" stroke="#3D6EA8" strokeWidth="3" strokeLinecap="round"
+        initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 1, delay: .3 }}
+      />
+      {[40, 65, 90, 115].map((x, i) => (
+        <motion.path key={x} d={cable(x)} stroke="#E3A82B" strokeOpacity=".7" strokeWidth=".8"
+          initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: .8, delay: .6 + i * .12 }} />
+      ))}
+      {[260, 235, 210, 185].map((x, i) => (
+        <motion.path key={x} d={cable(x)} stroke="#E3A82B" strokeOpacity=".7" strokeWidth=".8"
+          initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: .8, delay: .6 + i * .12 }} />
+      ))}
+      <motion.path
+        d="M235 120 a28 28 0 0 1 56 0" stroke="#E3A82B" strokeWidth="1.6"
+        initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 1, delay: 1.2 }}
+      />
+      {[40, 65, 90, 115, 185, 210, 235, 260].map((x) => (
+        <circle key={x} cx={x} cy="120" r="1.6" fill="#F3D07E" />
+      ))}
+    </motion.svg>
+  );
+}
+
+export default function Hero() {
+  return (
+    <section className="relative flex min-h-screen items-center overflow-hidden pt-24">
+      <GridBG />
+      <Orb className="left-[-10%] top-[10%] h-[420px] w-[420px] bg-night-600/40" />
+      <Orb className="right-[-8%] top-[30%] h-[380px] w-[380px] bg-gold-600/15" />
+      <ThreeHero />
+      <Equations />
+      <CircuitBand className="absolute inset-x-0 bottom-0 h-24 w-full opacity-70" />
+
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-28 text-center md:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .8 }}
+          className="mx-auto mb-8 inline-flex items-center gap-2 rounded-full border border-gold-500/30 bg-gold-500/10 px-4 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-widest2 text-gold-300"
+        >
+          <span className="relative flex h-1.5 w-1.5 rounded-full bg-gold-400 ping-soft" />
+          Académie numérique · {SITE.org} · par des ingénieurs, pour les ingénieurs
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, scale: .92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: .15 }} className="mx-auto w-64 md:w-96">
+          <Logo3D className="h-40 w-full md:h-56" />
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, delay: .3 }}
+          className="mx-auto mt-8 max-w-4xl font-display text-4xl font-bold leading-[1.08] tracking-tight md:text-6xl"
+        >
+          Réussir aujourd'hui, construire les{" "}
+          <span className="shimmer-text">ingénieurs de demain</span>.
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, delay: .45 }}
+          className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/60 md:text-lg"
+        >
+          Cours, TD corrigés, annales de l'{SITE.org}, préparation aux examens, développement professionnel
+          et esprit entrepreneurial — réunis dans une seule plateforme d'excellence.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, delay: .6 }}
+          className="mt-10 flex flex-wrap items-center justify-center gap-3"
+        >
+          <Btn href="/register">Commencer maintenant →</Btn>
+          <Btn href="/library" variant="outline">Explorer les ressources</Btn>
+          <Btn href="/msp1" variant="ghost">Découvrir MSP1</Btn>
+          <Btn href="/msp2" variant="ghost">Découvrir MSP2</Btn>
+        </motion.div>
+      </div>
+
+      <motion.div
+        animate={{ y: [0, 8, 0] }} transition={{ duration: 2, repeat: Infinity }}
+        className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2"
+      >
+        <div className="flex h-9 w-6 items-start justify-center rounded-full border border-white/20 p-1.5">
+          <div className="h-2 w-1 rounded-full bg-gold-400" />
+        </div>
+      </motion.div>
+    </section>
+  );
+}
