@@ -93,3 +93,15 @@ npm run build        # build de production
 npm run start        # serveur production (0.0.0.0:3000)
 npm run dev          # serveur de développement
 ```
+
+## 8. Déploiement — visualiser le site en ligne
+
+- **Vercel (recommandé, gratuit)** : le dépôt GitHub est détecté automatiquement
+  (framework Next.js). Importez le repo sur vercel.com → Deploy : le site dynamique
+  complet (auth, API, PDF) est publié en ~1 minute. Aucune configuration requise.
+- **GitHub Pages** : ⚠️ impossible pour ce projet — Pages n'héberge que du statique,
+  or la plateforme est dynamique (sessions, API, base de données, génération PDF).
+  GitHub héberge ici le **code source** ; Vercel (ou tout VPS Node) héberge le **site**.
+- **VPS / serveur Node** : `npm ci && npm run build && npm run start` derrière un
+  proxy reverse (nginx/Caddy) avec HTTPS.
+
