@@ -15,6 +15,7 @@ ingénieurs pour accompagner les étudiants de l'ENSPY : réussite académique, 
 | Frontend   | Next.js 14 (App Router), React 18, TypeScript strict      |
 | Styles     | Tailwind CSS (design system `night` / `gold` / blanc)     |
 | Animations | Framer Motion (scroll, transitions de pages, 3D du logo)  |
+| Thèmes     | Mode sombre (défaut) & mode clair — bascule persistante   |
 | 3D         | Three.js (particules, wireframes d'ingénierie, parallaxe) |
 | Backend    | Route handlers Next.js + base JSON typée (`data/db.json`) |
 | Sécurité   | scrypt (mots de passe), sessions httpOnly 7 j, rôles      |
