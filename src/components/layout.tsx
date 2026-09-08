@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
@@ -68,6 +68,12 @@ function LogoutBtn() {
   );
 }
 
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 150, damping: 30, restDelta: 0.001 });
+  return <motion.div style={{ scaleX }} className="absolute inset-x-0 bottom-0 z-10 h-[2px] origin-left bg-gold-grad" />;
+}
+
 export function Navbar({ user }: { user: PublicUser | null }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -84,7 +90,7 @@ export function Navbar({ user }: { user: PublicUser | null }) {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled ? "border-b border-white/5 bg-night-950/85 backdrop-blur-xl" : "bg-transparent"
+        scrolled ? "border-b border-white/5 bg-night-950/85 shadow-[0_10px_40px_-20px_rgba(0,0,0,.6)] backdrop-blur-xl" : "bg-transparent"
       }`}
     >
       <nav className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 md:px-8">
@@ -97,14 +103,19 @@ export function Navbar({ user }: { user: PublicUser | null }) {
             <Link
               key={l.href}
               href={l.href}
-              className={`relative rounded-lg px-3 py-2 text-[13px] font-medium tracking-wide transition ${
+              aria-current={pathname === l.href ? "page" : undefined}
+              className={`relative rounded-full px-3.5 py-2 text-[13px] font-medium tracking-wide transition-colors ${
                 pathname === l.href ? "text-gold-300" : "text-white/65 hover:text-white"
               }`}
             >
-              {l.label}
               {pathname === l.href && (
-                <motion.span layoutId="nav-dot" className="absolute inset-x-3 -bottom-0.5 h-px bg-gold-grad" />
+                <motion.span
+                  layoutId="nav-pill"
+                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  className="absolute inset-0 rounded-full border border-gold-500/25 bg-gold-500/10"
+                />
               )}
+              <span className="relative">{l.label}</span>
             </Link>
           ))}
         </div>
@@ -145,6 +156,7 @@ export function Navbar({ user }: { user: PublicUser | null }) {
           <span className={`h-px w-5 bg-white transition ${open ? "-translate-y-[3.5px] -rotate-45" : ""}`} />
         </button>
       </nav>
+      {scrolled && <ScrollProgress />}
 
       <AnimatePresence>
         {open && (
@@ -205,7 +217,7 @@ export function Footer() {
     <footer className="relative border-t border-white/5 bg-night-900/60">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-4 md:px-8">
         <div className="md:col-span-2">
-          <img src="/logo.png" alt="RÉUSSIR POLYTECH" className="h-14 w-auto" />
+          <img src="/logo.png" alt="RÉUSSIR POLYTECH" width={140} height={140} loading="lazy" decoding="async" className="h-14 w-auto" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/55">
             {SITE.slogan} Une académie numérique conçue par un collectif d'étudiants ingénieurs de l'{SITE.org}, pour accompagner chaque promotion vers l'excellence.
           </p>
@@ -231,7 +243,7 @@ export function Footer() {
             <li>WhatsApp : <span className="text-gold-300">{SITE.city.includes("Cameroun") ? "+237 6 72 35 64 41" : ""}</span></li>
             <li>{SITE.email}</li>
             <li>{SITE.city}</li>
-            <li className="pt-2 font-mono text-[11px] text-white/35">v2.0 — architecture évolutive</li>
+            <li className="pt-2 font-mono text-[11px] text-white/35">v3.0 — design premium & performance</li>
           </ul>
         </div>
       </div>

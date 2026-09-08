@@ -1,9 +1,12 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import Logo3D from "./logo3d";
-import ThreeHero from "./three-hero";
 import { CircuitBand, Equations, GridBG, Orb } from "./fx-deco";
+
+/* Three.js chargé en lazy (hors SSR) : il ne bloque plus le rendu ni le JS initial. */
+const ThreeHero = dynamic(() => import("./three-hero"), { ssr: false, loading: () => null });
 import { Btn } from "./ui";
 import { SITE } from "@/config";
 
@@ -71,7 +74,7 @@ export function RobotArmSVG({ className = "" }: { className?: string }) {
 
 export default function Hero() {
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden pt-24">
+    <section className="noise relative flex min-h-screen items-center overflow-hidden pt-24">
       <GridBG />
       <Orb className="left-[-10%] top-[10%] h-[420px] w-[420px] bg-night-600/40" />
       <Orb className="right-[-8%] top-[30%] h-[380px] w-[380px] bg-gold-600/15" />
@@ -94,7 +97,7 @@ export default function Hero() {
 
         <motion.h1
           initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, delay: .3 }}
-          className="mx-auto mt-8 max-w-4xl font-display text-4xl font-bold leading-[1.08] tracking-tight md:text-6xl"
+          className="mx-auto mt-8 max-w-4xl text-balance font-display text-[2.6rem] font-extrabold leading-[1.05] tracking-tight md:text-6xl lg:text-[4.2rem]"
         >
           Réussir ensemble, construire{" "}
           <span className="shimmer-text">l'excellence</span>.

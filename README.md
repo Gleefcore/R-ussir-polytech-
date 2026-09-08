@@ -56,6 +56,12 @@ src/
     └── api/…                 # auth, requests, admin/* (docs + formations), progress, download
 ```
 
+> **Design & performance (v3.1)** : Three.js chargé en lazy (JS initial de l'accueil ≈ 152 kB),
+> barre de progression de scroll, pilule de navigation animée, boutons dorés à reflet,
+> texture « grain », focus visible accessible, `prefers-reduced-motion` respecté,
+> écran de chargement 100 % CSS, images lazy + dimensions explicites, métadonnées
+> Open Graph / Twitter / theme-color complètes.
+
 > **Photos de l'équipe** : déposez les portraits réels dans `public/equipe/<slug>.jpg`
 > (ex. `public/equipe/eugene-samuel-gwet.jpg`) — le site les affiche automatiquement
 > à la place des monogrammes.

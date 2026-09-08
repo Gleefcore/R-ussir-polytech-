@@ -58,7 +58,7 @@ export default function AboutPage() {
                       <div className="glass group h-full overflow-hidden p-6 text-center transition-all duration-500 hover:-translate-y-2 hover:border-gold-500/40 hover:shadow-gold-glow">
                         <div className="relative mx-auto h-24 w-24">
                           {photo ? (
-                            <img src={`/equipe/${m.slug}.jpg`} alt={`Portrait de ${m.name}`} className="h-24 w-24 rounded-2xl object-cover ring-2 ring-gold-500/40 transition group-hover:ring-gold-400/70" />
+                            <img src={`/equipe/${m.slug}.jpg`} alt={`Portrait de ${m.name}`} width={96} height={96} loading="lazy" decoding="async" className="h-24 w-24 rounded-2xl object-cover ring-2 ring-gold-500/40 transition group-hover:ring-gold-400/70" />
                           ) : (
                             <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-gold-grad font-display text-3xl font-extrabold text-night-950 ring-2 ring-gold-500/40 transition group-hover:ring-gold-400/70">
                               {initials(m.name)}
@@ -94,7 +94,7 @@ export default function AboutPage() {
 
         <Reveal className="mt-20">
           <div className="glass-strong p-10 text-center md:p-14">
-            <img src="/logo.png" alt="" className="logo-glow mx-auto h-20 w-auto" />
+            <img src="/logo.png" alt="" width={80} height={80} loading="lazy" decoding="async" className="logo-glow mx-auto h-20 w-auto" />
             <h2 className="mt-6 font-display text-2xl font-bold md:text-3xl">Une promesse simple</h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
               « Tant qu'un étudiant cherchera seul une correction, une épreuve ou une méthode, nous serons là :

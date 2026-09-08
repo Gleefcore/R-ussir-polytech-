@@ -43,11 +43,15 @@ export function SectionHead({
 }) {
   return (
     <Reveal className={center ? "text-center" : ""}>
-      <p className="kicker">{kicker}</p>
-      <h2 className="mt-3 font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl lg:text-[2.75rem]">
+      <p className={`kicker flex items-center gap-3 ${center ? "justify-center" : ""}`}>
+        <span className="h-px w-8 bg-gold-grad" />
+        {kicker}
+        <span className="h-px w-8 bg-gold-grad" />
+      </p>
+      <h2 className="mt-4 text-balance font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl lg:text-[2.75rem]">
         {title}
       </h2>
-      {sub && <p className={`mt-4 max-w-2xl text-base leading-relaxed text-white/60 ${center ? "mx-auto" : ""}`}>{sub}</p>}
+      {sub && <p className={`mt-4 max-w-2xl text-pretty text-base leading-relaxed text-white/60 ${center ? "mx-auto" : ""}`}>{sub}</p>}
     </Reveal>
   );
 }
@@ -55,9 +59,9 @@ export function SectionHead({
 type BtnVariant = "gold" | "outline" | "ghost" | "dark";
 
 const btnStyles: Record<BtnVariant, string> = {
-  gold: "bg-gold-grad text-night-950 font-bold hover:shadow-gold-glow hover:brightness-110 border border-gold-300/40",
-  outline: "border border-gold-500/40 text-gold-300 hover:bg-gold-500/10 hover:border-gold-400/70",
-  ghost: "border border-white/15 text-white/85 hover:border-white/40 hover:bg-white/5",
+  gold: "btn-shine bg-gold-grad text-night-950 font-bold shadow-[0_12px_34px_-14px_rgba(227,168,43,.65)] hover:shadow-gold-glow hover:brightness-110 border border-gold-300/40",
+  outline: "border border-gold-500/40 text-gold-300 hover:bg-gold-500/10 hover:border-gold-400/70 hover:-translate-y-0.5",
+  ghost: "border border-white/15 text-white/85 hover:border-white/40 hover:bg-white/5 hover:-translate-y-0.5",
   dark: "bg-night-700 text-white hover:bg-night-600 border border-white/10",
 };
 

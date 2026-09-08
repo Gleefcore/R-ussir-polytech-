@@ -32,6 +32,10 @@ export default function Logo3D({ className = "" }: { className?: string }) {
         <img
           src="/logo.png"
           alt="Logo RÉUSSIR POLYTECH"
+          width={640}
+          height={640}
+          fetchPriority="high"
+          decoding="async"
           draggable={false}
           className="logo-glow h-full w-full select-none object-contain"
         />
