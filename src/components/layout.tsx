@@ -12,9 +12,9 @@ const LINKS = [
   { href: "/", label: "Accueil" },
   { href: "/msp1", label: "MSP1" },
   { href: "/msp2", label: "MSP2" },
-  { href: "/entrepreneur", label: "Entreprendre" },
-  { href: "/founders", label: "Fondateurs" },
-  { href: "/study", label: "Espace étude" },
+  { href: "/entrepreneur", label: "Ressources entrepreneur" },
+  { href: "/vip", label: "VIP" },
+  { href: "/a-propos", label: "À propos" },
 ];
 
 export function ThemeToggle({ className = "" }: { className?: string }) {
@@ -129,7 +129,7 @@ export function Navbar({ user }: { user: PublicUser | null }) {
           ) : (
             <>
               <Link href="/login" className="rounded-xl px-4 py-2 text-[13px] font-semibold text-white/75 transition hover:text-white">
-                Connexion
+                Connexion étudiant
               </Link>
               <Btn href="/register" className="!px-5 !py-2.5 text-xs">Commencer maintenant</Btn>
             </>
@@ -170,7 +170,7 @@ export function Navbar({ user }: { user: PublicUser | null }) {
                   </>
                 ) : (
                   <>
-                    <Btn href="/login" variant="ghost" className="flex-1 !py-2.5 text-xs">Connexion</Btn>
+                    <Btn href="/login" variant="ghost" className="flex-1 !py-2.5 text-xs">Connexion étudiant</Btn>
                     <Btn href="/register" className="flex-1 !py-2.5 text-xs">Inscription</Btn>
                   </>
                 )}
@@ -222,6 +222,7 @@ export function Footer() {
               </li>
             ))}
             <li><Link href="/admin" className="transition hover:text-gold-300">Administration</Link></li>
+            <li><Link href="/confidentialite" className="transition hover:text-gold-300">Politique de confidentialité</Link></li>
           </ul>
         </div>
         <div>

@@ -38,6 +38,37 @@ export function BridgeSVG({ className = "" }: { className?: string }) {
   );
 }
 
+export function RobotArmSVG({ className = "" }: { className?: string }) {
+  return (
+    <motion.svg viewBox="0 0 320 180" fill="none" className={className} aria-hidden>
+      <motion.rect x="30" y="150" width="52" height="14" rx="4" fill="#16375F"
+        initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} />
+      <motion.g
+        style={{ originX: "56px", originY: "150px" }}
+        animate={{ rotate: [-3, 3, -3] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <motion.path d="M56 150 L96 84" stroke="#E3A82B" strokeWidth="5" strokeLinecap="round"
+          initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: .8 }} />
+        <circle cx="96" cy="84" r="6" fill="#0B1F3A" stroke="#E3A82B" strokeWidth="2.5" />
+        <motion.g style={{ originX: "96px", originY: "84px" }} animate={{ rotate: [4, -4, 4] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}>
+          <motion.path d="M96 84 L168 96" stroke="#F3D07E" strokeWidth="4" strokeLinecap="round"
+            initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: .8, delay: .4 }} />
+          <circle cx="168" cy="96" r="4.5" fill="#0B1F3A" stroke="#F3D07E" strokeWidth="2" />
+          <path d="M168 96 L182 104" stroke="#F3D07E" strokeWidth="2.5" strokeLinecap="round" />
+        </motion.g>
+      </motion.g>
+      <motion.path d="M182 104 H286 M196 104 V138 M232 104 V138 M268 104 V138 M188 138 H280"
+        stroke="#3D6EA8" strokeWidth="1.4" strokeDasharray="4 4"
+        initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 2.4, delay: .9 }} />
+      <motion.path d="M196 120 a18 18 0 0 1 36 0 M232 120 a18 18 0 0 1 36 0"
+        stroke="#E3A82B" strokeWidth="1.2"
+        initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 1.6, delay: 2 }} />
+      <circle cx="182" cy="104" r="2" fill="#F3D07E" />
+    </motion.svg>
+  );
+}
+
 export default function Hero() {
   return (
     <section className="relative flex min-h-screen items-center overflow-hidden pt-24">
@@ -54,7 +85,7 @@ export default function Hero() {
           className="mx-auto mb-8 inline-flex items-center gap-2 rounded-full border border-gold-500/30 bg-gold-500/10 px-4 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-widest2 text-gold-300"
         >
           <span className="relative flex h-1.5 w-1.5 rounded-full bg-gold-400 ping-soft" />
-          Académie numérique · {SITE.org} · par des ingénieurs, pour les ingénieurs
+          Collectif académique · {SITE.org} · l'entraide comme méthode
         </motion.div>
 
         <motion.div initial={{ opacity: 0, scale: .92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: .15 }} className="mx-auto w-64 md:w-96">
@@ -65,16 +96,16 @@ export default function Hero() {
           initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, delay: .3 }}
           className="mx-auto mt-8 max-w-4xl font-display text-4xl font-bold leading-[1.08] tracking-tight md:text-6xl"
         >
-          Réussir aujourd'hui, construire les{" "}
-          <span className="shimmer-text">ingénieurs de demain</span>.
+          Réussir ensemble, construire{" "}
+          <span className="shimmer-text">l'excellence</span>.
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, delay: .45 }}
           className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/60 md:text-lg"
         >
-          Cours, TD corrigés, annales de l'{SITE.org}, préparation aux examens, développement professionnel
-          et esprit entrepreneurial — réunis dans une seule plateforme d'excellence.
+          {SITE.baseline} Fiches de TD, épreuves et corrections des programmes officiels MSP1 et MSP2,
+          entraide organisée et formations d'excellence.
         </motion.p>
 
         <motion.div
@@ -82,9 +113,9 @@ export default function Hero() {
           className="mt-10 flex flex-wrap items-center justify-center gap-3"
         >
           <Btn href="/register">Commencer maintenant →</Btn>
-          <Btn href="/msp1" variant="outline">Explorer les ressources</Btn>
-          <Btn href="/msp1" variant="ghost">Découvrir MSP1</Btn>
-          <Btn href="/msp2" variant="ghost">Découvrir MSP2</Btn>
+          <Btn href="/msp1" variant="outline">Explorer MSP1</Btn>
+          <Btn href="/msp2" variant="ghost">Explorer MSP2</Btn>
+          <Btn href="/vip" variant="ghost">Espace VIP</Btn>
         </motion.div>
       </div>
 

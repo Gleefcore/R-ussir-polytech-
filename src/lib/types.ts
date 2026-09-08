@@ -1,5 +1,5 @@
 export type Level = "MSP1" | "MSP2";
-export type ResType = "cours" | "td" | "exercices" | "tp" | "examens";
+export type ResType = "td" | "examens" | "corrections";
 export type Role = "student" | "admin";
 export type RequestStatus = "pending" | "approved" | "rejected";
 
@@ -63,10 +63,20 @@ export interface Announcement {
   date: string;
 }
 
+export interface Formation {
+  id: string;
+  title: string;
+  level: string;
+  description: string;
+  preview: string;
+  createdAt: number;
+}
+
 export interface DB {
   users: User[];
   resources: Resource[];
   requests: PurchaseRequest[];
   sessions: Session[];
   announcements: Announcement[];
+  formations: Formation[];
 }

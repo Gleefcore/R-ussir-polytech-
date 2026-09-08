@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       title,
       subject: CATALOG.some((s) => s.id === b.subject) ? String(b.subject) : CATALOG[0].id,
       level: b.level === "MSP2" ? "MSP2" : "MSP1",
-      type: ["cours", "td", "exercices", "tp", "examens"].includes(b.type) ? b.type : "cours",
+      type: ["td", "examens", "corrections"].includes(b.type) ? b.type : "td",
       premium: !!b.premium,
       description,
       preview,

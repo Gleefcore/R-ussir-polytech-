@@ -15,7 +15,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (typeof b.title === "string" && b.title.trim()) r.title = b.title.trim();
     if (CATALOG.some((s) => s.id === b.subject)) r.subject = String(b.subject);
     if (["MSP1", "MSP2"].includes(b.level)) r.level = b.level;
-    if (["cours", "td", "exercices", "tp", "examens"].includes(b.type)) r.type = b.type;
+    if (["td", "examens", "corrections"].includes(b.type)) r.type = b.type;
     if (typeof b.premium === "boolean") r.premium = b.premium;
     if (typeof b.description === "string") r.description = b.description;
     if (typeof b.preview === "string") r.preview = b.preview;

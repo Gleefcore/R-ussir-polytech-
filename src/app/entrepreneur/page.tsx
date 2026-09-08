@@ -1,4 +1,4 @@
-import { ADVICE, OPPORTUNITIES, PROJECTS } from "@/content";
+import { ENTRE_CARDS, OPPORTUNITIES, PROJECTS } from "@/content";
 import { Badge, Btn, Reveal, SectionHead, WhatsAppIcon } from "@/components/ui";
 import { CircuitBand, GridBG, Orb } from "@/components/fx-deco";
 import { waLink } from "@/config";
@@ -14,7 +14,7 @@ export default function EntrepreneurPage() {
 
       <div className="relative mx-auto max-w-7xl px-6 md:px-8">
         <div className="max-w-3xl">
-          <p className="kicker">Espace étudiant entrepreneur</p>
+          <p className="kicker">Espace ressources entrepreneur</p>
           <h1 className="mt-3 font-display text-4xl font-bold leading-tight md:text-6xl">
             De la salle de TD à la <span className="shimmer-text">startup</span>.
           </h1>
@@ -54,11 +54,11 @@ export default function EntrepreneurPage() {
           </div>
         </section>
 
-        {/* Conseils */}
-        <section className="mt-24 grid gap-12 lg:grid-cols-[1fr_1.2fr]">
-          <SectionHead kicker="Conseils entrepreneuriaux" title="La méthode du collectif" sub="Quatre principes que nous répétons à chaque porteur de projet, du premier rendez-vous jusqu'au pitch." />
-          <div className="space-y-5">
-            {ADVICE.map((a, i) => (
+        {/* Piliers */}
+        <section className="mt-24">
+          <SectionHead kicker="Quatre piliers" title="De l'idée au projet qui compte" />
+          <div className="mt-8 grid gap-5 md:grid-cols-2">
+            {ENTRE_CARDS.map((a, i) => (
               <Reveal key={a.title} delay={i * 0.08}>
                 <div className="glass flex gap-5 p-6 transition hover:border-gold-500/30">
                   <span className="font-display text-3xl font-extrabold text-gold-500/50">{String(i + 1).padStart(2, "0")}</span>

@@ -5,11 +5,11 @@
       "name": "Administration RÉUSSIR POLYTECH",
       "email": "admin@reussirpolytech.com",
       "phone": "672356441",
-      "passHash": "7b731dfdc611cc1562de48fbe96fdb0b4dac71d8950143212745c31ba8141000",
-      "passSalt": "e6388a1748aeba1a",
+      "passHash": "6a7e05d7fd88a393c3883262e83a6cbe0913bc886838be2dc0537a81fac54ed2",
+      "passSalt": "d02b3b4ecebe6155",
       "level": "MSP2",
       "role": "admin",
-      "createdAt": 1788886915732,
+      "createdAt": 1788887606297,
       "unlocked": [],
       "study": []
     },
@@ -18,31 +18,25 @@
       "name": "Étudiant Démo",
       "email": "etudiant@demo.rp",
       "phone": "699000000",
-      "passHash": "8035c91a11082aa90bf94a0937ffeeb5eb6f8bbc0eda8f5508ef01545d4f6394",
-      "passSalt": "9cc5142ece1e2962",
+      "passHash": "654f685e921924774fcf9ca427f887a6f6cfbda0c7a58ffaaf3b5aba78931be3",
+      "passSalt": "2c909f31315882d9",
       "level": "MSP1",
       "role": "student",
-      "createdAt": 1788886915732,
+      "createdAt": 1788887606297,
       "unlocked": [
-        "res-03"
+        "m1-ar1-cor"
       ],
       "study": [
         {
           "id": "s-1",
           "subject": "math",
-          "topic": "Revoir le chapitre limites & continuité (Analyse réelle 1)",
+          "topic": "Refaire la fiche TD 1 d'Analyse réelle 1",
           "done": true
         },
         {
           "id": "s-2",
           "subject": "physique",
-          "topic": "Fiche de révision : mécanique du point",
-          "done": false
-        },
-        {
-          "id": "s-3",
-          "subject": "info",
-          "topic": "Refaire le TP tableaux pointeurs en C",
+          "topic": "Épreuve blanche de Mécanique du point chronométrée",
           "done": false
         }
       ]
@@ -50,609 +44,955 @@
   ],
   "resources": [
     {
-      "id": "res-01",
-      "title": "Analyse réelle 1 — Cours complet (limites, continuité, dérivabilité)",
+      "id": "m1-ar1-td",
+      "title": "Fiches de TD — Analyse réelle 1",
       "subject": "analyse-reelle-1",
       "level": "MSP1",
-      "type": "cours",
+      "type": "td",
       "premium": false,
-      "description": "Le cours fondamental d'Analyse réelle 1 du semestre 1 : suites et limites réelles, continuité, dérivabilité et développements limités, avec démonstrations rigoureuses conformes au programme officiel MSP1.",
-      "preview": "Chapitre 1 — Limites de suites\nDéfinition 1.1 (limite d'une suite). Soit (u_n) une suite réelle. On dit que u_n tend vers l quand, pour tout ε > 0, il existe N tel que n ≥ N implique |u_n − l| ≤ ε.\nThéorème 1.2 (gendarmes). Si u_n ≤ v_n ≤ w_n à partir d'un rang et si u_n, w_n → l, alors v_n → l.",
+      "description": "L'ensemble des fiches de TD d'Analyse réelle 1 (semestre 1) : énoncés progressifs conformes au programme officiel.",
+      "preview": "TD 1 — Suites numériques\nEx. 1 : Étudier la limite de u_n = (n²+1)/(2n²−3).\nEx. 2 : Montrer que u_{n+1} = sqrt(2+u_n) converge.",
       "tags": [
-        "analyse",
-        "limites",
-        "dérivabilité"
+        "td",
+        "analyse"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-02",
-      "title": "Algèbre Générale — Cours & applications",
+      "id": "m1-ar1-ex",
+      "title": "Épreuves / Examens — Analyse réelle 1",
+      "subject": "analyse-reelle-1",
+      "level": "MSP1",
+      "type": "examens",
+      "premium": false,
+      "description": "Les épreuves d'Analyse réelle 1 des sessions récentes, telles que distribuées en évaluation.",
+      "preview": "Session 2025 — Problème 1 (8 points)\nÉtude de la suite u_{n+1} = (u_n² + 2)/(2u_n).",
+      "tags": [
+        "examens",
+        "annales"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m1-ar1-cor",
+      "title": "Corrections détaillées — Analyse réelle 1",
+      "subject": "analyse-reelle-1",
+      "level": "MSP1",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections rédigées pas à pas de toutes les fiches de TD et épreuves d'Analyse réelle 1, avec barèmes et conseils de rédaction.",
+      "preview": "Corrigé TD 1 Ex. 2 — u_{n+1} = sqrt(2+u_n) croissante et majorée par 2 donc convergente ; l = 2.",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m1-ag-td",
+      "title": "Fiches de TD — Algèbre Générale",
       "subject": "algebre-generale",
       "level": "MSP1",
-      "type": "cours",
-      "premium": false,
-      "description": "Cours officiel d'Algèbre Générale (semestre 1) : structures algébriques, groupes, anneaux, corps et arithmétique des entiers, avec exercices d'application progressifs.",
-      "preview": "Chapitre 2 — Groupes\nDéfinition. (G, ∗) est un groupe si ∗ est associative, admet un élément neutre e et si tout élément admet un symétrique.\nExemple. (ℤ/nℤ, +) est un groupe commutatif d'ordre n.",
-      "tags": [
-        "algèbre",
-        "groupes",
-        "arithmétique"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-03",
-      "title": "Analyse réelle 1 — TD corrigé détaillé",
-      "subject": "analyse-reelle-1",
-      "level": "MSP1",
       "type": "td",
-      "premium": true,
-      "description": "Le TD officiel d'Analyse réelle 1 avec correction rédigée pas à pas : raisonnements ε-δ, théorèmes de comparaison, études de fonctions complètes.",
-      "preview": "Exercice 2 — Corrigé\nOn montre que u_{n+1} = sqrt(2 + u_n) est croissante et majorée par 2, donc convergente.\nLa limite l vérifie l = sqrt(2 + l) d'où l² − l − 2 = 0 et l = 2 (l = −1 rejetée).",
+      "premium": false,
+      "description": "Fiches de TD d'Algèbre Générale : groupes, anneaux, corps et arithmétique, avec exercices types.",
+      "preview": "TD 2 — Groupes\nEx. 3 : Montrer que (ℤ/n, +) est cyclique.",
       "tags": [
         "td",
-        "corrigé",
-        "analyse"
+        "algèbre"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-04",
-      "title": "Analyse réelle 1 — Exercices corrigés (intégrales et primitives)",
-      "subject": "analyse-reelle-1",
+      "id": "m1-ag-cor",
+      "title": "Corrections détaillées — Algèbre Générale",
+      "subject": "algebre-generale",
       "level": "MSP1",
-      "type": "exercices",
-      "premium": false,
-      "description": "Une banque de 40 exercices progressifs sur les primitives et intégrales d'Analyse réelle 1, tous corrigés avec les techniques clés : IPP, changement de variable, décomposition en éléments simples.",
-      "preview": "Exercice 12 — ∫ x·eˣ dx\nIntégration par parties : u = x, dv = eˣ dx ⇒ ∫ x e dx = x eˣ − eˣ + C.\nAstuce RP : toujours tabuler les IPP itérées.",
-      "tags": [
-        "intégrales",
-        "primitives",
-        "exercices"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-05",
-      "title": "Examen Analyse réelle 1 — Session 2025 (corrigé)",
-      "subject": "analyse-reelle-1",
-      "level": "MSP1",
-      "type": "examens",
+      "type": "corrections",
       "premium": true,
-      "description": "Le sujet réel de l'évaluation d'Analyse réelle 1, session 2025, avec barème et correction complète rédigée par le collectif.",
-      "preview": "Problème 1 (8 points) — Étude de la suite u_{n+1} = (u_n² + 2)/(2u_n)\n1. Montrer que u_n > sqrt(2) pour n ≥ 1.\n2. Étudier la monotonie. 3. Conclure à la convergence et identifier la limite.",
+      "description": "Corrections complètes des fiches de TD d'Algèbre Générale, rédigées par le collectif.",
+      "preview": "Corrigé TD 2 Ex. 3 — 1̄ engendre /nℤ : tout élément est multiple de 1̄.",
       "tags": [
-        "examen",
-        "annales",
-        "2025"
+        "corrections",
+        "protégé"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-10",
-      "title": "Mécanique du point — Cours complet",
-      "subject": "mecanique-point",
-      "level": "MSP1",
-      "type": "cours",
-      "premium": false,
-      "description": "Cours officiel de Mécanique du point (semestre 1) : cinématique, dynamique newtonienne, énergie et moments, illustré par les systèmes classiques des TD de l'ENSPY.",
-      "preview": "Loi fondamentale : m·d²r/dt² = Σ F.\nÉnergie cinétique : Ec = ½ m v². Théorème de l'énergie cinétique : ΔEc = Σ W(F).",
-      "tags": [
-        "mécanique",
-        "newton",
-        "cinématique"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-11",
-      "title": "Mécanique du point — TD corrigé détaillé",
-      "subject": "mecanique-point",
-      "level": "MSP1",
-      "type": "td",
-      "premium": true,
-      "description": "Tous les exercices du TD de Mécanique du point corrigés : pendules, projectiles, frottements solides et fluides, avec schémas bilan soignés.",
-      "preview": "Exercice 4 — Projectile avec frottement fluide linéaire\nm dv/dt = mg − k v ⇒ v(t) = (mg/k)(1 − e^{−kt/m}) + v₀ e^{−kt/m}.",
-      "tags": [
-        "td",
-        "mécanique",
-        "corrigé"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-12",
-      "title": "Électromagnétisme 1 — Cours (électrostatique & magnétostatique)",
+      "id": "m1-em1-td",
+      "title": "Fiches de TD — Électromagnétisme 1",
       "subject": "electromagnetisme-1",
       "level": "MSP1",
-      "type": "cours",
+      "type": "td",
       "premium": false,
-      "description": "Cours officiel d'Électromagnétisme 1 (semestre 1) : champs électrostatiques, potentiel, dipôles, magnétostatique et théorème d'Ampère, avec les démonstrations attendues en évaluation.",
-      "preview": "Théorème de Gauss : flux de E à travers une surface fermée = Q_int/ε₀.\nThéorème d'Ampère : circulation de B le long d'un contour = μ₀ I_enlacé.",
+      "description": "Fiches de TD d'Électromagnétisme 1 : applications de Gauss et d'Ampère, calculs de champs.",
+      "preview": "TD 1 — Théorème de Gauss\nEx. 2 : Champ d'un plan infini uniformément chargé.",
       "tags": [
-        "électromagnétisme",
-        "gauss",
-        "ampère"
+        "td",
+        "électromagnétisme"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-13",
-      "title": "Examen Mécanique du point — Session 2025 (corrigé)",
+      "id": "m1-em1-ex",
+      "title": "Épreuves / Examens — Électromagnétisme 1",
+      "subject": "electromagnetisme-1",
+      "level": "MSP1",
+      "type": "examens",
+      "premium": false,
+      "description": "Épreuves d'Électromagnétisme 1 des sessions récentes.",
+      "preview": "Session 2025 — Exercice 3 (5 points) : champ créé par un fil infini.",
+      "tags": [
+        "examens",
+        "annales"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m1-em1-cor",
+      "title": "Corrections détaillées — Électromagnétisme 1",
+      "subject": "electromagnetisme-1",
+      "level": "MSP1",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections rédigées des TD et épreuves d'Électromagnétisme 1, avec schémas bilan.",
+      "preview": "Corrigé ex. 3 — Ampère : B = μ₀I/(2πr), lignes de champ circulaires.",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m1-mp-td",
+      "title": "Fiches de TD — Mécanique du point",
+      "subject": "mecanique-point",
+      "level": "MSP1",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD de Mécanique du point : cinématique, dynamique, énergie.",
+      "preview": "TD 3 — Projectile avec frottement fluide linéaire.",
+      "tags": [
+        "td",
+        "mécanique"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m1-mp-ex",
+      "title": "Épreuves / Examens — Mécanique du point",
       "subject": "mecanique-point",
       "level": "MSP1",
       "type": "examens",
-      "premium": true,
-      "description": "Le sujet d'évaluation de Mécanique du point MSP1 avec correction complète et conseils de rédaction pour maximiser les points.",
-      "preview": "Problème 2 (7 points) — Pendule simple amorti\nθ'' + 2λθ' + ω₀²θ = 0. Régimes : pseudo-périodique, critique, apériodique.",
+      "premium": false,
+      "description": "Épreuves de Mécanique du point des sessions récentes.",
+      "preview": "Session 2025 — Problème 2 : pendule simple amorti.",
       "tags": [
-        "examen",
-        "mécanique",
+        "examens",
         "annales"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-14",
-      "title": "TP Physique — Travaux pratiques guidés (mécanique & électricité)",
-      "subject": "tp-physique",
+      "id": "m1-mp-cor",
+      "title": "Corrections détaillées — Mécanique du point",
+      "subject": "mecanique-point",
       "level": "MSP1",
-      "type": "tp",
-      "premium": false,
-      "description": "Les séances de TP Physique du semestre 1 : protocoles, montages, traitement des incertitudes et modèles de comptes-rendus rédigés par le collectif.",
-      "preview": "TP 2 — Pendule simple : mesure de g\nT = 2π sqrt(L/g) ⇒ g = 4π²L/T².\nIncertitude-type : Δg/g = ΔL/L + 2ΔT/T.",
-      "tags": [
-        "tp",
-        "protocole",
-        "incertitudes"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-15",
-      "title": "Informatique 1 — Cours d'algorithmique & structures de données",
-      "subject": "informatique-1",
-      "level": "MSP1",
-      "type": "cours",
-      "premium": false,
-      "description": "Cours officiel d'Informatique 1 (semestre 1) : complexité, listes, piles, files, arbres et tris, avec analyses de complexité démontrées.",
-      "preview": "Complexité du tri fusion : T(n) = 2T(n/2) + O(n) ⇒ T(n) = O(n log n) (théorème maître).\nStructure file : enfiler/défiler en O(1).",
-      "tags": [
-        "algorithmique",
-        "complexité",
-        "tris"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-16",
-      "title": "Informatique 1 — TP guidés de programmation C",
-      "subject": "informatique-1",
-      "level": "MSP1",
-      "type": "tp",
-      "premium": false,
-      "description": "Six TP guidés en langage C conformes au programme d'Informatique 1 : pointeurs, tableaux dynamiques, fichiers et structures, avec code de référence commenté.",
-      "preview": "TP 3 — Allocation dynamique\nint *t = malloc(n * sizeof(int));\nif (!t) { fprintf(stderr, \"alloc\\n\"); exit(1); }\n/* ... */ free(t);",
-      "tags": [
-        "C",
-        "pointeurs",
-        "tp"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-17",
-      "title": "Informatique 1 — Exercices corrigés (récursivité & complexité)",
-      "subject": "informatique-1",
-      "level": "MSP1",
-      "type": "exercices",
+      "type": "corrections",
       "premium": true,
-      "description": "30 exercices corrigés d'Informatique 1 sur la récursivité, les récurrences et l'analyse de complexité, du niveau base au niveau examen.",
-      "preview": "Exercice 9 — Résoudre T(n) = T(n−1) + n, T(1) = 1.\nT(n) = Σ_{k=1..n} k = n(n+1)/2 ⇒ Θ(n²).",
+      "description": "Corrections complètes des TD et épreuves de Mécanique du point, avec schémas bilan soignés.",
+      "preview": "Corrigé problème 2 — θ'' + 2λθ' + ω₀²θ = 0 : régime pseudo-périodique si λ < ω₀.",
       "tags": [
-        "récursivité",
-        "complexité",
-        "exercices"
+        "corrections",
+        "protégé"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-18",
-      "title": "Éléments de Chimie — Cours (atome, liaison, solutions)",
+      "id": "m1-inf1-td",
+      "title": "Fiches de TD — Informatique 1",
+      "subject": "informatique-1",
+      "level": "MSP1",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD d'Informatique 1 : algorithmique, complexité et programmation C.",
+      "preview": "TD 4 — Récursivité : tours de Hanoï et complexité.",
+      "tags": [
+        "td",
+        "informatique"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m1-inf1-ex",
+      "title": "Épreuves / Examens — Informatique 1",
+      "subject": "informatique-1",
+      "level": "MSP1",
+      "type": "examens",
+      "premium": false,
+      "description": "Épreuves d'Informatique 1 : traces d'algorithmes et écriture de fonctions C.",
+      "preview": "Session 2025 — Exercice 1 : trace de mystere(5).",
+      "tags": [
+        "examens",
+        "annales"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m1-inf1-cor",
+      "title": "Corrections détaillées — Informatique 1",
+      "subject": "informatique-1",
+      "level": "MSP1",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections commentées des TD et épreuves d'Informatique 1, avec code de référence.",
+      "preview": "Corrigé ex. 1 — mystere(5) = 120 (factorielle récursive).",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m1-chim-td",
+      "title": "Fiches de TD — Éléments de Chimie",
       "subject": "elements-chimie",
       "level": "MSP1",
-      "type": "cours",
+      "type": "td",
       "premium": false,
-      "description": "Cours officiel d'Éléments de Chimie (semestre 1) : structure de l'atome, classification périodique, liaison chimique et chimie des solutions, avec exercices types.",
-      "preview": "Concentration molaire : C = n/V.\nLoi de dilution : C₁V₁ = C₂V₂.\npH = −log[H₃O⁺].",
+      "description": "Fiches de TD d'Éléments de Chimie : atome, liaison, solutions et pH.",
+      "preview": "TD 2 — Concentrations et dilutions.",
       "tags": [
-        "chimie",
-        "atome",
-        "solutions"
+        "td",
+        "chimie"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-19",
-      "title": "Examen Électromagnétisme 1 — Session 2025 (corrigé)",
-      "subject": "electromagnetisme-1",
+      "id": "m1-tp-td",
+      "title": "Fiches de TP — TP Physique",
+      "subject": "tp-physique",
       "level": "MSP1",
-      "type": "examens",
-      "premium": true,
-      "description": "Sujet intégral de l'évaluation d'Électromagnétisme 1 avec correction barémée : applications du théorème de Gauss et calculs de champs.",
-      "preview": "Exercice 3 (5 points) — Champ créé par un plan infini uniformément chargé\nE = σ/(2ε₀), direction perpendiculaire au plan : démonstration par Gauss.",
+      "type": "td",
+      "premium": false,
+      "description": "Protocoles et fiches de TP Physique du semestre 1, avec modèles de comptes-rendus.",
+      "preview": "TP 2 — Pendule simple : mesure de g et incertitudes.",
       "tags": [
-        "examen",
-        "électromagnétisme",
-        "annales"
+        "tp",
+        "physique"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-30",
-      "title": "Analyse réelle 2 — Cours complet (séries & fonctions de plusieurs variables)",
+      "id": "m1-ar2-td",
+      "title": "Fiches de TD — Analyse réelle 2",
       "subject": "analyse-reelle-2",
       "level": "MSP1",
-      "type": "cours",
+      "type": "td",
       "premium": false,
-      "description": "Cours officiel d'Analyse réelle 2 (semestre 2) : séries numériques et séries de fonctions, calcul différentiel à plusieurs variables, avec démonstrations au programme.",
-      "preview": "Séries numériques : Σ u_n converge absolument ⇒ Σ u_n converge.\nDifférentielle : f(a+h) = f(a) + Df(a)·h + o(‖h‖).",
+      "description": "Fiches de TD d'Analyse réelle 2 : séries numériques et séries de fonctions.",
+      "preview": "TD 1 — Nature de Σ 1/(n ln n).",
       "tags": [
-        "séries",
-        "différentiel",
+        "td",
         "analyse"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-31",
-      "title": "Algèbre linéaire — Cours & applications",
-      "subject": "algebre-lineaire",
-      "level": "MSP1",
-      "type": "cours",
-      "premium": false,
-      "description": "Cours officiel d'Algèbre linéaire (semestre 2) : espaces vectoriels, applications linéaires, matrices, déterminants et réduction d'endomorphismes.",
-      "preview": "Chapitre 3 — Matrices et systèmes\nDéfinition. Une matrice A ∈ M_n(K) est inversible s'il existe B telle que AB = BA = I_n.\nMéthode du pivot de Gauss : complexité O(n³).",
-      "tags": [
-        "algèbre",
-        "matrices",
-        "espaces vectoriels"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-32",
-      "title": "Géométrie euclidienne et affine — Cours",
-      "subject": "geometrie",
-      "level": "MSP1",
-      "type": "cours",
-      "premium": false,
-      "description": "Cours officiel de Géométrie euclidienne et affine (semestre 2) : espaces affines, espaces euclidiens, isométries et produits vectoriels, avec figures et exercices types.",
-      "preview": "Espace affine : E dirigé par un espace vectoriel V.\nProduit scalaire : ⟨x|y⟩ = ‖x‖‖y‖cosθ. Identité de polarisation.",
-      "tags": [
-        "géométrie",
-        "euclidien",
-        "affine"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-33",
-      "title": "Analyse réelle 2 — TD corrigé détaillé",
-      "subject": "analyse-reelle-2",
-      "level": "MSP1",
-      "type": "td",
-      "premium": true,
-      "description": "Correction complète du TD d'Analyse réelle 2 : convergence de séries, extrema liés et différentielles, rédigée pas à pas.",
-      "preview": "Exercice 5 — Nature de Σ 1/(n ln n)\nCritère de condensation de Cauchy : la série diverge (comparaison à l'intégrale de 1/x ln x).",
-      "tags": [
-        "td",
-        "séries",
-        "corrigé"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-34",
-      "title": "Électromagnétisme 2 — Cours (équations de Maxwell & ondes)",
-      "subject": "electromagnetisme-2",
-      "level": "MSP1",
-      "type": "cours",
-      "premium": false,
-      "description": "Cours officiel d'Électromagnétisme 2 (semestre 2) : régime variable, équations de Maxwell, propagation des ondes électromagnétiques et polarisation.",
-      "preview": "Équations de Maxwell : ∇·E = ρ/ε₀ ; ∇·B = 0 ; ∇×E = −∂B/∂t ; ∇×B = μ₀ J + μ₀ε₀ ∂E/t.\nOnde plane : E = E₀ e^{i(k·r − ωt)}.",
-      "tags": [
-        "maxwell",
-        "ondes",
-        "propagation"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-35",
-      "title": "Technologie et sciences des matériaux — Cours",
-      "subject": "technologie-materiaux",
-      "level": "MSP1",
-      "type": "cours",
-      "premium": false,
-      "description": "Cours officiel de Technologie et sciences des matériaux (semestre 2) : structure des matériaux, propriétés mécaniques, diagrammes de phases et choix des matériaux en ingénierie.",
-      "preview": "Contrainte : σ = F/S. Déformation : ε = ΔL/L.\nLoi de Hooke : σ = E·ε (domaine élastique).",
-      "tags": [
-        "matériaux",
-        "métallurgie",
-        "propriétés"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-36",
-      "title": "Informatique 2 — Cours de programmation C++ & POO",
-      "subject": "informatique-2",
-      "level": "MSP1",
-      "type": "cours",
-      "premium": false,
-      "description": "Cours officiel d'Informatique 2 (semestre 2) : passage du C au C++, classes, encapsulation, héritage et introduction au polymorphisme.",
-      "preview": "class Forme { public: virtual double aire() const = 0; virtual ~Forme() = default; };\nclass Cercle : public Forme { double r; public: double aire() const override { return M_PI*r*r; } };",
-      "tags": [
-        "C++",
-        "POO",
-        "classes"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-37",
-      "title": "Algèbre linéaire — Exercices corrigés (réduction & déterminants)",
-      "subject": "algebre-lineaire",
-      "level": "MSP1",
-      "type": "exercices",
-      "premium": true,
-      "description": "Banque d'exercices corrigés d'Algèbre linéaire : diagonalisation, polynôme caractéristique, déterminants et systèmes, niveau examen.",
-      "preview": "Exercice 8 — Diagonaliser A = [[4,1],[2,3]]\nPolynôme caractéristique : (4−λ)(3−λ)−2 = λ²−7λ+10 ⇒ λ = 2, 5. A est diagonalisable.",
-      "tags": [
-        "réduction",
-        "déterminants",
-        "exercices"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-38",
-      "title": "Examen Analyse réelle 2 — Session 2026 (corrigé)",
+      "id": "m1-ar2-ex",
+      "title": "Épreuves / Examens — Analyse réelle 2",
       "subject": "analyse-reelle-2",
       "level": "MSP1",
       "type": "examens",
-      "premium": true,
-      "description": "Sujet intégral de l'évaluation d'Analyse réelle 2, session 2026, avec barème officiel reconstitué et correction rédigée.",
-      "preview": "Exercice 3 (6 points) — Rayon de convergence de Σ (n²/3ⁿ) xⁿ\nRègle de d'Alembert : R = 3.",
+      "premium": false,
+      "description": "Épreuves d'Analyse réelle 2 des sessions récentes.",
+      "preview": "Session 2026 — Exercice 3 : rayon de convergence de Σ (n²/3ⁿ) xⁿ.",
       "tags": [
-        "examen",
-        "annales",
-        "2026"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-39",
-      "title": "Examen Informatique 2 — Session 2026 (corrigé)",
-      "subject": "informatique-2",
-      "level": "MSP1",
-      "type": "examens",
-      "premium": true,
-      "description": "Sujet d'évaluation d'Informatique 2 : conception de classes C++, traces d'exécution et questions de cours, entièrement corrigé.",
-      "preview": "Problème 1 (9 points) — Concevoir une hiérarchie de classes pour un gestionnaire de ressources académiques (UML → C++).",
-      "tags": [
-        "examen",
-        "C++",
+        "examens",
         "annales"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-50",
-      "title": "Analyse complexe — Cours MSP2",
-      "subject": "analyse-complexe",
-      "level": "MSP2",
-      "type": "cours",
-      "premium": false,
-      "description": "Holomorphie, équations de Cauchy-Riemann, intégration complexe, séries de Laurent et théorème des résidus avec applications au calcul d'intégrales réelles.",
-      "preview": "Théorème (formule intégrale de Cauchy). Si f est holomorphe sur un ouvert simplement connexe Ω et γ un lacet de Ω, alors pour tout a intérieur à γ : f(a) = (1/2iπ) ∮_γ f(z)/(z−a) dz.",
-      "tags": [
-        "complexe",
-        "résidus",
-        "holomorphie"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-51",
-      "title": "Probabilités & statistiques — Cours complet MSP2",
-      "subject": "probabilites",
-      "level": "MSP2",
-      "type": "cours",
+      "id": "m1-ar2-cor",
+      "title": "Corrections détaillées — Analyse réelle 2",
+      "subject": "analyse-reelle-2",
+      "level": "MSP1",
+      "type": "corrections",
       "premium": true,
-      "description": "Variables aléatoires, lois usuelles, théorèmes limites et introduction aux processus : le cours de référence pour les probabilités en deuxième année.",
-      "preview": "Définition (espérance). Pour X une v.a. discrète : E[X] = Σ x·P(X = x).\nThéorème central limite : sqrt(n) (X̄_n − μ) → N(0, σ²) en loi.",
+      "description": "Corrections rédigées des TD et épreuves d'Analyse réelle 2.",
+      "preview": "Corrigé ex. 3 — d'Alembert : R = 3.",
       "tags": [
-        "probabilités",
-        "statistiques",
-        "TCL"
+        "corrections",
+        "protégé"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-52",
-      "title": "TD Probabilités — Corrigé détaillé MSP2",
-      "subject": "probabilites",
-      "level": "MSP2",
+      "id": "m1-al-td",
+      "title": "Fiches de TD — Algèbre linéaire",
+      "subject": "algebre-lineaire",
+      "level": "MSP1",
       "type": "td",
-      "premium": true,
-      "description": "Correction complète du TD de probabilités : calculs de lois, fonctions génératrices, exercices de convergence.",
-      "preview": "Exercice 5 — Loi du nombre de passages\nOn reconnaît une loi géométrique de paramètre p : E[N] = 1/p, Var(N) = (1−p)/p².",
+      "premium": false,
+      "description": "Fiches de TD d'Algèbre linéaire : matrices, déterminants, réduction.",
+      "preview": "TD 3 — Diagonalisation de matrices 3×3.",
       "tags": [
         "td",
-        "probabilités",
-        "corrigé"
+        "algèbre"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-53",
-      "title": "Thermodynamique — Cours complet MSP2",
-      "subject": "thermodynamique",
-      "level": "MSP2",
-      "type": "cours",
-      "premium": false,
-      "description": "Premier et second principes, fonctions d'état, machines thermiques et diagrammes : le cours de thermodynamique de deuxième année.",
-      "preview": "Premier principe : ΔU = W + Q.\nEntropie : dS = δQ_rev/T. Second principe : S créée ≥ 0.",
-      "tags": [
-        "thermodynamique",
-        "entropie",
-        "machines"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-54",
-      "title": "TD Thermodynamique — Corrigé détaillé MSP2",
-      "subject": "thermodynamique",
-      "level": "MSP2",
-      "type": "td",
+      "id": "m1-al-cor",
+      "title": "Corrections détaillées — Algèbre linéaire",
+      "subject": "algebre-lineaire",
+      "level": "MSP1",
+      "type": "corrections",
       "premium": true,
-      "description": "Correction pas à pas du TD : cycles de Carnot, Rankine et exercices de bilans entropiques.",
-      "preview": "Exercice 7 — Rendement de Carnot\nη = 1 − T_f/T_c = 1 − 300/600 = 0,5.",
+      "description": "Corrections complètes des TD d'Algèbre linéaire.",
+      "preview": "Corrigé TD 3 — polynôme caractéristique et sous-espaces propres.",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m1-em2-td",
+      "title": "Fiches de TD — Électromagnétisme 2",
+      "subject": "electromagnetisme-2",
+      "level": "MSP1",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD d'Électromagnétisme 2 : Maxwell et propagation.",
+      "preview": "TD 2 — Équation de propagation dans le vide.",
       "tags": [
         "td",
-        "thermodynamique",
-        "corrigé"
+        "maxwell"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-55",
-      "title": "Optique ondulatoire — Cours & interférences",
-      "subject": "optique-ondulatoire",
-      "level": "MSP2",
-      "type": "cours",
-      "premium": true,
-      "description": "Interférences, diffraction, cohérence et applications instrumentales : le cours avancé d'optique ondulatoire.",
-      "preview": "Différence de marche : δ = d·sinθ. Franges brillantes : δ = kλ.\nIntensité : I = I₀ cos²(πδ/λ).",
-      "tags": [
-        "optique",
-        "interférences",
-        "diffraction"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-56",
-      "title": "Programmation orientée objet C++ — Cours avancé MSP2",
-      "subject": "poo-cpp",
-      "level": "MSP2",
-      "type": "cours",
-      "premium": false,
-      "description": "Classes, héritage, polymorphisme, templates et STL : le cours de POO en C++ avec bonnes pratiques de conception.",
-      "preview": "template <typename T> class Pile { std::vector<T> d; public: void push(const T& x){ d.push_back(x); } };",
-      "tags": [
-        "C++",
-        "POO",
-        "STL"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-57",
-      "title": "Bases de données & SQL — Cours complet MSP2",
-      "subject": "bases-donnees",
-      "level": "MSP2",
-      "type": "cours",
-      "premium": false,
-      "description": "Modèle relationnel, algèbre relationnelle, SQL avancé, normalisation et transactions : le cours de référence en bases de données.",
-      "preview": "SELECT s.nom, AVG(n.note) AS moy\nFROM notes n JOIN students s ON s.id = n.student_id\nGROUP BY s.nom HAVING AVG(n.note) >= 12;",
-      "tags": [
-        "SQL",
-        "bases de données",
-        "normalisation"
-      ],
-      "createdAt": 1788886915732
-    },
-    {
-      "id": "res-58",
-      "title": "TD SQL — Corrigé détaillé MSP2",
-      "subject": "bases-donnees",
-      "level": "MSP2",
+      "id": "m1-geo-td",
+      "title": "Fiches de TD — Géométrie euclidienne et affine",
+      "subject": "geometrie",
+      "level": "MSP1",
       "type": "td",
-      "premium": true,
-      "description": "Correction complète du TD de SQL : jointures, sous-requêtes corrélées, fenêtres et optimisation d'index.",
-      "preview": "Exercice 6 — Sous-requête corrélée\nSELECT nom FROM etudiants e WHERE note > (SELECT AVG(note) FROM etudiants WHERE filiere = e.filiere);",
+      "premium": false,
+      "description": "Fiches de TD de Géométrie : espaces affines, isométries, produits scalaires.",
+      "preview": "TD 1 — Repères affines et barycentres.",
       "tags": [
         "td",
-        "SQL",
-        "corrigé"
+        "géométrie"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
     },
     {
-      "id": "res-59",
-      "title": "Examen Analyse complexe MSP2 — Session 2026 (corrigé)",
-      "subject": "analyse-complexe",
+      "id": "m1-inf2-td",
+      "title": "Fiches de TD — Informatique 2",
+      "subject": "informatique-2",
+      "level": "MSP1",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD d'Informatique 2 : C++, classes et héritage.",
+      "preview": "TD 2 — Concevoir une hiérarchie de classes Forme/Cercle/Rectangle.",
+      "tags": [
+        "td",
+        "C++"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m1-inf2-ex",
+      "title": "Épreuves / Examens — Informatique 2",
+      "subject": "informatique-2",
+      "level": "MSP1",
+      "type": "examens",
+      "premium": false,
+      "description": "Épreuves d'Informatique 2 des sessions récentes.",
+      "preview": "Session 2026 — Problème 1 : UML → C++.",
+      "tags": [
+        "examens",
+        "annales"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m1-inf2-cor",
+      "title": "Corrections détaillées — Informatique 2",
+      "subject": "informatique-2",
+      "level": "MSP1",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections commentées des TD et épreuves d'Informatique 2.",
+      "preview": "Corrigé problème 1 — classe abstraite Forme et polymorphisme.",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-am-td",
+      "title": "Fiches de TD — Algèbre multilinéaire",
+      "subject": "algebre-multilineaire",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD d'Algèbre multilinéaire : formes linéaires, formes quadratiques, tenseurs.",
+      "preview": "TD 2 — Signature d'une forme quadratique.",
+      "tags": [
+        "td",
+        "algèbre"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-am-cor",
+      "title": "Corrections détaillées — Algèbre multilinéaire",
+      "subject": "algebre-multilineaire",
+      "level": "MSP2",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections rédigées des TD d'Algèbre multilinéaire.",
+      "preview": "Corrigé TD 2 — réduction de Gauss et signature (2,1).",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-si-td",
+      "title": "Fiches de TD — Séries intégrales",
+      "subject": "series-integrales",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD de Séries intégrales : intégrales impropres, convergence, comparaison.",
+      "preview": "TD 1 — Nature de ∫₀^∞ sin(x)/x dx.",
+      "tags": [
+        "td",
+        "analyse"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-si-ex",
+      "title": "Épreuves / Examens — Séries intégrales",
+      "subject": "series-integrales",
       "level": "MSP2",
       "type": "examens",
-      "premium": true,
-      "description": "Sujet intégral de la dernière évaluation MSP2 d'analyse complexe avec correction barémée : résidus et intégrales réelles.",
-      "preview": "Exercice 3 (6 points) — Calculer ∫_{−∞}^{+∞} dx/(1+x⁴) par la méthode des résidus.\nPôles : e^{iπ/4}, e^{3iπ/4}. Résultat : π/sqrt(2).",
+      "premium": false,
+      "description": "Épreuves de Séries intégrales des sessions récentes.",
+      "preview": "Session 2026 — Problème 1 : intégrales de Bertrand.",
       "tags": [
-        "examen",
-        "annales",
-        "MSP2"
+        "examens",
+        "annales"
       ],
-      "createdAt": 1788886915732
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-si-cor",
+      "title": "Corrections détaillées — Séries intégrales",
+      "subject": "series-integrales",
+      "level": "MSP2",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections complètes des TD et épreuves de Séries intégrales.",
+      "preview": "Corrigé problème 1 — convergence ssi α > 1.",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-ps-td",
+      "title": "Fiches de TD — Probabilités et statistiques",
+      "subject": "probabilites-stats",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD de Probabilités et statistiques : lois, espérance, estimation.",
+      "preview": "TD 3 — Estimateur du maximum de vraisemblance.",
+      "tags": [
+        "td",
+        "probabilités"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-ps-ex",
+      "title": "Épreuves / Examens — Probabilités et statistiques",
+      "subject": "probabilites-stats",
+      "level": "MSP2",
+      "type": "examens",
+      "premium": false,
+      "description": "Épreuves de Probabilités et statistiques des sessions récentes.",
+      "preview": "Session 2026 — Exercice 4 : TCL et intervalle de confiance.",
+      "tags": [
+        "examens",
+        "annales"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-ps-cor",
+      "title": "Corrections détaillées — Probabilités et statistiques",
+      "subject": "probabilites-stats",
+      "level": "MSP2",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections rédigées des TD et épreuves de Probabilités et statistiques.",
+      "preview": "Corrigé ex. 4 — IC à 95 % : [x̄ − 1,96σ/√n ; x̄ + 1,96σ/√n].",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-ms-td",
+      "title": "Fiches de TD — Mécanique des solides",
+      "subject": "mecanique-solides",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD de Mécanique des solides : torseurs, cinématique du solide.",
+      "preview": "TD 1 — Torseur cinétique d'une barre en rotation.",
+      "tags": [
+        "td",
+        "mécanique"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-ec-td",
+      "title": "Fiches de TD — Électrocinétique",
+      "subject": "electrocinetique",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD d'Électrocinétique : circuits RC, RL, RLC en régimes transitoire et sinusoïdal.",
+      "preview": "TD 2 — Réponse d'un circuit RC à un échelon.",
+      "tags": [
+        "td",
+        "circuits"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-ec-ex",
+      "title": "Épreuves / Examens — Électrocinétique",
+      "subject": "electrocinetique",
+      "level": "MSP2",
+      "type": "examens",
+      "premium": false,
+      "description": "Épreuves d'Électrocinétique des sessions récentes.",
+      "preview": "Session 2026 — Problème 2 : filtre passe-bande RLC.",
+      "tags": [
+        "examens",
+        "annales"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-ec-cor",
+      "title": "Corrections détaillées — Électrocinétique",
+      "subject": "electrocinetique",
+      "level": "MSP2",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections complètes des TD et épreuves d'Électrocinétique.",
+      "preview": "Corrigé problème 2 — fonction de transfert et facteur de qualité.",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-inf3-td",
+      "title": "Fiches de TD — Informatique 3",
+      "subject": "informatique-3",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD d'Informatique 3 : structures de données avancées, STL et complexité.",
+      "preview": "TD 2 — Arbres binaires de recherche et équilibrage.",
+      "tags": [
+        "td",
+        "C++"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-inf3-ex",
+      "title": "Épreuves / Examens — Informatique 3",
+      "subject": "informatique-3",
+      "level": "MSP2",
+      "type": "examens",
+      "premium": false,
+      "description": "Épreuves d'Informatique 3 des sessions récentes.",
+      "preview": "Session 2026 — Exercice 3 : complexité d'un tri par tas.",
+      "tags": [
+        "examens",
+        "annales"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-tp-td",
+      "title": "Fiches de TP — TP Physique (MSP2)",
+      "subject": "tp-physique-m2",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Protocoles de TP Physique de niveau 2, avec modèles de comptes-rendus.",
+      "preview": "TP 1 — Circuit RLC : résonance et bande passante.",
+      "tags": [
+        "tp",
+        "physique"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-aev-td",
+      "title": "Fiches de TD — Analyse dans les espaces vectoriels de dimensions finies",
+      "subject": "analyse-espaces-dim-finies",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD : normes, topologie, applications linéaires continues en dimension finie.",
+      "preview": "TD 1 — Normes équivalentes sur ℝⁿ.",
+      "tags": [
+        "td",
+        "analyse"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-aev-cor",
+      "title": "Corrections détaillées — Analyse dans les EV de dimensions finies",
+      "subject": "analyse-espaces-dim-finies",
+      "level": "MSP2",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections rédigées des TD d'analyse en dimension finie.",
+      "preview": "Corrigé TD 1 — toute norme sur ℝⁿ est équivalente à la norme ‖·‖∞.",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-an-td",
+      "title": "Fiches de TD — Analyse numérique",
+      "subject": "analyse-numerique",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD d'Analyse numérique : méthodes de Newton, interpolation, intégration numérique.",
+      "preview": "TD 2 — Méthode de Newton : convergence quadratique.",
+      "tags": [
+        "td",
+        "numérique"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-an-ex",
+      "title": "Épreuves / Examens — Analyse numérique",
+      "subject": "analyse-numerique",
+      "level": "MSP2",
+      "type": "examens",
+      "premium": false,
+      "description": "Épreuves d'Analyse numérique des sessions récentes.",
+      "preview": "Session 2026 — Problème 1 : interpolation de Lagrange.",
+      "tags": [
+        "examens",
+        "annales"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-ce-td",
+      "title": "Fiches de TD — Circuits électriques et électroniques",
+      "subject": "circuits-electriques",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD : analyse de circuits, amplificateurs opérationnels, diodes et transistors.",
+      "preview": "TD 3 — Montage amplificateur inverseur : gain et bande passante.",
+      "tags": [
+        "td",
+        "électronique"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-ce-ex",
+      "title": "Épreuves / Examens — Circuits électriques et électroniques",
+      "subject": "circuits-electriques",
+      "level": "MSP2",
+      "type": "examens",
+      "premium": false,
+      "description": "Épreuves de Circuits électriques et électroniques des sessions récentes.",
+      "preview": "Session 2026 — Problème 2 : redressement double alternance.",
+      "tags": [
+        "examens",
+        "annales"
+      ],
+      "createdAt": 1788887606297
+    },
+    {
+      "id": "m2-ce-cor",
+      "title": "Corrections détaillées — Circuits électriques et électroniques",
+      "subject": "circuits-electriques",
+      "level": "MSP2",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections complètes des TD et épreuves de Circuits électriques et électroniques.",
+      "preview": "Corrigé problème 2 — tension de sortie et taux d'ondulation.",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "m2-og-td",
+      "title": "Fiches de TD — Optique géométrique et ondulatoire",
+      "subject": "optique-geo-ondulatoire",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD : lentilles, miroirs, interférences et diffraction.",
+      "preview": "TD 2 — Fentes d'Young : interfrange et contraste.",
+      "tags": [
+        "td",
+        "optique"
+      ],
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "m2-th-td",
+      "title": "Fiches de TD — Thermodynamique",
+      "subject": "thermodynamique",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD de Thermodynamique : principes, machines, diagrammes.",
+      "preview": "TD 3 — Cycle de Carnot : rendement et bilans entropiques.",
+      "tags": [
+        "td",
+        "thermo"
+      ],
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "m2-th-ex",
+      "title": "Épreuves / Examens — Thermodynamique",
+      "subject": "thermodynamique",
+      "level": "MSP2",
+      "type": "examens",
+      "premium": false,
+      "description": "Épreuves de Thermodynamique des sessions récentes.",
+      "preview": "Session 2026 — Problème 1 : machine frigorifique et COP.",
+      "tags": [
+        "examens",
+        "annales"
+      ],
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "m2-th-cor",
+      "title": "Corrections détaillées — Thermodynamique",
+      "subject": "thermodynamique",
+      "level": "MSP2",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections rédigées des TD et épreuves de Thermodynamique.",
+      "preview": "Corrigé problème 1 — COP = T_f/(T_c − T_f).",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "m2-st-td",
+      "title": "Fiches de TD — Statique",
+      "subject": "statique",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD de Statique : équilibre des solides, torseurs, liaisons.",
+      "preview": "TD 1 — Principe fondamental de la statique sur un portique.",
+      "tags": [
+        "td",
+        "statique"
+      ],
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "m2-inf4-td",
+      "title": "Fiches de TD — Informatique 4",
+      "subject": "informatique-4",
+      "level": "MSP2",
+      "type": "td",
+      "premium": false,
+      "description": "Fiches de TD d'Informatique 4 : programmation avancée, motifs de conception et projets.",
+      "preview": "TD 2 — Patrons observateur et stratégie en C++.",
+      "tags": [
+        "td",
+        "C++"
+      ],
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "m2-inf4-ex",
+      "title": "Épreuves / Examens — Informatique 4",
+      "subject": "informatique-4",
+      "level": "MSP2",
+      "type": "examens",
+      "premium": false,
+      "description": "Épreuves d'Informatique 4 des sessions récentes.",
+      "preview": "Session 2026 — Projet : mini-bibliothèque orientée objet.",
+      "tags": [
+        "examens",
+        "annales"
+      ],
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "m2-inf4-cor",
+      "title": "Corrections détaillées — Informatique 4",
+      "subject": "informatique-4",
+      "level": "MSP2",
+      "type": "corrections",
+      "premium": true,
+      "description": "Corrections commentées des TD et épreuves d'Informatique 4.",
+      "preview": "Corrigé projet — architecture en couches et tests unitaires.",
+      "tags": [
+        "corrections",
+        "protégé"
+      ],
+      "createdAt": 1788887606298
     }
   ],
   "requests": [
     {
       "id": "req-0001",
       "userId": "u-demo",
-      "resourceId": "res-03",
+      "resourceId": "m1-ar1-cor",
       "status": "approved",
-      "createdAt": 1788627715732,
-      "updatedAt": 1788714115732
+      "createdAt": 1788628406297,
+      "updatedAt": 1788714806297
     },
     {
       "id": "req-0002",
       "userId": "u-demo",
-      "resourceId": "res-05",
+      "resourceId": "m1-ar2-cor",
       "status": "pending",
-      "createdAt": 1788868915732,
-      "updatedAt": 1788868915732
+      "createdAt": 1788869606297,
+      "updatedAt": 1788869606297
     }
   ],
   "sessions": [
     {
-      "token": "0d0a06b674ce3f2a5d9f1c3429d012fea9807a765d569cc7",
+      "token": "3cb7362f1cb7bbcfa422cce53dff7c9bac6c8f1b41eb0059",
       "userId": "u-demo",
-      "expiresAt": 1789491742477
+      "expiresAt": 1789492432332
     }
   ],
   "announcements": [
     {
       "id": "a-1",
-      "title": "Session de révision intensive MSP1 — Octobre 2026",
-      "body": "Deux semaines de séances corrigées en direct (Analyse réelle 1 & Mécanique du point) organisées par le collectif. Places limitées : inscrivez-vous via WhatsApp.",
-      "date": "2026-09-01"
+      "title": "Séance de révision collective — Analyse réelle 1",
+      "date": "2026-09-12",
+      "body": "Samedi 14h, salle B12 : correction collective du TD 3 animée par les leaders de cadets. Ouvert à tous les MSP1."
     },
     {
       "id": "a-2",
-      "title": "Nouveaux sujets corrigés disponibles",
-      "body": "Les évaluations session 2026 (Analyse réelle 2, Informatique 2, Analyse complexe) viennent d'être ajoutées aux ressources premium.",
-      "date": "2026-08-24"
+      "title": "Nouvelles corrections MSP2 disponibles",
+      "date": "2026-09-02",
+      "body": "Les corrections détaillées de Séries intégrales, Électrocinétique et Thermodynamique (sessions 2026) sont en ligne : demandez l'accès via WhatsApp."
     },
     {
       "id": "a-3",
-      "title": "Recrutement ambassadeurs de promo",
-      "body": "Rejoignez l'équipe : un ambassadeur par filière pour relayer les besoins étudiants. Écrivez-nous sur WhatsApp avec votre nom et votre filière.",
-      "date": "2026-08-10"
+      "title": "Formations VIP — cohorte d'octobre",
+      "date": "2026-08-28",
+      "body": "Intelligence artificielle, leadership et gestion de projet : les inscriptions de la cohorte d'octobre sont ouvertes via WhatsApp."
+    }
+  ],
+  "formations": [
+    {
+      "id": "vip-ia",
+      "title": "Intelligence artificielle",
+      "level": "Intermédiaire",
+      "description": "Comprendre et utiliser l'IA : fondamentaux du machine learning, prompt engineering professionnel et outils IA pour l'ingénieur.",
+      "preview": "Module 1 — Panorama de l'IA moderne\nModule 2 — Prompt engineering pour les études et le travail\nModule 3 — Construire un premier modèle supervisé",
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "vip-prog",
+      "title": "Programmation",
+      "level": "Débutant à avancé",
+      "description": "Du C au C++ moderne et à Python : algorithmique robuste, structures de données et bonnes pratiques professionnelles.",
+      "preview": "Module 1 — C avancé (pointeurs, mémoire)\nModule 2 — C++ moderne et STL\nModule 3 — Python pour l'ingénieur",
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "vip-info",
+      "title": "Informatique",
+      "level": "Débutant",
+      "description": "Culture numérique essentielle : système, réseaux, sécurité personnelle et outils de productivité de l'étudiant ingénieur.",
+      "preview": "Module 1 — Système et fichiers\nModule 2 — Réseaux et sécurité de base\nModule 3 — Outils collaboratifs",
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "vip-bureautique",
+      "title": "Bureautique professionnelle",
+      "level": "Débutant",
+      "description": "Word, Excel, PowerPoint et rapports techniques : mettre en forme des documents d'ingénieur impeccables.",
+      "preview": "Module 1 — Excel : formules et tableaux croisés\nModule 2 — Rapports Word normés\nModule 3 — Présentations qui convainquent",
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "vip-design",
+      "title": "Design intelligent",
+      "level": "Intermédiaire",
+      "description": "Design graphique orienté communication : identité visuelle, affiches professionnelles et contenu de marque.",
+      "preview": "Module 1 — Fondamentaux de la composition\nModule 2 — Couleur et typographie\nModule 3 — Créer une identité de projet",
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "vip-leadership",
+      "title": "Leadership",
+      "level": "Tous niveaux",
+      "description": "Posture de leader : décision, responsabilité, motivation d'équipe et gestion des conflits, inspiré des certifications Coursera.",
+      "preview": "Module 1 — Se leader soi-même\nModule 2 — Communiquer en leader\nModule 3 — Conduire une équipe projet",
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "vip-communication",
+      "title": "Communication",
+      "level": "Tous niveaux",
+      "description": "Prise de parole, écrits professionnels et communication digitale : faire valoir ses idées avec clarté.",
+      "preview": "Module 1 — Structurer un message\nModule 2 — Parler en public\nModule 3 — Communication digitale",
+      "createdAt": 1788887606298
+    },
+    {
+      "id": "vip-gestion",
+      "title": "Gestion de projet",
+      "level": "Intermédiaire",
+      "description": "Cadrage, planification, budget et risques : les méthodes des chefs de projet appliquées aux projets étudiants.",
+      "preview": "Module 1 — Cadrer et planifier\nModule 2 — Suivre et piloter\nModule 3 — Clôturer et capitaliser",
+      "createdAt": 1788887606298
     }
   ]
 }

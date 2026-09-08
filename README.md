@@ -35,25 +35,30 @@ src/
 ├── components/
 │   ├── three-hero.tsx        # Scène Three.js : particules + solides wireframe
 │   ├── logo3d.tsx            # Logo flottant, halo pulsé, inclinaison souris
-│   ├── hero.tsx              # Hero + pont SVG animé (pathLength whileInView)
-│   ├── layout.tsx            # Navbar glass, transitions AnimatePresence, footer
-│   ├── library.tsx           # Bibliothèque : recherche + filtres matière/niveau
-│   ├── admin.tsx             # Console : CRUD ressources, users, demandes
+│   ├── hero.tsx              # Hero + pont SVG + bras robotique animé
+│   ├── layout.tsx            # Navbar glass, transitions, thème clair/sombre, footer
+│   ├── msp-space.tsx         # MSP1/MSP2 : UE officielles → TD / Examens / Corrections
+│   ├── correction-form.tsx   # « Demander l'accès à la correction » → WhatsApp
+│   ├── vip.tsx               # Cartes formations VIP + accès via WhatsApp
+│   ├── admin.tsx             # Console : docs, TD, examens, corrections, VIP, users
 │   └── …
 └── app/
-    ├── page.tsx              # Accueil spectaculaire (10 sections)
+    ├── page.tsx              # Accueil : slogan, mission, vision, valeurs, pourquoi
+    ├── msp1 / msp2           # Programmes officiels semestres 1 & 2
+    ├── vip                   # RÉUSSIR POLYTECH VIP (8 formations)
+    ├── entrepreneur          # Ressources entrepreneur (4 piliers, projets…)
+    ├── a-propos              # L'équipe officielle (13 membres, photos auto-détectées)
+    ├── confidentialite       # Politique de confidentialité
     ├── login / register      # Auth email OU téléphone + mot de passe
-    ├── dashboard             # Espace étudiant (profil, demandes, documents)
-    ├── library               # Bibliothèque numérique intelligente
-    ├── resource/[id]         # Détail + aperçu réel du document
-    ├── purchase/[id]         # Flux WhatsApp / Orange Money (5 étapes)
-    ├── msp1 / msp2           # Espaces de niveau (programme + parcours docs)
-    ├── entrepreneur          # Espace startup (projets, conseils, opportunités)
-    ├── founders              # Portraits + parcours au survol
+    ├── dashboard             # Espace étudiant (ressources, historique, docs, notifs)
     ├── study                 # Planificateur de révisions + progression
     ├── admin                 # Console administrateur sécurisée
-    └── api/…                 # auth, requests, admin/*, progress, download
+    └── api/…                 # auth, requests, admin/* (docs + formations), progress, download
 ```
+
+> **Photos de l'équipe** : déposez les portraits réels dans `public/equipe/<slug>.jpg`
+> (ex. `public/equipe/eugene-samuel-gwet.jpg`) — le site les affiche automatiquement
+> à la place des monogrammes.
 
 ## 3. Système d'accès premium (conforme au cahier des charges)
 

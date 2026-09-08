@@ -91,7 +91,7 @@ export default function DashboardPage() {
             </div>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               {myResources.slice(0, 6).map((r) => (
-                <Link key={r.id} href={`/resource/${r.id}`} className="group rounded-xl border border-white/10 bg-night-800/50 p-4 transition hover:border-gold-500/40 hover:bg-night-700/50">
+                <Link key={r.id} href={`/${r.level.toLowerCase()}#res-${r.subject}`} className="group rounded-xl border border-white/10 bg-night-800/50 p-4 transition hover:border-gold-500/40 hover:bg-night-700/50">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-gold-400"><SubjectIcon subject={subjectCat(r.subject)} className="h-5 w-5" /></span>
                     <Badge tone={r.premium ? "gold" : "green"}>{r.premium ? "Premium" : "Gratuit"}</Badge>

@@ -2,25 +2,30 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CATALOG, RES_TYPES, subjectCat, subjectLabel, typeLabel } from "@/config";
-import type { Level, PublicUser, PurchaseRequest, ResType, Resource } from "@/lib/types";
+import { RES_TYPES, CATALOG, subjectCat, subjectLabel, typeLabel } from "@/config";
+import type { Formation, Level, PublicUser, PurchaseRequest, ResType, Resource } from "@/lib/types";
 import { Badge, Btn, StatusChip, SubjectIcon } from "./ui";
 
 export type AdminRequest = PurchaseRequest & { userName: string; resourceTitle: string };
 
 const EMPTY: Omit<Resource, "id" | "createdAt"> = {
-  title: "", subject: "math", level: "MSP1", type: "cours", premium: false,
+  title: "", subject: "analyse-reelle-1", level: "MSP1", type: "td", premium: false,
   description: "", preview: "", tags: [],
 };
 
+const VIP_EMPTY: Omit<Formation, "id" | "createdAt"> = { title: "", level: "Débutant", description: "", preview: "" };
+
 export default function AdminPanel({
-  resources, users, requests,
-}: { resources: Resource[]; users: PublicUser[]; requests: AdminRequest[] }) {
+  resources, users, requests, formations,
+}: { resources: Resource[]; users: PublicUser[]; requests: AdminRequest[]; formations: Formation[] }) {
   const router = useRouter();
-  const [tab, setTab] = useState<"overview" | "resources" | "users" | "requests">("overview");
+  const [tab, setTab] = useState<"overview" | "resources" | "users" | "requests" | "vip">("overview");
   const [form, setForm] = useState(EMPTY);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [vipForm, setVipForm] = useState(VIP_EMPTY);
+  const [vipEditId, setVipEditId] = useState<string | null>(null);
+  const [showVipForm, setShowVipForm] = useState(false);
   const [msg, setMsg] = useState("");
 
   const refresh = () => router.refresh();
@@ -55,6 +60,25 @@ export default function AdminPanel({
     if (res.ok) { flash(status === "approved" ? "✓ Demande validée — document débloqué pour l'étudiant." : "Demande refusée."); refresh(); }
   };
 
+  const saveVip = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = await fetch(vipEditId ? `/api/admin/formations/${vipEditId}` : "/api/admin/formations", {
+      method: vipEditId ? "PATCH" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(vipForm),
+    });
+    if (res.ok) {
+      flash(vipEditId ? "✓ Formation modifiée." : "✓ Formation VIP publiée.");
+      setVipForm(VIP_EMPTY); setVipEditId(null); setShowVipForm(false); refresh();
+    } else flash("✕ " + ((await res.json()).error ?? "Erreur."));
+  };
+
+  const deleteVip = async (id: string) => {
+    if (!confirm("Supprimer cette formation VIP ?")) return;
+    const res = await fetch(`/api/admin/formations/${id}`, { method: "DELETE" });
+    if (res.ok) { flash("✓ Formation supprimée."); refresh(); }
+  };
+
   const pending = requests.filter((r) => r.status === "pending");
 
   const TABS = [
@@ -62,6 +86,7 @@ export default function AdminPanel({
     { id: "resources", label: `Ressources (${resources.length})` },
     { id: "users", label: `Utilisateurs (${users.length})` },
     { id: "requests", label: `Demandes (${pending.length} en attente)` },
+    { id: "vip", label: `Formations VIP (${formations.length})` },
   ] as const;
 
   return (
@@ -159,7 +184,7 @@ export default function AdminPanel({
                 <div className="flex items-end">
                   <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-night-800/60 px-4 py-3 text-sm font-semibold text-white/75">
                     <input type="checkbox" checked={form.premium} onChange={(e) => setForm({ ...form, premium: e.target.checked })} className="accent-gold-500" />
-                    ★ Premium
+                    ★ Protégé (accès via demande WhatsApp)
                   </label>
                 </div>
               </div>
@@ -221,6 +246,56 @@ export default function AdminPanel({
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* FORMATIONS VIP */}
+      {tab === "vip" && (
+        <div className="mt-8">
+          <div className="flex justify-end">
+            <Btn onClick={() => { setShowVipForm((s) => !s); setVipEditId(null); setVipForm(VIP_EMPTY); }} variant={showVipForm ? "ghost" : "gold"}>
+              {showVipForm ? "Fermer le formulaire" : "+ Nouvelle formation"}
+            </Btn>
+          </div>
+          {showVipForm && (
+            <form onSubmit={saveVip} className="glass mt-5 space-y-5 p-7">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="label">Titre de la formation</label>
+                  <input className="input" value={vipForm.title} onChange={(e) => setVipForm({ ...vipForm, title: e.target.value })} required placeholder="Ex. : Intelligence artificielle" />
+                </div>
+                <div>
+                  <label className="label">Niveau</label>
+                  <input className="input" value={vipForm.level} onChange={(e) => setVipForm({ ...vipForm, level: e.target.value })} required placeholder="Débutant / Intermédiaire / Avancé" />
+                </div>
+              </div>
+              <div>
+                <label className="label">Présentation</label>
+                <textarea className="input min-h-[80px]" value={vipForm.description} onChange={(e) => setVipForm({ ...vipForm, description: e.target.value })} required />
+              </div>
+              <div>
+                <label className="label">Aperçu (modules)</label>
+                <textarea className="input min-h-[80px] font-mono text-xs" value={vipForm.preview} onChange={(e) => setVipForm({ ...vipForm, preview: e.target.value })} required />
+              </div>
+              <Btn type="submit">{vipEditId ? "Enregistrer les modifications" : "Publier la formation"}</Btn>
+            </form>
+          )}
+          <div className="mt-6 space-y-3">
+            {formations.map((f) => (
+              <div key={f.id} className="glass flex flex-wrap items-center gap-4 p-5">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold-grad font-display font-bold text-night-950">V</span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-white/85">{f.title}</p>
+                  <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest2 text-gold-400">Niveau : {f.level}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => { setVipEditId(f.id); setVipForm({ title: f.title, level: f.level, description: f.description, preview: f.preview }); setShowVipForm(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/70 transition hover:border-gold-500/50 hover:text-gold-300">Modifier</button>
+                  <button onClick={() => deleteVip(f.id)} className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/70 transition hover:border-rose-500/50 hover:text-rose-300">Supprimer</button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

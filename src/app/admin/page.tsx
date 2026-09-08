@@ -35,7 +35,7 @@ export default function AdminPage() {
         </p>
       </div>
       <div className="relative mt-10">
-        <AdminPanel resources={db.resources} users={db.users.map(toPublic)} requests={requests} />
+        <AdminPanel resources={db.resources} users={db.users.map(toPublic)} requests={requests} formations={db.formations} />
       </div>
     </main>
   );
