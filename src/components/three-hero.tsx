@@ -29,8 +29,8 @@ export default function ThreeHero() {
     const COUNT = 1100;
     const positions = new Float32Array(COUNT * 3);
     const colors = new Float32Array(COUNT * 3);
-    const gold = new THREE.Color(0xe3a82b);
-    const blue = new THREE.Color(0x3d6ea8);
+    const choices = new Uint8Array(COUNT);
+    const fades = new Float32Array(COUNT);
     for (let i = 0; i < COUNT; i++) {
       const r = 8 + Math.random() * 14;
       const theta = Math.random() * Math.PI * 2;
@@ -38,15 +38,11 @@ export default function ThreeHero() {
       positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       positions[i * 3 + 1] = (Math.random() - 0.5) * 14;
       positions[i * 3 + 2] = r * Math.cos(phi) * 0.6 - 4;
-      const c = Math.random() > 0.62 ? gold : blue;
-      const fade = 0.35 + Math.random() * 0.65;
-      colors[i * 3] = c.r * fade;
-      colors[i * 3 + 1] = c.g * fade;
-      colors[i * 3 + 2] = c.b * fade;
+      choices[i] = Math.random() > 0.62 ? 1 : 0;
+      fades[i] = 0.35 + Math.random() * 0.65;
     }
     const pGeo = new THREE.BufferGeometry();
     pGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    pGeo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     const pMat = new THREE.PointsMaterial({
       size: 0.05,
       vertexColors: true,
@@ -75,6 +71,33 @@ export default function ThreeHero() {
     );
     ring.rotation.x = Math.PI / 2.35;
     group.add(ico, knot, ring);
+
+    // --- Adaptation au thème (sombre / clair) ---
+    const colorAttr = new THREE.BufferAttribute(colors, 3);
+    pGeo.setAttribute("color", colorAttr);
+    const applyTheme = () => {
+      const light = typeof document !== "undefined" && document.documentElement.classList.contains("light");
+      const gold = new THREE.Color(light ? 0xb07a08 : 0xe3a82b);
+      const blue = new THREE.Color(light ? 0x16375f : 0x3d6ea8);
+      for (let i = 0; i < COUNT; i++) {
+        const c = choices[i] ? gold : blue;
+        const f = light ? 0.55 + fades[i] * 0.45 : fades[i];
+        colors[i * 3] = c.r * f;
+        colors[i * 3 + 1] = c.g * f;
+        colors[i * 3 + 2] = c.b * f;
+      }
+      colorAttr.needsUpdate = true;
+      pMat.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+      pMat.opacity = light ? 0.5 : 0.85;
+      pMat.needsUpdate = true;
+      (ico.material as THREE.MeshBasicMaterial).opacity = light ? 0.32 : 0.22;
+      (knot.material as THREE.MeshBasicMaterial).opacity = light ? 0.26 : 0.16;
+      (ring.material as THREE.MeshBasicMaterial).opacity = light ? 0.55 : 0.35;
+      (ring.material as THREE.MeshBasicMaterial).color.set(light ? 0xc4880a : 0xf3d07e);
+      if (scene.fog) (scene.fog as THREE.FogExp2).color.set(light ? 0xf6f7fb : 0x030a16);
+    };
+    applyTheme();
+    window.addEventListener("rp-theme", applyTheme);
 
     // --- Souris ---
     let mx = 0;
@@ -127,6 +150,7 @@ export default function ThreeHero() {
       cancelAnimationFrame(raf);
       ro.disconnect();
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("rp-theme", applyTheme);
       pGeo.dispose();
       pMat.dispose();
       ico.geometry.dispose();

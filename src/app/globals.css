@@ -113,3 +113,101 @@ body {
 .mask-fade-b {
   mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, black 40%, transparent 100%);
 }
+
+/* =========================================================
+   MODE CLAIRE — remappage complet de la palette sombre
+   (activé par la classe .light sur <html>, bascule persistante)
+   ========================================================= */
+html.light {
+  color-scheme: light;
+}
+
+html.light body {
+  background-color: #f6f7fb;
+  background-image: radial-gradient(1100px 560px at 82% -10%, rgba(227, 168, 43, 0.12), transparent 60%),
+    radial-gradient(900px 500px at 8% 110%, rgba(16, 42, 76, 0.08), transparent 60%);
+  color: #0b1f3a;
+}
+
+/* --- Surfaces --- */
+html.light [class*="bg-night-950"] { background-color: rgba(246, 247, 251, 0.9) !important; }
+html.light [class*="bg-night-900"] { background-color: rgba(255, 255, 255, 0.92) !important; }
+html.light [class*="bg-night-800"] { background-color: rgba(255, 255, 255, 0.82) !important; }
+html.light [class*="bg-night-700"] { background-color: #edf0f7 !important; }
+html.light [class*="bg-night-600"] { background-color: #e2e7f1 !important; }
+html.light [class*="bg-night-500"] { background-color: #16375f !important; }
+html.light .glass {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(11, 31, 58, 0.12);
+  box-shadow: 0 18px 50px -30px rgba(11, 31, 58, 0.28);
+}
+html.light .glass-strong {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(196, 136, 10, 0.35);
+  box-shadow: 0 24px 60px -30px rgba(11, 31, 58, 0.25);
+}
+html.light .input {
+  background: #ffffff;
+  border-color: rgba(11, 31, 58, 0.18);
+  color: #0b1f3a;
+}
+html.light .input::placeholder { color: rgba(11, 31, 58, 0.4); }
+html.light select, html.light select option { color: #0b1f3a; background: #ffffff; }
+html.light .grid-bg {
+  background-image: linear-gradient(rgba(11, 31, 58, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11, 31, 58, 0.07) 1px, transparent 1px);
+}
+html.light ::-webkit-scrollbar-track { background: #edeff5; }
+
+/* --- Textes --- */
+html.light .text-white { color: #0b1f3a !important; }
+html.light [class*="text-white/8"] { color: rgba(11, 31, 58, 0.87) !important; }
+html.light [class*="text-white/7"] { color: rgba(11, 31, 58, 0.75) !important; }
+html.light [class*="text-white/6"] { color: rgba(11, 31, 58, 0.66) !important; }
+html.light [class*="text-white/5"] { color: rgba(11, 31, 58, 0.58) !important; }
+html.light [class*="text-white/4"] { color: rgba(11, 31, 58, 0.5) !important; }
+html.light [class*="text-white/3"] { color: rgba(11, 31, 58, 0.42) !important; }
+html.light [class*="text-white/2"] { color: rgba(11, 31, 58, 0.3) !important; }
+
+/* --- Or & accents (versions lisibles sur fond blanc) --- */
+html.light [class*="text-gold-200"] { color: #7a5404 !important; }
+html.light [class*="text-gold-300"] { color: #8f6405 !important; }
+html.light [class*="text-gold-400"] { color: #a97407 !important; }
+html.light [class*="text-gold-500"] { color: #b07a08 !important; }
+html.light [class*="text-gold-300/"] { color: rgba(143, 100, 5, 0.55) !important; }
+html.light [class*="text-gold-500/5"] { color: rgba(154, 107, 6, 0.6) !important; }
+html.light [class*="text-gold-500/1"] { color: rgba(154, 107, 6, 0.16) !important; }
+html.light [class*="text-sky-300"] { color: #075985 !important; }
+html.light [class*="text-sky-400"] { color: #0369a1 !important; }
+html.light [class*="text-sky-400/1"] { color: rgba(3, 105, 161, 0.13) !important; }
+html.light [class*="text-emerald-3"] { color: #047857 !important; }
+html.light [class*="text-rose-3"] { color: #be123c !important; }
+html.light .gold-text { background-image: linear-gradient(90deg, #8f6405, #c4880a 50%, #9a6b06); }
+html.light .blue-text { background-image: linear-gradient(90deg, #075985, #0369a1 50%, #16375f); }
+html.light .shimmer-text {
+  background-image: linear-gradient(110deg, #c4880a 20%, #7a5404 40%, #e3a82b 60%, #c4880a 80%);
+}
+html.light .logo-glow {
+  animation: none;
+  filter: drop-shadow(0 10px 26px rgba(196, 136, 10, 0.3));
+}
+html.light .eq { color: rgba(154, 107, 6, 0.5); }
+
+/* --- Bordures & dégradés --- */
+html.light [class*="border-white/"] { border-color: rgba(11, 31, 58, 0.16) !important; }
+html.light [class*="from-night-9"] { --tw-gradient-from: #f6f7fb !important; }
+html.light [class*="from-night-7"] { --tw-gradient-from: #ffffff !important; }
+html.light [class*="via-night-8"] { --tw-gradient-via: #fafbfd !important; }
+html.light [class*="to-night-9"] { --tw-gradient-to: #eff2f8 !important; }
+html.light [class*="to-night-6"] { --tw-gradient-to: #e2e7f1 !important; }
+html.light [class*="to-[#2a1f04]"] { --tw-gradient-to: #f6edd8 !important; }
+
+/* --- Îlots volontairement sombres (photos, overlays) --- */
+html.light .theme-dark-lock,
+html.light .theme-dark-lock .text-white { color: #ffffff !important; }
+html.light .theme-dark-lock [class*="text-white"] { color: #ffffff !important; }
+html.light .theme-dark-lock [class*="text-gold-4"] { color: #ebbb4e !important; }
+html.light .theme-dark-lock [class*="text-gold-3"] { color: #f3d07e !important; }
+html.light .theme-dark-lock [class*="bg-night-9"] { background-color: rgba(3, 10, 22, 0.93) !important; }
+html.light .theme-dark-lock [class*="from-night-9"] { --tw-gradient-from: #030a16 !important; }
+html.light .theme-dark-lock [class*="via-night-9"] { --tw-gradient-via: rgba(3, 10, 22, 0.3) !important; }

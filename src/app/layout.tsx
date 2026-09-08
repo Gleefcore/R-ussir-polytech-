@@ -24,6 +24,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className="min-h-screen">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('rp-theme')==='light')document.documentElement.classList.add('light')}catch(e){}`,
+          }}
+        />
         <Navbar user={user ? toPublic(user) : null} />
         <Providers>{children}</Providers>
         <Footer />

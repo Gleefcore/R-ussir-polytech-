@@ -498,6 +498,11 @@
       "token": "e56f58bb3a40f5833e6250f103d26605114526fa8e0a51f1",
       "userId": "u-demo",
       "expiresAt": 1789264707889
+    },
+    {
+      "token": "5c25e416d6e65354e0b88e6d0d9c98ecc72196fe2311f4e9",
+      "userId": "u-demo",
+      "expiresAt": 1789486072404
     }
   ],
   "announcements": [

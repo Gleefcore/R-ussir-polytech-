@@ -18,6 +18,41 @@ const LINKS = [
   { href: "/study", label: "Espace étude" },
 ];
 
+export function ThemeToggle({ className = "" }: { className?: string }) {
+  const [light, setLight] = useState(false);
+  useEffect(() => {
+    const sync = () => setLight(document.documentElement.classList.contains("light"));
+    sync();
+    window.addEventListener("rp-theme", sync);
+    return () => window.removeEventListener("rp-theme", sync);
+  }, []);
+  const toggle = () => {
+    const next = !light;
+    document.documentElement.classList.toggle("light", next);
+    try { localStorage.setItem("rp-theme", next ? "light" : "dark"); } catch { /* privé */ }
+    window.dispatchEvent(new Event("rp-theme"));
+  };
+  return (
+    <button
+      onClick={toggle}
+      aria-label={light ? "Activer le mode sombre" : "Activer le mode clair"}
+      title={light ? "Mode sombre" : "Mode clair"}
+      className={`flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-gold-400 transition hover:border-gold-500/50 hover:text-gold-300 ${className}`}
+    >
+      {light ? (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" strokeLinecap="round" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 function LogoutBtn() {
   const router = useRouter();
   return (
@@ -76,6 +111,7 @@ export function Navbar({ user }: { user: PublicUser | null }) {
         </div>
 
         <div className="hidden items-center gap-3 lg:flex">
+          <ThemeToggle />
           {user ? (
             <>
               {user.role === "admin" && (
@@ -126,6 +162,7 @@ export function Navbar({ user }: { user: PublicUser | null }) {
                 </Link>
               ))}
               <div className="flex gap-3 pt-3">
+                <ThemeToggle className="!w-12 shrink-0" />
                 {user ? (
                   <>
                     <Btn href="/dashboard" variant="outline" className="flex-1 !py-2.5 text-xs">Mon espace</Btn>

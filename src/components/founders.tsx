@@ -20,7 +20,7 @@ export default function FoundersGrid() {
           onMouseLeave={() => setActive(null)}
           className="glass group relative cursor-pointer overflow-hidden shadow-card transition-colors duration-500 hover:border-gold-500/40"
         >
-          <div className="relative h-80 overflow-hidden">
+          <div className="theme-dark-lock relative h-80 overflow-hidden">
             <img
               src={f.img}
               alt={`Portrait de ${f.name}`}
