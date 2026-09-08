@@ -123,13 +123,16 @@ export function StatusChip({ status }: { status: "pending" | "approved" | "rejec
 }
 
 export function SubjectIcon({ subject, className = "h-6 w-6" }: { subject: string; className?: string }) {
-  if (subject === "math")
+  const cat = typeof subject === "string" && ["math", "physique", "info", "chimie", "tech", "transversal"].includes(subject)
+    ? subject
+    : "transversal";
+  if (cat === "math")
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className={className}>
         <path d="M18 4H6l7 8-7 8h12" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
-  if (subject === "physique")
+  if (cat === "physique")
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" className={className}>
         <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
@@ -138,9 +141,29 @@ export function SubjectIcon({ subject, className = "h-6 w-6" }: { subject: strin
         <ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)" />
       </svg>
     );
+  if (cat === "info")
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className={className}>
+        <path d="M8 6 3 12l5 6M16 6l5 6-5 6M13.5 4l-3 16" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  if (cat === "chimie")
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className={className}>
+        <path d="M9 3h6M10 3v6l-5.5 9.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M7.5 15h9" strokeLinecap="round" />
+      </svg>
+    );
+  if (cat === "tech")
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className={className}>
+        <path d="M3 21 14 10M14 10l3.5 3.5L21 10l-7-7-3.5 3.5L14 10ZM3 21h6M3 21v-6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className={className}>
-      <path d="M8 6 3 12l5 6M16 6l5 6-5 6M13.5 4l-3 16" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3Z" />
     </svg>
   );
 }

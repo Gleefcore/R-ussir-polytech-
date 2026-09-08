@@ -82,7 +82,7 @@ export default function Hero() {
           className="mt-10 flex flex-wrap items-center justify-center gap-3"
         >
           <Btn href="/register">Commencer maintenant →</Btn>
-          <Btn href="/library" variant="outline">Explorer les ressources</Btn>
+          <Btn href="/msp1" variant="outline">Explorer les ressources</Btn>
           <Btn href="/msp1" variant="ghost">Découvrir MSP1</Btn>
           <Btn href="/msp2" variant="ghost">Découvrir MSP2</Btn>
         </motion.div>

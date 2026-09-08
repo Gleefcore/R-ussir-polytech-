@@ -1,12 +1,12 @@
 export type Level = "MSP1" | "MSP2";
-export type Subject = "math" | "physique" | "info";
 export type ResType = "cours" | "td" | "exercices" | "tp" | "examens";
 export type Role = "student" | "admin";
 export type RequestStatus = "pending" | "approved" | "rejected";
 
 export interface StudyItem {
   id: string;
-  subject: Subject;
+  /** catégorie officielle (math, physique, info, chimie, tech, transversal) */
+  subject: string;
   topic: string;
   done: boolean;
 }
@@ -30,7 +30,8 @@ export type PublicUser = Omit<User, "passHash" | "passSalt">;
 export interface Resource {
   id: string;
   title: string;
-  subject: Subject;
+  /** id de matière du catalogue officiel (config.CATALOG) */
+  subject: string;
   level: Level;
   type: ResType;
   premium: boolean;

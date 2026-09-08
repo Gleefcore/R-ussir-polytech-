@@ -38,7 +38,7 @@ export default function FoundersPage() {
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Btn href="/register">Rejoindre l'aventure</Btn>
-              <Btn href="/library" variant="ghost">Voir le résultat : la bibliothèque</Btn>
+              <Btn href="/msp1" variant="ghost">Voir le résultat : le programme MSP1</Btn>
             </div>
           </div>
         </Reveal>

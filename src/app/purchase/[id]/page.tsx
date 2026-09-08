@@ -32,7 +32,7 @@ export default function PurchasePage({ params }: { params: { id: string } }) {
       <CircuitBand className="pointer-events-none absolute inset-x-0 bottom-0 h-20 w-full opacity-30" />
       <div className="relative mx-auto max-w-5xl">
         <nav className="flex items-center gap-2 font-mono text-xs text-white/40">
-          <Link href="/library" className="hover:text-gold-300">Bibliothèque</Link><span>/</span>
+          <Link href={`/${resource.level.toLowerCase()}`} className="hover:text-gold-300">Espace {resource.level}</Link><span>/</span>
           <Link href={`/resource/${resource.id}`} className="hover:text-gold-300 line-clamp-1">{resource.title}</Link><span>/</span>
           <span className="text-gold-300">Obtenir</span>
         </nav>

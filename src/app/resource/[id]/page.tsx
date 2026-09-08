@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Badge, Btn, SubjectIcon } from "@/components/ui";
 import { getSessionUser } from "@/lib/auth";
 import { getDB } from "@/lib/db";
-import { subjectLabel, typeLabel } from "@/config";
+import { subjectLabel, typeLabel, subjectCat } from "@/config";
 
 export function generateMetadata({ params }: { params: { id: string } }) {
   const r = getDB().resources.find((x) => x.id === params.id);
@@ -21,7 +21,7 @@ export default function ResourcePage({ params }: { params: { id: string } }) {
   return (
     <main className="relative mx-auto max-w-6xl px-6 pb-24 pt-32 md:px-8">
       <nav className="flex items-center gap-2 font-mono text-xs text-white/40">
-        <Link href="/library" className="transition hover:text-gold-300">Bibliothèque</Link>
+        <Link href={`/${resource.level.toLowerCase()}`} className="transition hover:text-gold-300">Espace {resource.level}</Link>
         <span>/</span>
         <span className="text-white/60">{subjectLabel(resource.subject)}</span>
         <span>/</span>
@@ -32,7 +32,7 @@ export default function ResourcePage({ params }: { params: { id: string } }) {
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <span className="rounded-xl border border-gold-500/30 bg-gold-500/10 p-2.5 text-gold-400">
-              <SubjectIcon subject={resource.subject} className="h-6 w-6" />
+              <SubjectIcon subject={subjectCat(resource.subject)} className="h-6 w-6" />
             </span>
             <Badge tone="blue">{resource.level}</Badge>
             <Badge tone="white">{typeLabel(resource.type)}</Badge>
@@ -88,7 +88,7 @@ export default function ResourcePage({ params }: { params: { id: string } }) {
               ) : (
                 <Btn href={`/purchase/${resource.id}`} className="w-full">Obtenir cette ressource →</Btn>
               )}
-              <Btn href="/library" variant="ghost" className="w-full">Retour à la bibliothèque</Btn>
+              <Btn href={`/${resource.level.toLowerCase()}`} variant="ghost" className="w-full">Retour au programme {resource.level}</Btn>
             </div>
           </div>
 

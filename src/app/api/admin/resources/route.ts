@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { CATALOG } from "@/config";
 import { requireAdmin } from "@/lib/auth";
 import { getDB, save, uid } from "@/lib/db";
 import type { Resource } from "@/lib/types";
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
     const resource: Resource = {
       id: uid("res"),
       title,
-      subject: ["math", "physique", "info"].includes(b.subject) ? b.subject : "math",
+      subject: CATALOG.some((s) => s.id === b.subject) ? String(b.subject) : CATALOG[0].id,
       level: b.level === "MSP2" ? "MSP2" : "MSP1",
       type: ["cours", "td", "exercices", "tp", "examens"].includes(b.type) ? b.type : "cours",
       premium: !!b.premium,

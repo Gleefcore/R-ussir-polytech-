@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { RES_TYPES, SUBJECTS, subjectLabel, typeLabel } from "@/config";
-import type { Level, PublicUser, PurchaseRequest, ResType, Resource, Subject } from "@/lib/types";
+import { CATALOG, RES_TYPES, subjectCat, subjectLabel, typeLabel } from "@/config";
+import type { Level, PublicUser, PurchaseRequest, ResType, Resource } from "@/lib/types";
 import { Badge, Btn, StatusChip, SubjectIcon } from "./ui";
 
 export type AdminRequest = PurchaseRequest & { userName: string; resourceTitle: string };
@@ -125,9 +125,23 @@ export default function AdminPanel({
               </div>
               <div className="grid gap-4 sm:grid-cols-4">
                 <div>
-                  <label className="label">Matière</label>
-                  <select className="input" value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value as Subject })}>
-                    {SUBJECTS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                  <label className="label">Matière officielle</label>
+                  <select className="input" value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })}>
+                    <optgroup label="MSP1 — Semestre 1">
+                      {CATALOG.filter((s) => s.level === "MSP1" && (s.semester === "S1" || s.semester === "both")).map((s) => (
+                        <option key={s.id} value={s.id}>{s.label}</option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="MSP1 — Semestre 2">
+                      {CATALOG.filter((s) => s.level === "MSP1" && (s.semester === "S2" || s.semester === "both")).map((s) => (
+                        <option key={s.id} value={s.id}>{s.label}</option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="MSP2 — Spécialités">
+                      {CATALOG.filter((s) => s.level === "MSP2").map((s) => (
+                        <option key={s.id} value={s.id}>{s.label}</option>
+                      ))}
+                    </optgroup>
                   </select>
                 </div>
                 <div>
@@ -168,7 +182,7 @@ export default function AdminPanel({
           <div className="mt-6 space-y-3">
             {resources.map((r) => (
               <div key={r.id} className="glass flex flex-wrap items-center gap-4 p-5">
-                <SubjectIcon subject={r.subject} className="h-5 w-5 shrink-0 text-gold-400" />
+                <SubjectIcon subject={subjectCat(r.subject)} className="h-5 w-5 shrink-0 text-gold-400" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-white/85">{r.title}</p>
                   <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest2 text-white/40">

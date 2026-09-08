@@ -5,11 +5,11 @@
       "name": "Administration RÉUSSIR POLYTECH",
       "email": "admin@reussirpolytech.com",
       "phone": "672356441",
-      "passHash": "b1daea0129bb59a87b9d00e9434dbe5bac16fb55bd284921591aecf08589e0bc",
-      "passSalt": "7e63c4ba9dcd86dd",
+      "passHash": "7b731dfdc611cc1562de48fbe96fdb0b4dac71d8950143212745c31ba8141000",
+      "passSalt": "e6388a1748aeba1a",
       "level": "MSP2",
       "role": "admin",
-      "createdAt": 1788659820426,
+      "createdAt": 1788886915732,
       "unlocked": [],
       "study": []
     },
@@ -18,20 +18,19 @@
       "name": "Étudiant Démo",
       "email": "etudiant@demo.rp",
       "phone": "699000000",
-      "passHash": "1868c3955a1df789da4826e5155f65f1e11f89c7ceb7c68c9b121f9d140228eb",
-      "passSalt": "4a354fe0e5c04330",
+      "passHash": "8035c91a11082aa90bf94a0937ffeeb5eb6f8bbc0eda8f5508ef01545d4f6394",
+      "passSalt": "9cc5142ece1e2962",
       "level": "MSP1",
       "role": "student",
-      "createdAt": 1788659820426,
+      "createdAt": 1788886915732,
       "unlocked": [
-        "res-03",
-        "res-09"
+        "res-03"
       ],
       "study": [
         {
           "id": "s-1",
           "subject": "math",
-          "topic": "Revoir le chapitre limites & continuité",
+          "topic": "Revoir le chapitre limites & continuité (Analyse réelle 1)",
           "done": true
         },
         {
@@ -45,12 +44,6 @@
           "subject": "info",
           "topic": "Refaire le TP tableaux pointeurs en C",
           "done": false
-        },
-        {
-          "id": "s-mtp5vvh0grett",
-          "subject": "info",
-          "topic": "Test curl",
-          "done": false
         }
       ]
     }
@@ -58,88 +51,408 @@
   "resources": [
     {
       "id": "res-01",
-      "title": "Analyse I — Cours complet (limites, continuité, dérivabilité)",
-      "subject": "math",
+      "title": "Analyse réelle 1 — Cours complet (limites, continuité, dérivabilité)",
+      "subject": "analyse-reelle-1",
       "level": "MSP1",
       "type": "cours",
       "premium": false,
-      "description": "Cours fondamental d'analyse pour la première année : limites, continuité, dérivabilité et développements limités, avec démonstrations rigoureuses et exemples issus des amphithéâtres de l'ENSPY.",
+      "description": "Le cours fondamental d'Analyse réelle 1 du semestre 1 : suites et limites réelles, continuité, dérivabilité et développements limités, avec démonstrations rigoureuses conformes au programme officiel MSP1.",
       "preview": "Chapitre 1 — Limites de suites\nDéfinition 1.1 (limite d'une suite). Soit (u_n) une suite réelle. On dit que u_n tend vers l quand, pour tout ε > 0, il existe N tel que n ≥ N implique |u_n − l| ≤ ε.\nThéorème 1.2 (gendarmes). Si u_n ≤ v_n ≤ w_n à partir d'un rang et si u_n, w_n → l, alors v_n → l.",
       "tags": [
         "analyse",
         "limites",
         "dérivabilité"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
       "id": "res-02",
-      "title": "Algèbre linéaire — Cours & applications",
-      "subject": "math",
+      "title": "Algèbre Générale — Cours & applications",
+      "subject": "algebre-generale",
       "level": "MSP1",
       "type": "cours",
       "premium": false,
-      "description": "Espaces vectoriels, applications linéaires, matrices, déterminants et réduction : le cours complet avec exercices d'application progressifs.",
-      "preview": "Chapitre 3 — Matrices et systèmes\nDéfinition. Une matrice A ∈ M_n(K) est inversible s'il existe B telle que AB = BA = I_n.\nMéthode du pivot de Gauss : complexité O(n³), stabilité numérique discutée en TD.",
+      "description": "Cours officiel d'Algèbre Générale (semestre 1) : structures algébriques, groupes, anneaux, corps et arithmétique des entiers, avec exercices d'application progressifs.",
+      "preview": "Chapitre 2 — Groupes\nDéfinition. (G, ∗) est un groupe si ∗ est associative, admet un élément neutre e et si tout élément admet un symétrique.\nExemple. (ℤ/nℤ, +) est un groupe commutatif d'ordre n.",
       "tags": [
         "algèbre",
-        "matrices",
-        "espaces vectoriels"
+        "groupes",
+        "arithmétique"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
       "id": "res-03",
-      "title": "TD Analyse I — Corrigé détaillé",
-      "subject": "math",
+      "title": "Analyse réelle 1 — TD corrigé détaillé",
+      "subject": "analyse-reelle-1",
       "level": "MSP1",
       "type": "td",
       "premium": true,
-      "description": "Le TD officiel d'analyse avec correction rédigée pas à pas : raisonnements ε-δ, théorèmes de comparaison, études de fonctions complètes.",
-      "preview": "Exercice 2 — Corrigé\nOn montre que u_{n+1} = √(2 + u_n) est croissante et majorée par 2, donc convergente.\nLa limite l vérifie l = √(2 + l) d'où l² − l − 2 = 0 et l = 2 (l = −1 rejetée).",
+      "description": "Le TD officiel d'Analyse réelle 1 avec correction rédigée pas à pas : raisonnements ε-δ, théorèmes de comparaison, études de fonctions complètes.",
+      "preview": "Exercice 2 — Corrigé\nOn montre que u_{n+1} = sqrt(2 + u_n) est croissante et majorée par 2, donc convergente.\nLa limite l vérifie l = sqrt(2 + l) d'où l² − l − 2 = 0 et l = 2 (l = −1 rejetée).",
       "tags": [
         "td",
         "corrigé",
         "analyse"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
       "id": "res-04",
-      "title": "Exercices corrigés — Intégrales et primitives",
-      "subject": "math",
+      "title": "Analyse réelle 1 — Exercices corrigés (intégrales et primitives)",
+      "subject": "analyse-reelle-1",
       "level": "MSP1",
       "type": "exercices",
       "premium": false,
-      "description": "Une banque de 40 exercices progressifs sur les primitives et intégrales, tous corrigés avec les techniques clés : IPP, changement de variable, décomposition en éléments simples.",
-      "preview": "Exercice 12 — ∫ x·eˣ dx\nIntégration par parties : u = x, dv = eˣ dx ⇒ ∫ x eˣ dx = x eˣ − eˣ + C.\nAstuce RP : toujours tabuler les IPP itérées.",
+      "description": "Une banque de 40 exercices progressifs sur les primitives et intégrales d'Analyse réelle 1, tous corrigés avec les techniques clés : IPP, changement de variable, décomposition en éléments simples.",
+      "preview": "Exercice 12 — ∫ x·eˣ dx\nIntégration par parties : u = x, dv = eˣ dx ⇒ ∫ x e dx = x eˣ − eˣ + C.\nAstuce RP : toujours tabuler les IPP itérées.",
       "tags": [
         "intégrales",
         "primitives",
         "exercices"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
       "id": "res-05",
-      "title": "Sujet d'examen Mathématiques MSP1 — Session 2025 (corrigé)",
-      "subject": "math",
+      "title": "Examen Analyse réelle 1 — Session 2025 (corrigé)",
+      "subject": "analyse-reelle-1",
       "level": "MSP1",
       "type": "examens",
       "premium": true,
-      "description": "Le sujet réel de l'évaluation de mathématiques MSP1, session 2025, avec barème et correction complète rédigée par le collectif.",
-      "preview": "Problème 1 (8 points) — Étude de la suite u_{n+1} = (u_n² + 2)/(2u_n)\n1. Montrer que u_n > √2 pour n ≥ 1.\n2. Étudier la monotonie. 3. Conclure à la convergence et identifier la limite.",
+      "description": "Le sujet réel de l'évaluation d'Analyse réelle 1, session 2025, avec barème et correction complète rédigée par le collectif.",
+      "preview": "Problème 1 (8 points) — Étude de la suite u_{n+1} = (u_n² + 2)/(2u_n)\n1. Montrer que u_n > sqrt(2) pour n ≥ 1.\n2. Étudier la monotonie. 3. Conclure à la convergence et identifier la limite.",
       "tags": [
         "examen",
         "annales",
         "2025"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
-      "id": "res-06",
+      "id": "res-10",
+      "title": "Mécanique du point — Cours complet",
+      "subject": "mecanique-point",
+      "level": "MSP1",
+      "type": "cours",
+      "premium": false,
+      "description": "Cours officiel de Mécanique du point (semestre 1) : cinématique, dynamique newtonienne, énergie et moments, illustré par les systèmes classiques des TD de l'ENSPY.",
+      "preview": "Loi fondamentale : m·d²r/dt² = Σ F.\nÉnergie cinétique : Ec = ½ m v². Théorème de l'énergie cinétique : ΔEc = Σ W(F).",
+      "tags": [
+        "mécanique",
+        "newton",
+        "cinématique"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-11",
+      "title": "Mécanique du point — TD corrigé détaillé",
+      "subject": "mecanique-point",
+      "level": "MSP1",
+      "type": "td",
+      "premium": true,
+      "description": "Tous les exercices du TD de Mécanique du point corrigés : pendules, projectiles, frottements solides et fluides, avec schémas bilan soignés.",
+      "preview": "Exercice 4 — Projectile avec frottement fluide linéaire\nm dv/dt = mg − k v ⇒ v(t) = (mg/k)(1 − e^{−kt/m}) + v₀ e^{−kt/m}.",
+      "tags": [
+        "td",
+        "mécanique",
+        "corrigé"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-12",
+      "title": "Électromagnétisme 1 — Cours (électrostatique & magnétostatique)",
+      "subject": "electromagnetisme-1",
+      "level": "MSP1",
+      "type": "cours",
+      "premium": false,
+      "description": "Cours officiel d'Électromagnétisme 1 (semestre 1) : champs électrostatiques, potentiel, dipôles, magnétostatique et théorème d'Ampère, avec les démonstrations attendues en évaluation.",
+      "preview": "Théorème de Gauss : flux de E à travers une surface fermée = Q_int/ε₀.\nThéorème d'Ampère : circulation de B le long d'un contour = μ₀ I_enlacé.",
+      "tags": [
+        "électromagnétisme",
+        "gauss",
+        "ampère"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-13",
+      "title": "Examen Mécanique du point — Session 2025 (corrigé)",
+      "subject": "mecanique-point",
+      "level": "MSP1",
+      "type": "examens",
+      "premium": true,
+      "description": "Le sujet d'évaluation de Mécanique du point MSP1 avec correction complète et conseils de rédaction pour maximiser les points.",
+      "preview": "Problème 2 (7 points) — Pendule simple amorti\nθ'' + 2λθ' + ω₀²θ = 0. Régimes : pseudo-périodique, critique, apériodique.",
+      "tags": [
+        "examen",
+        "mécanique",
+        "annales"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-14",
+      "title": "TP Physique — Travaux pratiques guidés (mécanique & électricité)",
+      "subject": "tp-physique",
+      "level": "MSP1",
+      "type": "tp",
+      "premium": false,
+      "description": "Les séances de TP Physique du semestre 1 : protocoles, montages, traitement des incertitudes et modèles de comptes-rendus rédigés par le collectif.",
+      "preview": "TP 2 — Pendule simple : mesure de g\nT = 2π sqrt(L/g) ⇒ g = 4π²L/T².\nIncertitude-type : Δg/g = ΔL/L + 2ΔT/T.",
+      "tags": [
+        "tp",
+        "protocole",
+        "incertitudes"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-15",
+      "title": "Informatique 1 — Cours d'algorithmique & structures de données",
+      "subject": "informatique-1",
+      "level": "MSP1",
+      "type": "cours",
+      "premium": false,
+      "description": "Cours officiel d'Informatique 1 (semestre 1) : complexité, listes, piles, files, arbres et tris, avec analyses de complexité démontrées.",
+      "preview": "Complexité du tri fusion : T(n) = 2T(n/2) + O(n) ⇒ T(n) = O(n log n) (théorème maître).\nStructure file : enfiler/défiler en O(1).",
+      "tags": [
+        "algorithmique",
+        "complexité",
+        "tris"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-16",
+      "title": "Informatique 1 — TP guidés de programmation C",
+      "subject": "informatique-1",
+      "level": "MSP1",
+      "type": "tp",
+      "premium": false,
+      "description": "Six TP guidés en langage C conformes au programme d'Informatique 1 : pointeurs, tableaux dynamiques, fichiers et structures, avec code de référence commenté.",
+      "preview": "TP 3 — Allocation dynamique\nint *t = malloc(n * sizeof(int));\nif (!t) { fprintf(stderr, \"alloc\\n\"); exit(1); }\n/* ... */ free(t);",
+      "tags": [
+        "C",
+        "pointeurs",
+        "tp"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-17",
+      "title": "Informatique 1 — Exercices corrigés (récursivité & complexité)",
+      "subject": "informatique-1",
+      "level": "MSP1",
+      "type": "exercices",
+      "premium": true,
+      "description": "30 exercices corrigés d'Informatique 1 sur la récursivité, les récurrences et l'analyse de complexité, du niveau base au niveau examen.",
+      "preview": "Exercice 9 — Résoudre T(n) = T(n−1) + n, T(1) = 1.\nT(n) = Σ_{k=1..n} k = n(n+1)/2 ⇒ Θ(n²).",
+      "tags": [
+        "récursivité",
+        "complexité",
+        "exercices"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-18",
+      "title": "Éléments de Chimie — Cours (atome, liaison, solutions)",
+      "subject": "elements-chimie",
+      "level": "MSP1",
+      "type": "cours",
+      "premium": false,
+      "description": "Cours officiel d'Éléments de Chimie (semestre 1) : structure de l'atome, classification périodique, liaison chimique et chimie des solutions, avec exercices types.",
+      "preview": "Concentration molaire : C = n/V.\nLoi de dilution : C₁V₁ = C₂V₂.\npH = −log[H₃O⁺].",
+      "tags": [
+        "chimie",
+        "atome",
+        "solutions"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-19",
+      "title": "Examen Électromagnétisme 1 — Session 2025 (corrigé)",
+      "subject": "electromagnetisme-1",
+      "level": "MSP1",
+      "type": "examens",
+      "premium": true,
+      "description": "Sujet intégral de l'évaluation d'Électromagnétisme 1 avec correction barémée : applications du théorème de Gauss et calculs de champs.",
+      "preview": "Exercice 3 (5 points) — Champ créé par un plan infini uniformément chargé\nE = σ/(2ε₀), direction perpendiculaire au plan : démonstration par Gauss.",
+      "tags": [
+        "examen",
+        "électromagnétisme",
+        "annales"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-30",
+      "title": "Analyse réelle 2 — Cours complet (séries & fonctions de plusieurs variables)",
+      "subject": "analyse-reelle-2",
+      "level": "MSP1",
+      "type": "cours",
+      "premium": false,
+      "description": "Cours officiel d'Analyse réelle 2 (semestre 2) : séries numériques et séries de fonctions, calcul différentiel à plusieurs variables, avec démonstrations au programme.",
+      "preview": "Séries numériques : Σ u_n converge absolument ⇒ Σ u_n converge.\nDifférentielle : f(a+h) = f(a) + Df(a)·h + o(‖h‖).",
+      "tags": [
+        "séries",
+        "différentiel",
+        "analyse"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-31",
+      "title": "Algèbre linéaire — Cours & applications",
+      "subject": "algebre-lineaire",
+      "level": "MSP1",
+      "type": "cours",
+      "premium": false,
+      "description": "Cours officiel d'Algèbre linéaire (semestre 2) : espaces vectoriels, applications linéaires, matrices, déterminants et réduction d'endomorphismes.",
+      "preview": "Chapitre 3 — Matrices et systèmes\nDéfinition. Une matrice A ∈ M_n(K) est inversible s'il existe B telle que AB = BA = I_n.\nMéthode du pivot de Gauss : complexité O(n³).",
+      "tags": [
+        "algèbre",
+        "matrices",
+        "espaces vectoriels"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-32",
+      "title": "Géométrie euclidienne et affine — Cours",
+      "subject": "geometrie",
+      "level": "MSP1",
+      "type": "cours",
+      "premium": false,
+      "description": "Cours officiel de Géométrie euclidienne et affine (semestre 2) : espaces affines, espaces euclidiens, isométries et produits vectoriels, avec figures et exercices types.",
+      "preview": "Espace affine : E dirigé par un espace vectoriel V.\nProduit scalaire : ⟨x|y⟩ = ‖x‖‖y‖cosθ. Identité de polarisation.",
+      "tags": [
+        "géométrie",
+        "euclidien",
+        "affine"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-33",
+      "title": "Analyse réelle 2 — TD corrigé détaillé",
+      "subject": "analyse-reelle-2",
+      "level": "MSP1",
+      "type": "td",
+      "premium": true,
+      "description": "Correction complète du TD d'Analyse réelle 2 : convergence de séries, extrema liés et différentielles, rédigée pas à pas.",
+      "preview": "Exercice 5 — Nature de Σ 1/(n ln n)\nCritère de condensation de Cauchy : la série diverge (comparaison à l'intégrale de 1/x ln x).",
+      "tags": [
+        "td",
+        "séries",
+        "corrigé"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-34",
+      "title": "Électromagnétisme 2 — Cours (équations de Maxwell & ondes)",
+      "subject": "electromagnetisme-2",
+      "level": "MSP1",
+      "type": "cours",
+      "premium": false,
+      "description": "Cours officiel d'Électromagnétisme 2 (semestre 2) : régime variable, équations de Maxwell, propagation des ondes électromagnétiques et polarisation.",
+      "preview": "Équations de Maxwell : ∇·E = ρ/ε₀ ; ∇·B = 0 ; ∇×E = −∂B/∂t ; ∇×B = μ₀ J + μ₀ε₀ ∂E/t.\nOnde plane : E = E₀ e^{i(k·r − ωt)}.",
+      "tags": [
+        "maxwell",
+        "ondes",
+        "propagation"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-35",
+      "title": "Technologie et sciences des matériaux — Cours",
+      "subject": "technologie-materiaux",
+      "level": "MSP1",
+      "type": "cours",
+      "premium": false,
+      "description": "Cours officiel de Technologie et sciences des matériaux (semestre 2) : structure des matériaux, propriétés mécaniques, diagrammes de phases et choix des matériaux en ingénierie.",
+      "preview": "Contrainte : σ = F/S. Déformation : ε = ΔL/L.\nLoi de Hooke : σ = E·ε (domaine élastique).",
+      "tags": [
+        "matériaux",
+        "métallurgie",
+        "propriétés"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-36",
+      "title": "Informatique 2 — Cours de programmation C++ & POO",
+      "subject": "informatique-2",
+      "level": "MSP1",
+      "type": "cours",
+      "premium": false,
+      "description": "Cours officiel d'Informatique 2 (semestre 2) : passage du C au C++, classes, encapsulation, héritage et introduction au polymorphisme.",
+      "preview": "class Forme { public: virtual double aire() const = 0; virtual ~Forme() = default; };\nclass Cercle : public Forme { double r; public: double aire() const override { return M_PI*r*r; } };",
+      "tags": [
+        "C++",
+        "POO",
+        "classes"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-37",
+      "title": "Algèbre linéaire — Exercices corrigés (réduction & déterminants)",
+      "subject": "algebre-lineaire",
+      "level": "MSP1",
+      "type": "exercices",
+      "premium": true,
+      "description": "Banque d'exercices corrigés d'Algèbre linéaire : diagonalisation, polynôme caractéristique, déterminants et systèmes, niveau examen.",
+      "preview": "Exercice 8 — Diagonaliser A = [[4,1],[2,3]]\nPolynôme caractéristique : (4−λ)(3−λ)−2 = λ²−7λ+10 ⇒ λ = 2, 5. A est diagonalisable.",
+      "tags": [
+        "réduction",
+        "déterminants",
+        "exercices"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-38",
+      "title": "Examen Analyse réelle 2 — Session 2026 (corrigé)",
+      "subject": "analyse-reelle-2",
+      "level": "MSP1",
+      "type": "examens",
+      "premium": true,
+      "description": "Sujet intégral de l'évaluation d'Analyse réelle 2, session 2026, avec barème officiel reconstitué et correction rédigée.",
+      "preview": "Exercice 3 (6 points) — Rayon de convergence de Σ (n²/3ⁿ) xⁿ\nRègle de d'Alembert : R = 3.",
+      "tags": [
+        "examen",
+        "annales",
+        "2026"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-39",
+      "title": "Examen Informatique 2 — Session 2026 (corrigé)",
+      "subject": "informatique-2",
+      "level": "MSP1",
+      "type": "examens",
+      "premium": true,
+      "description": "Sujet d'évaluation d'Informatique 2 : conception de classes C++, traces d'exécution et questions de cours, entièrement corrigé.",
+      "preview": "Problème 1 (9 points) — Concevoir une hiérarchie de classes pour un gestionnaire de ressources académiques (UML → C++).",
+      "tags": [
+        "examen",
+        "C++",
+        "annales"
+      ],
+      "createdAt": 1788886915732
+    },
+    {
+      "id": "res-50",
       "title": "Analyse complexe — Cours MSP2",
-      "subject": "math",
+      "subject": "analyse-complexe",
       "level": "MSP2",
       "type": "cours",
       "premium": false,
@@ -150,28 +463,28 @@
         "résidus",
         "holomorphie"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
-      "id": "res-07",
+      "id": "res-51",
       "title": "Probabilités & statistiques — Cours complet MSP2",
-      "subject": "math",
+      "subject": "probabilites",
       "level": "MSP2",
       "type": "cours",
       "premium": true,
       "description": "Variables aléatoires, lois usuelles, théorèmes limites et introduction aux processus : le cours de référence pour les probabilités en deuxième année.",
-      "preview": "Définition (espérance). Pour X une v.a. discrète : E[X] = Σ x·P(X = x).\nThéorème central limite : √n (X̄_n − μ) → N(0, σ²) en loi.",
+      "preview": "Définition (espérance). Pour X une v.a. discrète : E[X] = Σ x·P(X = x).\nThéorème central limite : sqrt(n) (X̄_n − μ) → N(0, σ²) en loi.",
       "tags": [
         "probabilités",
         "statistiques",
         "TCL"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
-      "id": "res-08",
+      "id": "res-52",
       "title": "TD Probabilités — Corrigé détaillé MSP2",
-      "subject": "math",
+      "subject": "probabilites",
       "level": "MSP2",
       "type": "td",
       "premium": true,
@@ -182,92 +495,12 @@
         "probabilités",
         "corrigé"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
-      "id": "res-09",
-      "title": "Examen Mathématiques MSP2 — Session 2026 (corrigé)",
-      "subject": "math",
-      "level": "MSP2",
-      "type": "examens",
-      "premium": true,
-      "description": "Sujet intégral de la dernière évaluation MSP2 avec correction barémée : analyse complexe et probabilités.",
-      "preview": "Exercice 3 (6 points) — Calculer ∫_{−∞}^{+∞} dx/(1+x⁴) par la méthode des résidus.\nPôles : e^{iπ/4}, e^{3iπ/4}. Résultat : π/√2.",
-      "tags": [
-        "examen",
-        "annales",
-        "MSP2"
-      ],
-      "createdAt": 1788659820426
-    },
-    {
-      "id": "res-10",
-      "title": "Mécanique du point — Cours complet",
-      "subject": "physique",
-      "level": "MSP1",
-      "type": "cours",
-      "premium": false,
-      "description": "Cinématique, dynamique newtonienne, énergie et moments : le cours de mécanique du point illustré par des systèmes classiques des TD de l'ENSPY.",
-      "preview": "Loi fondamentale : m·d²r/dt² = Σ F.\nÉnergie cinétique : Ec = ½ m v². Théorème de l'énergie cinétique : ΔEc = Σ W(F).",
-      "tags": [
-        "mécanique",
-        "newton",
-        "cinématique"
-      ],
-      "createdAt": 1788659820426
-    },
-    {
-      "id": "res-11",
-      "title": "TD Mécanique du point — Corrigé détaillé",
-      "subject": "physique",
-      "level": "MSP1",
-      "type": "td",
-      "premium": true,
-      "description": "Tous les exercices du TD de mécanique corrigés : pendules, projectiles, frottements solides et fluides, avec schémas bilan soignés.",
-      "preview": "Exercice 4 — Projectile avec frottement fluide linéaire\nm dv/dt = mg − k v ⇒ v(t) = (mg/k)(1 − e^{−kt/m}) + v₀ e^{−kt/m}.",
-      "tags": [
-        "td",
-        "mécanique",
-        "corrigé"
-      ],
-      "createdAt": 1788659820426
-    },
-    {
-      "id": "res-12",
-      "title": "Électricité & électromagnétisme — Cours",
-      "subject": "physique",
-      "level": "MSP1",
-      "type": "cours",
-      "premium": false,
-      "description": "Électrostatique, magnétostatique et équations de Maxwell : un cours structuré avec les démonstrations attendues en évaluation.",
-      "preview": "Équations de Maxwell : ∇·E = ρ/ε₀ ; ∇·B = 0 ; ∇×E = −∂B/∂t ; ∇×B = μ₀ J + μ₀ε₀ ∂E/t.",
-      "tags": [
-        "électromagnétisme",
-        "maxwell",
-        "électrostatique"
-      ],
-      "createdAt": 1788659820426
-    },
-    {
-      "id": "res-13",
-      "title": "Examen Physique MSP1 — Session 2025 (corrigé)",
-      "subject": "physique",
-      "level": "MSP1",
-      "type": "examens",
-      "premium": true,
-      "description": "Le sujet d'évaluation de physique MSP1 avec correction complète et conseils de rédaction pour maximiser les points.",
-      "preview": "Problème 2 (7 points) — Pendule simple amorti\nθ'' + 2λθ' + ω₀²θ = 0. Régimes : pseudo-périodique, critique, apériodique.",
-      "tags": [
-        "examen",
-        "physique",
-        "annales"
-      ],
-      "createdAt": 1788659820426
-    },
-    {
-      "id": "res-14",
+      "id": "res-53",
       "title": "Thermodynamique — Cours complet MSP2",
-      "subject": "physique",
+      "subject": "thermodynamique",
       "level": "MSP2",
       "type": "cours",
       "premium": false,
@@ -278,12 +511,12 @@
         "entropie",
         "machines"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
-      "id": "res-15",
+      "id": "res-54",
       "title": "TD Thermodynamique — Corrigé détaillé MSP2",
-      "subject": "physique",
+      "subject": "thermodynamique",
       "level": "MSP2",
       "type": "td",
       "premium": true,
@@ -294,12 +527,12 @@
         "thermodynamique",
         "corrigé"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
-      "id": "res-16",
+      "id": "res-55",
       "title": "Optique ondulatoire — Cours & interférences",
-      "subject": "physique",
+      "subject": "optique-ondulatoire",
       "level": "MSP2",
       "type": "cours",
       "premium": true,
@@ -310,108 +543,28 @@
         "interférences",
         "diffraction"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
-      "id": "res-17",
-      "title": "Examen Physique MSP2 — Session 2026 (corrigé)",
-      "subject": "physique",
-      "level": "MSP2",
-      "type": "examens",
-      "premium": true,
-      "description": "Sujet complet de l'évaluation MSP2 : thermodynamique et optique ondulatoire, avec barème officiel reconstitué.",
-      "preview": "Exercice 2 (5 points) — Interféromètre de Michelson\nΔm = 2e/λ ; contraste des franges et influence de la cohérence temporelle.",
-      "tags": [
-        "examen",
-        "MSP2",
-        "annales"
-      ],
-      "createdAt": 1788659820426
-    },
-    {
-      "id": "res-18",
-      "title": "Algorithmique & structures de données — Cours",
-      "subject": "info",
-      "level": "MSP1",
-      "type": "cours",
-      "premium": false,
-      "description": "Complexité, listes, piles, files, arbres et tris : le cours d'algorithmique avec analyses de complexité démontrées.",
-      "preview": "Complexité du tri fusion : T(n) = 2T(n/2) + O(n) ⇒ T(n) = O(n log n) (théorème maître).\nStructure file : enfiler/défiler en O(1).",
-      "tags": [
-        "algorithmique",
-        "complexité",
-        "tris"
-      ],
-      "createdAt": 1788659820426
-    },
-    {
-      "id": "res-19",
-      "title": "Programmation C — Travaux pratiques guidés",
-      "subject": "info",
-      "level": "MSP1",
-      "type": "tp",
-      "premium": false,
-      "description": "Six TP guidés en langage C : pointeurs, tableaux dynamiques, fichiers et structures, avec code de référence commenté.",
-      "preview": "TP 3 — Allocation dynamique\nint *t = malloc(n * sizeof(int));\nif (!t) { fprintf(stderr, \"alloc\\n\"); exit(1); }\n/* ... */ free(t);",
-      "tags": [
-        "C",
-        "pointeurs",
-        "tp"
-      ],
-      "createdAt": 1788659820426
-    },
-    {
-      "id": "res-20",
-      "title": "Exercices corrigés — Récursivité & complexité",
-      "subject": "info",
-      "level": "MSP1",
-      "type": "exercices",
-      "premium": true,
-      "description": "30 exercices corrigés sur la récursivité, les récurrences et l'analyse de complexité, du niveau base au niveau examen.",
-      "preview": "Exercice 9 — Résoudre T(n) = T(n−1) + n, T(1) = 1.\nT(n) = Σ_{k=1..n} k = n(n+1)/2 ⇒ Θ(n²).",
-      "tags": [
-        "récursivité",
-        "complexité",
-        "exercices"
-      ],
-      "createdAt": 1788659820426
-    },
-    {
-      "id": "res-21",
-      "title": "Examen Informatique MSP1 — Session 2025 (corrigé)",
-      "subject": "info",
-      "level": "MSP1",
-      "type": "examens",
-      "premium": true,
-      "description": "Sujet d'évaluation d'informatique MSP1 : traces d'algorithmes, écriture de fonctions C et questions de cours, entièrement corrigé.",
-      "preview": "Exercice 1 (4 points) — Donner la trace de mystere(5) :\nint mystere(int n){ return n<=1 ? 1 : n*mystere(n-1); }\nRéponse : 120.",
-      "tags": [
-        "examen",
-        "C",
-        "annales"
-      ],
-      "createdAt": 1788659820426
-    },
-    {
-      "id": "res-22",
-      "title": "Programmation orientée objet C++ — Cours MSP2",
-      "subject": "info",
+      "id": "res-56",
+      "title": "Programmation orientée objet C++ — Cours avancé MSP2",
+      "subject": "poo-cpp",
       "level": "MSP2",
       "type": "cours",
       "premium": false,
       "description": "Classes, héritage, polymorphisme, templates et STL : le cours de POO en C++ avec bonnes pratiques de conception.",
-      "preview": "class Forme { public: virtual double aire() const = 0; virtual ~Forme() = default; };\nclass Cercle : public Forme { double r; public: double aire() const override { return M_PI*r*r; } };",
+      "preview": "template <typename T> class Pile { std::vector<T> d; public: void push(const T& x){ d.push_back(x); } };",
       "tags": [
         "C++",
         "POO",
         "STL"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
-      "id": "res-23",
+      "id": "res-57",
       "title": "Bases de données & SQL — Cours complet MSP2",
-      "subject": "info",
+      "subject": "bases-donnees",
       "level": "MSP2",
       "type": "cours",
       "premium": false,
@@ -422,12 +575,12 @@
         "bases de données",
         "normalisation"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
-      "id": "res-24",
+      "id": "res-58",
       "title": "TD SQL — Corrigé détaillé MSP2",
-      "subject": "info",
+      "subject": "bases-donnees",
       "level": "MSP2",
       "type": "td",
       "premium": true,
@@ -438,23 +591,23 @@
         "SQL",
         "corrigé"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     },
     {
-      "id": "res-25",
-      "title": "Examen Informatique MSP2 — Session 2026 (corrigé)",
-      "subject": "info",
+      "id": "res-59",
+      "title": "Examen Analyse complexe MSP2 — Session 2026 (corrigé)",
+      "subject": "analyse-complexe",
       "level": "MSP2",
       "type": "examens",
       "premium": true,
-      "description": "Sujet intégral de l'évaluation MSP2 : POO C++, SQL et questions d'architecture, avec correction barémée.",
-      "preview": "Problème 1 (9 points) — Concevoir une hiérarchie de classes pour un gestionnaire de ressources académiques (UML → C++).",
+      "description": "Sujet intégral de la dernière évaluation MSP2 d'analyse complexe avec correction barémée : résidus et intégrales réelles.",
+      "preview": "Exercice 3 (6 points) — Calculer ∫_{−∞}^{+∞} dx/(1+x⁴) par la méthode des résidus.\nPôles : e^{iπ/4}, e^{3iπ/4}. Résultat : π/sqrt(2).",
       "tags": [
         "examen",
-        "MSP2",
-        "annales"
+        "annales",
+        "MSP2"
       ],
-      "createdAt": 1788659820426
+      "createdAt": 1788886915732
     }
   ],
   "requests": [
@@ -463,59 +616,36 @@
       "userId": "u-demo",
       "resourceId": "res-03",
       "status": "approved",
-      "createdAt": 1788400620426,
-      "updatedAt": 1788487020426
+      "createdAt": 1788627715732,
+      "updatedAt": 1788714115732
     },
     {
       "id": "req-0002",
       "userId": "u-demo",
       "resourceId": "res-05",
       "status": "pending",
-      "createdAt": 1788641820426,
-      "updatedAt": 1788641820426
-    },
-    {
-      "id": "req-mtp5vvgon49pr",
-      "userId": "u-demo",
-      "resourceId": "res-09",
-      "status": "approved",
-      "createdAt": 1788659837448,
-      "updatedAt": 1788659845871
+      "createdAt": 1788868915732,
+      "updatedAt": 1788868915732
     }
   ],
   "sessions": [
     {
-      "token": "8d959ab05618eeb08afa0056e3d862f5e27a67b6b06e3e30",
+      "token": "0d0a06b674ce3f2a5d9f1c3429d012fea9807a765d569cc7",
       "userId": "u-demo",
-      "expiresAt": 1789264637355
-    },
-    {
-      "token": "f2fb0e1f95c90a0e9479ba795659baffcc56d8e7961bcb5a",
-      "userId": "u-admin",
-      "expiresAt": 1789264637509
-    },
-    {
-      "token": "e56f58bb3a40f5833e6250f103d26605114526fa8e0a51f1",
-      "userId": "u-demo",
-      "expiresAt": 1789264707889
-    },
-    {
-      "token": "5c25e416d6e65354e0b88e6d0d9c98ecc72196fe2311f4e9",
-      "userId": "u-demo",
-      "expiresAt": 1789486072404
+      "expiresAt": 1789491742477
     }
   ],
   "announcements": [
     {
       "id": "a-1",
       "title": "Session de révision intensive MSP1 — Octobre 2026",
-      "body": "Deux semaines de séances corrigées en direct (maths & physique) organisées par le collectif. Places limitées : inscrivez-vous via WhatsApp.",
+      "body": "Deux semaines de séances corrigées en direct (Analyse réelle 1 & Mécanique du point) organisées par le collectif. Places limitées : inscrivez-vous via WhatsApp.",
       "date": "2026-09-01"
     },
     {
       "id": "a-2",
       "title": "Nouveaux sujets corrigés disponibles",
-      "body": "Les évaluations session 2026 de MSP2 (maths, physique, info) viennent d'être ajoutées à la bibliothèque premium.",
+      "body": "Les évaluations session 2026 (Analyse réelle 2, Informatique 2, Analyse complexe) viennent d'être ajoutées aux ressources premium.",
       "date": "2026-08-24"
     },
     {

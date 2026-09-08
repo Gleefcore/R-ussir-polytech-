@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Badge, StatusChip, SubjectIcon, Btn } from "@/components/ui";
 import { getSessionUser } from "@/lib/auth";
 import { getDB } from "@/lib/db";
-import { subjectLabel, typeLabel } from "@/config";
+import { subjectLabel, typeLabel, subjectCat } from "@/config";
 
 export const metadata = { title: "Tableau de bord étudiant" };
 
@@ -87,13 +87,13 @@ export default function DashboardPage() {
           <div className="glass p-7">
             <div className="flex items-center justify-between">
               <p className="kicker">Ressources disponibles — {user.level}</p>
-              <Link href="/library" className="text-xs font-semibold text-gold-400 hover:text-gold-300">Bibliothèque complète →</Link>
+              <Link href={`/${user.level.toLowerCase()}`} className="text-xs font-semibold text-gold-400 hover:text-gold-300">Programme complet →</Link>
             </div>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               {myResources.slice(0, 6).map((r) => (
                 <Link key={r.id} href={`/resource/${r.id}`} className="group rounded-xl border border-white/10 bg-night-800/50 p-4 transition hover:border-gold-500/40 hover:bg-night-700/50">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-gold-400"><SubjectIcon subject={r.subject} className="h-5 w-5" /></span>
+                    <span className="text-gold-400"><SubjectIcon subject={subjectCat(r.subject)} className="h-5 w-5" /></span>
                     <Badge tone={r.premium ? "gold" : "green"}>{r.premium ? "Premium" : "Gratuit"}</Badge>
                   </div>
                   <p className="mt-3 line-clamp-2 text-sm font-semibold leading-snug text-white/85 group-hover:text-white">{r.title}</p>
@@ -148,7 +148,7 @@ export default function DashboardPage() {
               <p className="font-display text-lg font-bold">Besoin d'aide ou d'une ressource spécifique ?</p>
               <p className="mt-1 text-sm text-white/55">L'équipe répond sur WhatsApp en quelques minutes, 7j/7.</p>
             </div>
-            <Btn href="/library">Explorer la bibliothèque</Btn>
+            <Btn href={`/${user.level.toLowerCase()}`}>Explorer le programme {user.level}</Btn>
           </div>
         </div>
       </div>

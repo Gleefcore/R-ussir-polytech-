@@ -1,4 +1,4 @@
-import type { Level, Subject } from "./lib/types";
+import type { Level } from "./lib/types";
 
 export interface Founder {
   name: string;
@@ -69,12 +69,7 @@ export const STATS = [
   { value: 24, suffix: "/7", label: "Support WhatsApp" },
 ];
 
-export const PROGRAM: Record<Level, Record<Subject, string[]>> = {
-  MSP1: {
-    math: ["Analyse I (limites, continuité, dérivabilité)", "Algèbre linéaire & matrices", "Géométrie analytique", "Probabilités & statistiques"],
-    physique: ["Mécanique du point", "Électricité & électromagnétisme", "Optique géométrique", "Travaux pratiques de physique"],
-    info: ["Algorithmique & structures de données", "Programmation C", "Architecture des ordinateurs", "Travaux pratiques"],
-  },
+export const PROGRAM: Record<string, Record<string, string[]>> = {
   MSP2: {
     math: ["Analyse complexe", "Probabilités & processus", "Méthodes numériques", "Optimisation"],
     physique: ["Thermodynamique", "Ondes & optique ondulatoire", "Introduction à la physique quantique", "Travaux pratiques avancés"],

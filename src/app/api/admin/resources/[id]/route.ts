@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { CATALOG } from "@/config";
 import { requireAdmin } from "@/lib/auth";
 import { getDB, save } from "@/lib/db";
 
@@ -12,7 +13,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (!r) return NextResponse.json({ error: "Ressource introuvable." }, { status: 404 });
 
     if (typeof b.title === "string" && b.title.trim()) r.title = b.title.trim();
-    if (["math", "physique", "info"].includes(b.subject)) r.subject = b.subject;
+    if (CATALOG.some((s) => s.id === b.subject)) r.subject = String(b.subject);
     if (["MSP1", "MSP2"].includes(b.level)) r.level = b.level;
     if (["cours", "td", "exercices", "tp", "examens"].includes(b.type)) r.type = b.type;
     if (typeof b.premium === "boolean") r.premium = b.premium;

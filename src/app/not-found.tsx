@@ -12,7 +12,7 @@ export default function NotFound() {
       </p>
       <div className="mt-8 flex gap-3">
         <Link href="/" className="rounded-xl bg-gold-grad px-6 py-3 text-sm font-bold text-night-950 transition hover:brightness-110">Accueil</Link>
-        <Link href="/library" className="rounded-xl border border-white/15 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-gold-500/40">Bibliothèque</Link>
+        <Link href="/msp1" className="rounded-xl border border-white/15 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-gold-500/40">Programme MSP1</Link>
       </div>
     </main>
   );

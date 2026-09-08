@@ -10,7 +10,6 @@ import { Btn, WhatsAppIcon } from "./ui";
 
 const LINKS = [
   { href: "/", label: "Accueil" },
-  { href: "/library", label: "Bibliothèque" },
   { href: "/msp1", label: "MSP1" },
   { href: "/msp2", label: "MSP2" },
   { href: "/entrepreneur", label: "Entreprendre" },

@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
     if (action === "add") {
       const topic = String(b.topic ?? "").trim();
-      const subject = ["math", "physique", "info"].includes(b.subject) ? b.subject : "math";
+      const subject = ["math", "physique", "info", "chimie", "tech", "transversal"].includes(b.subject) ? b.subject : "math";
       if (!topic) return NextResponse.json({ error: "Intitulé requis." }, { status: 400 });
       user.study.push({ id: uid("s"), subject, topic, done: false });
     } else if (action === "toggle") {

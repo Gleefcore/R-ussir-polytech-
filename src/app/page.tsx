@@ -3,9 +3,7 @@ import StatsBand from "@/components/stats";
 import { CircuitBand, Orb } from "@/components/fx-deco";
 import { Badge, Btn, Reveal, SectionHead, SubjectIcon } from "@/components/ui";
 import { ROADMAP, TESTIMONIALS } from "@/content";
-import { SITE, waLink } from "@/config";
-import { getDB } from "@/lib/db";
-import { SUBJECTS } from "@/config";
+import { SITE, waLink, subjectsOf } from "@/config";
 
 const PILLARS = [
   {
@@ -38,9 +36,6 @@ const PILLARS = [
 ];
 
 export default function HomePage() {
-  const db = getDB();
-  const countBy = (subject: string) => db.resources.filter((r) => r.subject === subject).length;
-
   return (
     <main>
       <Hero />
@@ -105,30 +100,34 @@ export default function HomePage() {
         <Reveal><StatsBand /></Reveal>
       </section>
 
-      {/* Bibliothèque */}
+      {/* Programme officiel */}
       <section className="relative mx-auto max-w-7xl px-6 pb-24 md:px-8">
         <SectionHead
           center
           kicker="Espace académique"
-          title={<>Trois matières, <span className="gold-text">une seule exigence</span> : la maîtrise.</>}
-          sub="Cours complets, TD, exercices corrigés, TP et anciens sujets d'évaluation de l'ENSPY, classés par niveau."
+          title={<>Le programme officiel MSP1, <span className="gold-text">semestre par semestre</span>.</>}
+          sub="Chaque matière officielle du niveau 1 dispose de ses cours, TD, exercices, TP et examens — gratuits ou premium, vérifiés par le collectif."
         />
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {SUBJECTS.map((s, i) => (
-            <Reveal key={s.id} delay={i * 0.12}>
-              <a href={`/library?subject=${s.id}`} className="glass group block h-full overflow-hidden p-8 transition-all duration-500 hover:-translate-y-2 hover:border-gold-500/40 hover:shadow-gold-glow">
-                <div className="flex items-start justify-between">
-                  <div className="rounded-xl border border-white/10 bg-night-700/60 p-3 text-gold-400 transition group-hover:border-gold-500/40 group-hover:text-gold-300">
-                    <SubjectIcon subject={s.id} className="h-7 w-7" />
-                  </div>
-                  <span className="font-mono text-xs text-white/40">{countBy(s.id)} docs</span>
+        <div className="mt-12 grid gap-6 lg:grid-cols-2">
+          {(["S1", "S2"] as const).map((sem, i) => (
+            <Reveal key={sem} delay={i * 0.12}>
+              <div className="glass h-full p-8 transition-all duration-500 hover:-translate-y-2 hover:border-gold-500/40 hover:shadow-gold-glow">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display text-2xl font-bold">Semestre {sem === "S1" ? "1" : "2"}</h3>
+                  <Badge tone={sem === "S1" ? "blue" : "gold"}>{subjectsOf("MSP1", sem).length} matières</Badge>
                 </div>
-                <h3 className="mt-6 font-display text-2xl font-bold">{s.label}</h3>
-                <p className="mt-2 text-sm text-white/55">Cours · TD · Exercices corrigés · TP · Annales d'examens</p>
-                <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-gold-400 transition group-hover:gap-3">
-                  Explorer <span aria-hidden>→</span>
-                </span>
-              </a>
+                <ul className="mt-6 grid gap-2.5 sm:grid-cols-2">
+                  {subjectsOf("MSP1", sem).map((s) => (
+                    <li key={s.id} className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-night-800/50 px-3.5 py-2.5 text-[13px] font-medium text-white/75">
+                      <SubjectIcon subject={s.cat} className="h-4 w-4 shrink-0 text-gold-400" />
+                      <span className="truncate">{s.label}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Btn href="/msp1" variant={sem === "S1" ? "outline" : "gold"} className="mt-7">
+                  Voir les ressources du semestre {sem === "S1" ? "1" : "2"} →
+                </Btn>
+              </div>
             </Reveal>
           ))}
         </div>

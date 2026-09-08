@@ -1,18 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { STUDY_TIPS } from "@/content";
-import { SUBJECTS, subjectLabel } from "@/config";
-import type { PublicUser, StudyItem, Subject } from "@/lib/types";
+import { CAT_LABELS, subjectsOf, type Cat } from "@/config";
+import type { PublicUser, StudyItem } from "@/lib/types";
 import { Badge, Btn, SubjectIcon } from "./ui";
 
+const CATS = Object.keys(CAT_LABELS) as Cat[];
+
 export default function StudyClient({ user, initialItems }: { user: PublicUser; initialItems: StudyItem[] }) {
-  const router = useRouter();
   const [items, setItems] = useState<StudyItem[]>(initialItems);
   const [topic, setTopic] = useState("");
-  const [subject, setSubject] = useState<Subject>("math");
-  const [q, setQ] = useState("");
+  const [subject, setSubject] = useState<Cat>("math");
   const [busy, setBusy] = useState(false);
 
   const call = async (body: Record<string, unknown>) => {
@@ -28,11 +27,11 @@ export default function StudyClient({ user, initialItems }: { user: PublicUser; 
   };
 
   const progress = useMemo(() => {
-    return SUBJECTS.map((s) => {
-      const list = items.filter((i) => i.subject === s.id);
+    return CATS.map((c) => {
+      const list = items.filter((i) => i.subject === c);
       const done = list.filter((i) => i.done).length;
-      return { subject: s.id, label: s.label, total: list.length, done, pct: list.length ? Math.round((done / list.length) * 100) : 0 };
-    });
+      return { subject: c, label: CAT_LABELS[c], total: list.length, done, pct: list.length ? Math.round((done / list.length) * 100) : 0 };
+    }).filter((p) => p.total > 0);
   }, [items]);
 
   const globalPct = items.length ? Math.round((items.filter((i) => i.done).length / items.length) * 100) : 0;
@@ -89,8 +88,8 @@ export default function StudyClient({ user, initialItems }: { user: PublicUser; 
           onSubmit={(e) => { e.preventDefault(); if (topic.trim()) { call({ action: "add", subject, topic: topic.trim() }); setTopic(""); } }}
           className="mt-5 flex flex-col gap-3 sm:flex-row"
         >
-          <select value={subject} onChange={(e) => setSubject(e.target.value as Subject)} className="input !w-auto sm:w-40">
-            {SUBJECTS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+          <select value={subject} onChange={(e) => setSubject(e.target.value as Cat)} className="input !w-auto sm:w-44">
+            {CATS.map((c) => <option key={c} value={c}>{CAT_LABELS[c]}</option>)}
           </select>
           <input value={topic} onChange={(e) => setTopic(e.target.value)} className="input flex-1" placeholder="Ajouter un objectif de révision… (ex. : refaire le TD 3 d'analyse)" />
           <Btn type="submit" disabled={busy} className="!px-5">+ Ajouter</Btn>
@@ -115,7 +114,7 @@ export default function StudyClient({ user, initialItems }: { user: PublicUser; 
               </button>
               <div className="min-w-0 flex-1">
                 <p className={`text-sm font-medium ${it.done ? "text-white/40 line-through" : "text-white/85"}`}>{it.topic}</p>
-                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest2 text-white/35">{subjectLabel(it.subject)}</p>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest2 text-white/35">{CAT_LABELS[it.subject as Cat] ?? it.subject}</p>
               </div>
               <button onClick={() => call({ action: "remove", id: it.id })} className="text-white/30 transition hover:text-rose-400" aria-label="Supprimer">✕</button>
             </li>
@@ -123,36 +122,30 @@ export default function StudyClient({ user, initialItems }: { user: PublicUser; 
         </ul>
       </div>
 
-      {/* Recherche & accès */}
+      {/* Programme officiel & accès */}
       <div className="space-y-6">
-        <div className="glass p-7">
-          <p className="kicker">Recherche rapide</p>
-          <form
-            onSubmit={(e) => { e.preventDefault(); router.push(`/library?q=${encodeURIComponent(q)}`); }}
-            className="mt-4 space-y-3"
-          >
-            <input value={q} onChange={(e) => setQ(e.target.value)} className="input" placeholder="Mot-clé : résidus, SQL, pendule…" />
-            <Btn type="submit" variant="outline" className="w-full">Rechercher dans la bibliothèque</Btn>
-          </form>
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <Btn href={`/library`} variant="ghost" className="!px-3 !py-2.5 text-xs">Tout voir</Btn>
-            <Btn href="/msp1" variant="ghost" className="!px-3 !py-2.5 text-xs">MSP1</Btn>
-            <Btn href="/msp2" variant="ghost" className="!px-3 !py-2.5 text-xs">MSP2</Btn>
-            <Btn href="/dashboard" variant="ghost" className="!px-3 !py-2.5 text-xs">Mes docs</Btn>
-          </div>
-        </div>
         <div className="glass border-gold-500/20 p-7">
-          <p className="kicker">Classement par matière</p>
+          <p className="kicker">Programme officiel {user.level}</p>
           <ul className="mt-4 space-y-2">
-            {SUBJECTS.map((s) => (
+            {subjectsOf(user.level).map((s) => (
               <li key={s.id}>
-                <a href={`/library?subject=${s.id}`} className="flex items-center justify-between rounded-xl border border-white/10 bg-night-800/50 px-4 py-3 text-sm text-white/75 transition hover:border-gold-500/40 hover:text-white">
-                  <span className="flex items-center gap-2"><SubjectIcon subject={s.id} className="h-4 w-4 text-gold-400" /> {s.label}</span>
+                <a
+                  href={`/${user.level.toLowerCase()}#res-${s.id}`}
+                  className="flex items-center justify-between rounded-xl border border-white/10 bg-night-800/50 px-4 py-3 text-sm text-white/75 transition hover:border-gold-500/40 hover:text-white"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <SubjectIcon subject={s.cat} className="h-4 w-4 shrink-0 text-gold-400" />
+                    <span className="truncate">{s.label}</span>
+                  </span>
                   <span aria-hidden>→</span>
                 </a>
               </li>
             ))}
           </ul>
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <Btn href="/msp1" variant="ghost" className="!px-3 !py-2.5 text-xs">Espace MSP1</Btn>
+            <Btn href="/msp2" variant="ghost" className="!px-3 !py-2.5 text-xs">Espace MSP2</Btn>
+          </div>
         </div>
       </div>
     </div>
