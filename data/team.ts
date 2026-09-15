@@ -79,7 +79,7 @@ export const team: TeamMember[] = [
   },
   {
     id: 'rose-mbog',
-    name: 'Rose Mbog',
+    name: 'Rose Héloïse Mbog',
     title: 'Directrice Informatique Adjointe',
     role: 'DIA & Responsable Matériel',
     description: 'Responsable du matériel technique. Assure la continuité des infrastructures numériques et le support opérationnel.',
