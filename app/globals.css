@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #F8FAFC;
+    --foreground: #0F172A;
+    --card: #FFFFFF;
+    --card-border: #E2E8F0;
+    --muted: #475569;
+  }
+
+  .dark {
+    --background: #050B14;
+    --foreground: #F8FAFC;
+    --card: #0B1528;
+    --card-border: rgba(255, 255, 255, 0.08);
+    --muted: #94A3B8;
+  }
+
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* Custom scrollbar avec or métallique */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(11, 21, 40, 0.6);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #D4AF37;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #AA7A1E;
+  }
+}
+
+@layer components {
+  /* Cartes Glassmorphism avec bordures luminescentes or subtil */
+  .glass-card {
+    @apply bg-white border border-slate-200/80 shadow-sm hover:shadow-md dark:bg-poly-card dark:border-white/[0.08] dark:shadow-none dark:hover:border-[#D4AF37]/30 rounded-2xl transition-all duration-300;
+  }
+
+  /* Or impérial pur & métallique */
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #FFF0B8 0%, #D4AF37 45%, #AA7A1E 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-cyan-gradient {
+    background: linear-gradient(135deg, #7DD3FC 0%, #38BDF8 50%, #0284C7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Bouton CTA d'élite - Or royal */
+  .btn-primary {
+    @apply relative overflow-hidden bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#AA7A1E] text-[#050B14] font-extrabold py-3.5 px-7 rounded-xl transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-[#D4AF37]/25 hover:shadow-[#D4AF37]/40 tracking-wide;
+  }
+
+  .btn-secondary {
+    @apply border border-[#D4AF37]/50 text-[#D4AF37] dark:text-[#F3E5AB] hover:bg-[#D4AF37]/10 font-bold py-3.5 px-7 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm;
+  }
+
+  /* Champs de formulaire soignés */
+  .input-field {
+    @apply w-full bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 dark:bg-poly-night dark:border-white/15 dark:text-white dark:placeholder-slate-500 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/30 transition-all duration-200 font-medium;
+  }
+}
+
+/* Effet holographique prestigieux */
+@keyframes holographic {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.holographic {
+  background: linear-gradient(
+    135deg,
+    rgba(56, 189, 248, 0.08) 0%,
+    rgba(212, 175, 55, 0.12) 25%,
+    rgba(56, 189, 248, 0.04) 50%,
+    rgba(212, 175, 55, 0.12) 75%,
+    rgba(56, 189, 248, 0.08) 100%
+  );
+  background-size: 400% 400%;
+  animation: holographic 10s ease infinite;
+}
