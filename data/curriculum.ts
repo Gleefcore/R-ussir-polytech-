@@ -41,12 +41,8 @@ export const curriculum: Subject[] = [
     resources: [
       {
         type: 'COURS',
-        label: 'Charte & Notions Fondamentales',
-        url: '/documents/charte-constitutive-eseka.pdf',
+        label: 'Polycopié de cours',
         isPaid: false,
-        items: [
-          { title: 'Charte Constitutive & Lois Internes (Éseka 2026)', url: '/documents/charte-constitutive-eseka.pdf', date: 'Mai 2026' },
-        ],
       },
       {
         type: 'TD',

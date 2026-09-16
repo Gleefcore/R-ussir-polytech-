@@ -330,7 +330,7 @@ export function SubjectCard({ subject, index }: SubjectCardProps) {
                   className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all hover:scale-[1.03] active:scale-[0.97] font-bold ${cfg.color}`}
                 >
                   <Lock className="w-4 h-4" />
-                  <span className="text-xs">Débloquer</span>
+                  <span className="text-xs">Correction 🔑</span>
                 </button>
               );
             }

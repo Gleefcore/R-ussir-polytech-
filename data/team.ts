@@ -32,7 +32,7 @@ export const team: TeamMember[] = [
   },
   {
     id: 'alex-ngoua',
-    name: 'Alex Ngoua Edou',
+    name: 'NGOUA EDOU ALEX',
     title: 'Secrétaire Général',
     role: 'SG',
     description: 'Proche collaborateur du PCA. Coordonne les activités administratives et veille à la mise en œuvre des décisions stratégiques.',
@@ -60,7 +60,7 @@ export const team: TeamMember[] = [
   },
   {
     id: 'sarah-ondoua',
-    name: 'ONDOA ELLA SARA',
+    name: 'ONDOUA ELLE SARA',
     title: 'Cofondatrice',
     role: 'Fondatrice',
     description: 'Pilier de la fondation de Réussir Polytech. Contribue activement à l\'épanouissement de la communauté étudiante.',
@@ -124,7 +124,7 @@ export const team: TeamMember[] = [
   },
   {
     id: 'pacha',
-    name: 'BAYI ASSOGOLO STÉPHANE GAEL (pacha)',
+    name: 'BAYI ASSOGOLO STÉPHANE GAEL (PACHA)',
     title: 'Leader des cadets généralistes',
     role: 'Leader Cadets',
     description: 'Guide et mentor des étudiants MSP1 en filière généraliste. Catalyseur de cohésion et d\'excellence pour les nouvelles recrues.',
@@ -133,7 +133,7 @@ export const team: TeamMember[] = [
   },
   {
     id: 'bic-rouge',
-    name: 'Bic-rouge',
+    name: 'BIC-ROUGE',
     title: 'Leader des cadets techniciens',
     role: 'Leader Techniciens',
     description: 'Référent technique des cadets. Encadre et motive les étudiants de filière technique vers l\'excellence polytechnicienne.',
