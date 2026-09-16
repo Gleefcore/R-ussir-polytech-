@@ -54,8 +54,34 @@ export function AuthForm() {
     avatar: null,
   });
 
-  // Sauvegarde automatique et détection automatique des mots de passe mémorisés
+  // Sauvegarde automatique et détection automatique des identifiants et de la session active
   useEffect(() => {
+    // 1. Si une session active est déjà enregistrée, rediriger immédiatement sans redemander la connexion
+    try {
+      const activeSession = localStorage.getItem('polytech_user_session');
+      if (activeSession) {
+        const parsed = JSON.parse(activeSession);
+        if (parsed && (parsed.level || parsed.name)) {
+          const dest = parsed.level === 'MSP2' ? '/msp2' : '/msp1';
+          router.replace(dest);
+          return;
+        }
+      }
+    } catch {
+      // Ignorer
+    }
+
+    // 2. Vérification côté Supabase
+    supabase.auth.getSession().then(({ data }) => {
+      if (data?.session?.user) {
+        const level = data.session.user.user_metadata?.level;
+        const dest = level === 'MSP2' ? '/msp2' : '/msp1';
+        router.replace(dest);
+        return;
+      }
+    });
+
+    // 3. Pré-remplissage des champs si des identifiants sont mémorisés
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_CRED_KEY);
       if (saved) {
@@ -69,7 +95,7 @@ export function AuthForm() {
     } catch {
       // Ignore local storage error
     }
-  }, []);
+  }, [router, supabase]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -91,6 +117,14 @@ export function AuthForm() {
       } catch {
         // Ignorer si localStorage est désactivé
       }
+    }
+  };
+
+  const persistActiveSession = (data: { name: string; matricule: string; level: string; email?: string; phone?: string }) => {
+    try {
+      localStorage.setItem('polytech_user_session', JSON.stringify(data));
+    } catch {
+      // Ignorer si localStorage est désactivé
     }
   };
 
@@ -175,6 +209,14 @@ export function AuthForm() {
       persistCredentials(identifier, loginPassword);
       const name = signData.user?.user_metadata?.full_name || foundDisplayName;
       const dest = resolvedLevel === 'MSP2' ? '/msp2' : '/msp1';
+
+      persistActiveSession({
+        name,
+        matricule: identifier,
+        level: resolvedLevel,
+        email: authEmail,
+      });
+
       triggerSuccessAndRedirect(name, dest, resolvedLevel);
       setLoading(false);
     }
@@ -259,6 +301,14 @@ export function AuthForm() {
 
     // Sauvegarder automatiquement les identifiants pour la prochaine fois
     persistCredentials(cleanMatricule, reg.password);
+
+    persistActiveSession({
+      name: reg.fullName.trim(),
+      matricule: cleanMatricule,
+      level: reg.level,
+      email: userEmail,
+      phone: reg.phone.trim(),
+    });
 
     const dest = reg.level === 'MSP2' ? '/msp2' : '/msp1';
     triggerSuccessAndRedirect(reg.fullName.trim(), dest, reg.level);

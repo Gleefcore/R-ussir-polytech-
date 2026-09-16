@@ -3,25 +3,34 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, GraduationCap, Star, Users, LayoutDashboard, ShieldCheck } from 'lucide-react';
+import { Menu, X, GraduationCap, Star, Users, LayoutDashboard, ShieldCheck, LogOut } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { createClient } from '@/lib/supabaseClient';
+
+interface ActiveSession {
+  name?: string;
+  matricule?: string;
+  level?: string;
+  email?: string;
+}
 
 const navLinks = [
   { href: '/', label: 'Accueil', icon: null, isPublic: true },
   { href: '/msp1', label: 'MSP1', icon: GraduationCap, isPublic: true },
   { href: '/msp2', label: 'MSP2', icon: GraduationCap, isPublic: true },
-  { href: '/entrepreneur-vip', label: 'L\'Ingénieur Entrepreneur (Espace VIP)', icon: Star, isPublic: false },
+  { href: '/entrepreneur-vip', label: 'L\'Ingénieur Entrepreneur (Espace VIP)', icon: Star, isPublic: true },
   { href: '/a-propos', label: 'Notre Équipe', icon: Users, isPublic: true },
 ];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [user, setUser] = useState<{ email?: string; user_metadata?: { level?: string } } | null>(null);
+  const [user, setUser] = useState<{ email?: string; user_metadata?: { level?: string; full_name?: string } } | null>(null);
+  const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
@@ -31,22 +40,56 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
+    // 1. Détection immédiate depuis le stockage local (zéro latence)
+    try {
+      const saved = localStorage.getItem('polytech_user_session');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && (parsed.level || parsed.name)) {
+          setActiveSession(parsed);
+        }
+      }
+    } catch {
+      // Ignorer
+    }
+
+    // 2. Synchronisation Supabase
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null);
     });
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (!session?.user) {
+        try {
+          localStorage.removeItem('polytech_user_session');
+        } catch {
+          // Ignorer
+        }
+        setActiveSession(null);
+      }
     });
+
     return () => subscription.unsubscribe();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [supabase]);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      localStorage.removeItem('polytech_user_session');
+    } catch {
+      // Ignorer
+    }
+    setActiveSession(null);
     setUser(null);
+    await supabase.auth.signOut();
+    router.push('/');
+    router.refresh();
   };
+
+  const effectiveLevel = activeSession?.level || user?.user_metadata?.level || 'MSP1';
+  const isLoggedIn = !!(activeSession || user);
 
   return (
     <header
@@ -106,14 +149,14 @@ export function Navbar() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
 
-            {user ? (
+            {isLoggedIn ? (
               <div className="hidden md:flex items-center gap-2.5">
                 <Link
-                  href={user.user_metadata?.level === 'MSP2' ? '/msp2' : '/msp1'}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold bg-[#D4AF37]/15 text-[#D4AF37] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/25 transition-all"
+                  href={effectiveLevel === 'MSP2' ? '/msp2' : '/msp1'}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black bg-[#D4AF37]/15 text-[#D4AF37] border border-[#D4AF37]/35 hover:bg-[#D4AF37]/25 transition-all shadow-sm"
                 >
                   <GraduationCap className="w-4 h-4" />
-                  <span>Mes Cours ({user.user_metadata?.level || 'MSP1'})</span>
+                  <span>Mes Cours ({effectiveLevel})</span>
                 </Link>
 
                 <Link
@@ -126,9 +169,10 @@ export function Navbar() {
 
                 <button
                   onClick={handleSignOut}
-                  className="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
                 >
-                  Déconnexion
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Déconnexion</span>
                 </button>
               </div>
             ) : (
@@ -176,14 +220,14 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            {user ? (
+            {isLoggedIn ? (
               <>
                 <Link
-                  href={user.user_metadata?.level === 'MSP2' ? '/msp2' : '/msp1'}
+                  href={effectiveLevel === 'MSP2' ? '/msp2' : '/msp1'}
                   onClick={() => setOpen(false)}
                   className="block px-4 py-3 rounded-xl text-sm text-[#D4AF37] font-bold bg-[#D4AF37]/10"
                 >
-                  Mes Cours ({user.user_metadata?.level || 'MSP1'})
+                  Mes Cours ({effectiveLevel})
                 </Link>
                 <Link
                   href="/dashboard"
@@ -194,7 +238,7 @@ export function Navbar() {
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="w-full text-left px-4 py-3 rounded-xl text-sm text-slate-600 dark:text-slate-400 font-semibold"
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm text-rose-600 dark:text-rose-400 font-semibold"
                 >
                   Déconnexion
                 </button>

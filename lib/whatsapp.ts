@@ -8,22 +8,52 @@ export interface WhatsAppPayload {
   objective?: string;
 }
 
+export type WhatsAppChannel =
+  | 'VIP_EUGENE'
+  | 'VIP_YANNICK'
+  | 'CORRECTION_EUGENE'
+  | 'CORRECTION_YANNICK'
+  | 'TECH'
+  | 'STRATEGY'
+  | 'CORRECTION';
+
 export const sendWhatsAppNotification = (
-  channel: 'TECH' | 'STRATEGY' | 'CORRECTION',
+  channel: WhatsAppChannel,
   payload: WhatsAppPayload
 ) => {
-  let targetNumber = '';
+  const EUGENE_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_STRATEGY || '237672356441';
+  const YANNICK_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_TECH || '237695957287';
+
+  let targetNumber = EUGENE_NUMBER;
   let text = '';
 
-  if (channel === 'TECH') {
-    targetNumber = process.env.NEXT_PUBLIC_WHATSAPP_TECH || '237695957287';
-    text = `Bonjour M. Bikey Yannick (Direction Informatique),\n\nJe suis ${payload.studentName}, matricule ${payload.matricule} (${payload.level}).\nJe souhaite intégrer le module technique : *${payload.itemTitle}*.\n\nTéléphone : ${payload.phone}\nObjectif : ${payload.objective || 'Perfectionnement technique'}\n\nMerci de m'indiquer la procédure d'inscription.`;
-  } else if (channel === 'STRATEGY') {
-    targetNumber = process.env.NEXT_PUBLIC_WHATSAPP_STRATEGY || '237672356441';
-    text = `Bonjour M. Eugène Samuel GWET (PCA Réussir Polytech),\n\nJe suis ${payload.studentName}, matricule ${payload.matricule} (${payload.level}).\nJe postule au programme d'élite : *${payload.itemTitle}*.\n\nTéléphone : ${payload.phone}\nVision : ${payload.objective || 'Développement du leadership et entrepreneuriat'}\n\nMerci de me communiquer les prochaines étapes.`;
-  } else if (channel === 'CORRECTION') {
-    targetNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT || '237672356441';
-    text = `Bonjour Support Réussir Polytech,\n\nJe suis ${payload.studentName}, matricule ${payload.matricule} (${payload.level}).\nJe souhaite débloquer l'accès payant à la correction de : *${payload.itemTitle}* (${payload.subject || ''}).\n\nMon numéro : ${payload.phone}\nMerci de m'envoyer les coordonnées de paiement Orange Money.`;
+  switch (channel) {
+    case 'VIP_EUGENE':
+    case 'STRATEGY':
+      targetNumber = EUGENE_NUMBER;
+      text = `Bonjour M. Eugène Samuel GWET (PCA Réussir Polytech),\n\nJe suis ${payload.studentName}, matricule *${payload.matricule}* (${payload.level}).\nJe souhaite régler mon adhésion VIP pour débloquer l'Espace Ingénieur Entrepreneur : *${payload.itemTitle}*.\n\nTéléphone : ${payload.phone}\nVision / Projet : ${payload.objective || 'Accès d\'élite aux sessions stratégiques'}\n\nMerci de me communiquer les coordonnées de paiement (Orange Money / Mobile Money) pour valider mon accès.`;
+      break;
+
+    case 'VIP_YANNICK':
+    case 'TECH':
+      targetNumber = YANNICK_NUMBER;
+      text = `Bonjour M. Yannick BIKEY (Directeur Informatique Réussir Polytech),\n\nJe suis ${payload.studentName}, matricule *${payload.matricule}* (${payload.level}).\nJe souhaite régler et débloquer mon accès au module technique VIP : *${payload.itemTitle}*.\n\nTéléphone : ${payload.phone}\nObjectif : ${payload.objective || 'Perfectionnement technique d\'ingénieur'}\n\nMerci de m'indiquer la procédure de paiement pour l'activation.`;
+      break;
+
+    case 'CORRECTION_EUGENE':
+    case 'CORRECTION':
+      targetNumber = EUGENE_NUMBER;
+      text = `Bonjour M. Eugène Samuel GWET (Direction Réussir Polytech),\n\nJe suis ${payload.studentName}, matricule *${payload.matricule}* (${payload.level}).\nJe souhaite débloquer et payer la correction officielle certifiée de : *${payload.itemTitle}* (${payload.subject || ''}).\n\nTéléphone : ${payload.phone}\nMerci de m'envoyer le numéro Orange Money / Mobile Money pour le règlement.`;
+      break;
+
+    case 'CORRECTION_YANNICK':
+      targetNumber = YANNICK_NUMBER;
+      text = `Bonjour M. Yannick BIKEY (Direction Réussir Polytech),\n\nJe suis ${payload.studentName}, matricule *${payload.matricule}* (${payload.level}).\nJe souhaite débloquer et payer la correction officielle certifiée de : *${payload.itemTitle}* (${payload.subject || ''}).\n\nTéléphone : ${payload.phone}\nMerci de m'envoyer le numéro Orange Money / Mobile Money pour le règlement.`;
+      break;
+
+    default:
+      targetNumber = EUGENE_NUMBER;
+      text = `Bonjour,\n\nJe suis ${payload.studentName}, matricule *${payload.matricule}* (${payload.level}).\nJe vous contacte concernant : *${payload.itemTitle}*.`;
   }
 
   const encodedText = encodeURIComponent(text);
@@ -32,3 +62,4 @@ export const sendWhatsAppNotification = (
     window.open(url, '_blank');
   }
 };
+

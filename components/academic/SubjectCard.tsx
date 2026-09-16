@@ -108,40 +108,83 @@ function CorrectionModal({ subject, onClose }: CorrectionModalProps) {
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
-  const handleSubmit = async () => {
+  const handlePay = async (target: 'EUGENE' | 'YANNICK') => {
     setLoading(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    let studentName = 'Élève Ingénieur';
+    let matricule = 'N/A';
+    let level = 'MSP1';
+    let phone = 'N/A';
 
-    let profile = null;
-    if (user) {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle();
-      profile = data;
+    // 1. Session locale
+    if (typeof window !== 'undefined') {
+      try {
+        const savedSession = localStorage.getItem('polytech_user_session');
+        if (savedSession) {
+          const parsed = JSON.parse(savedSession);
+          if (parsed.name) studentName = parsed.name;
+          if (parsed.matricule) matricule = parsed.matricule;
+          if (parsed.level) level = parsed.level;
+          if (parsed.phone) phone = parsed.phone;
+        }
+      } catch {
+        // Ignorer
+      }
     }
 
-    sendWhatsAppNotification('CORRECTION', {
-      studentName: profile?.full_name || (user?.user_metadata?.full_name as string) || 'Élève Ingénieur',
-      matricule: profile?.matricule || (user?.user_metadata?.matricule as string) || 'N/A',
-      level: profile?.level || (user?.user_metadata?.level as string) || 'N/A',
-      phone: profile?.phone || (user?.user_metadata?.phone as string) || 'N/A',
+    // 2. Supabase
+    let userId = null;
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        userId = user.id;
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (profile) {
+          studentName = profile.full_name || studentName;
+          matricule = profile.matricule || matricule;
+          level = profile.level || level;
+          phone = profile.phone || phone;
+        } else if (user.user_metadata) {
+          studentName = user.user_metadata.full_name || studentName;
+          matricule = user.user_metadata.matricule || matricule;
+          level = user.user_metadata.level || level;
+          phone = user.user_metadata.phone || phone;
+        }
+      }
+    } catch {
+      // Ignorer
+    }
+
+    const channel = target === 'EUGENE' ? 'CORRECTION_EUGENE' : 'CORRECTION_YANNICK';
+    sendWhatsAppNotification(channel, {
+      studentName,
+      matricule,
+      level,
+      phone,
       itemTitle: subject.name,
       subject: subject.code,
     });
 
-    if (user) {
-      await supabase.from('correction_requests').insert({
-        student_id: user.id,
-        student_name: profile?.full_name || (user.user_metadata?.full_name as string) || 'Étudiant',
-        matricule: profile?.matricule || (user.user_metadata?.matricule as string) || 'N/A',
-        subject_name: subject.name,
-        academic_level: profile?.level || (user.user_metadata?.level as string) || 'MSP1',
-        phone: profile?.phone || (user.user_metadata?.phone as string) || '',
-      });
+    if (userId) {
+      try {
+        await supabase.from('correction_requests').insert({
+          student_id: userId,
+          student_name: studentName,
+          matricule,
+          subject_name: subject.name,
+          academic_level: level,
+          phone,
+        });
+      } catch {
+        // Ignorer
+      }
     }
 
     setLoading(false);
@@ -153,7 +196,7 @@ function CorrectionModal({ subject, onClose }: CorrectionModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
       onClick={onClose}
     >
       <motion.div
@@ -161,42 +204,74 @@ function CorrectionModal({ subject, onClose }: CorrectionModalProps) {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="glass-card w-full max-w-md p-8 border-2 border-[#D4AF37]/50 shadow-2xl"
+        className="glass-card w-full max-w-md p-7 border-2 border-[#D4AF37] shadow-2xl rounded-3xl relative holographic"
+        style={{
+          boxShadow: '0 0 50px rgba(212, 175, 55, 0.35)',
+        }}
       >
-        <div className="flex justify-between items-start mb-6">
+        <div className="flex justify-between items-start mb-5">
           <div>
-            <h3 className="text-slate-900 dark:text-white font-black text-xl font-heading">
-              Débloquer la Correction Officielle
+            <div className="inline-flex items-center gap-1.5 bg-[#D4AF37]/15 border border-[#D4AF37]/35 rounded-full px-3 py-1 mb-2">
+              <Lock className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span className="text-[#D4AF37] text-xs font-mono font-bold">{subject.code}</span>
+            </div>
+            <h3 className="text-slate-900 dark:text-white font-black text-xl font-heading leading-tight">
+              Débloquer la Correction Certifiée
             </h3>
-            <p className="text-slate-600 dark:text-slate-300 text-sm mt-1 font-medium">{subject.name}</p>
-            <span className="text-xs font-mono text-sky-600 dark:text-sky-400 font-bold">{subject.code}</span>
+            <p className="text-slate-600 dark:text-slate-300 text-xs mt-1 font-semibold">{subject.name}</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:text-white/40 dark:hover:text-white p-1">
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 dark:text-white/40 dark:hover:text-white p-1 rounded-lg"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="bg-[#D4AF37]/15 border border-[#D4AF37]/35 rounded-2xl p-4 mb-6">
-          <p className="text-[#D4AF37] text-sm font-black mb-1.5 flex items-center gap-2">
-            <span>👑 Correction Certifiée & Détaillée</span>
+        <div className="bg-[#D4AF37]/15 border border-[#D4AF37]/35 rounded-2xl p-4 mb-5">
+          <p className="text-[#D4AF37] text-xs font-black mb-1 flex items-center gap-2">
+            <span>👑 Rédaction & Barème Officiel des Majors</span>
           </p>
-          <p className="text-slate-700 dark:text-slate-200 text-sm font-medium leading-relaxed">
-            Obtenez le barème officiel, la rédaction rigoureuse exigée aux examens et les pièges classiques rédigés par les majors polytechniciens. Redirection vers le support WhatsApp & règlement Orange Money.
+          <p className="text-slate-700 dark:text-slate-300 text-xs font-medium leading-relaxed">
+            Obtenez la correction détaillée avec la rigueur méthodologique exigée aux examens. Contactez directement la direction sur WhatsApp pour le règlement Orange Money / Mobile Money.
           </p>
         </div>
 
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 px-6 rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-emerald-600/30"
-        >
-          {loading ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <MessageCircle className="w-5 h-5" />
-          )}
-          <span>Débloquer via WhatsApp</span>
-        </button>
+        <div className="space-y-3">
+          <p className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider font-heading">
+            Sélectionnez votre contact pour régler :
+          </p>
+
+          <button
+            onClick={() => handlePay('EUGENE')}
+            disabled={loading}
+            className="w-full flex items-center justify-between gap-3 bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] font-black py-3 px-4.5 rounded-xl transition-all shadow-md shadow-[#D4AF37]/25 hover:scale-[1.02] active:scale-98 disabled:opacity-50"
+          >
+            <div className="flex items-center gap-2.5 text-left">
+              <MessageCircle className="w-5 h-5 text-[#050B14]" />
+              <div>
+                <p className="text-xs font-black leading-tight">Payer auprès d&apos;Eugène Samuel GWET</p>
+                <p className="text-[10px] opacity-75 font-semibold">Direction Générale & PCA</p>
+              </div>
+            </div>
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span className="text-xs font-black">→</span>}
+          </button>
+
+          <button
+            onClick={() => handlePay('YANNICK')}
+            disabled={loading}
+            className="w-full flex items-center justify-between gap-3 bg-sky-600 hover:bg-sky-500 text-white font-black py-3 px-4.5 rounded-xl transition-all shadow-md shadow-sky-600/25 hover:scale-[1.02] active:scale-98 disabled:opacity-50"
+          >
+            <div className="flex items-center gap-2.5 text-left">
+              <MessageCircle className="w-5 h-5 text-white" />
+              <div>
+                <p className="text-xs font-black leading-tight">Payer auprès de Yannick BIKEY</p>
+                <p className="text-[10px] opacity-75 font-semibold">Direction Informatique et Opérations</p>
+              </div>
+            </div>
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span className="text-xs font-black">→</span>}
+          </button>
+        </div>
       </motion.div>
     </motion.div>
   );

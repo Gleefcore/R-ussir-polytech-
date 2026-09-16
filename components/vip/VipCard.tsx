@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MessageCircle, Loader2, Clock, Tag, User } from 'lucide-react';
+import { X, MessageCircle, Loader2, Clock, Tag, User, Lock, Crown, Sparkles, ShieldAlert } from 'lucide-react';
 import { type VipProgram } from '@/data/vipPrograms';
-import { sendWhatsAppNotification } from '@/lib/whatsapp';
+import { sendWhatsAppNotification, type WhatsAppChannel } from '@/lib/whatsapp';
 import { createClient } from '@/lib/supabaseClient';
 
 interface VipApplicationModalProps {
@@ -17,28 +17,64 @@ function VipApplicationModal({ program, onClose }: VipApplicationModalProps) {
   const [objective, setObjective] = useState('');
   const supabase = createClient();
 
-  const handleApply = async () => {
+  const handlePayAndUnlock = async (channel: WhatsAppChannel) => {
     setLoading(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    let profile = null;
-    if (user) {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      profile = data;
+    let studentName = 'Élève Ingénieur';
+    let matricule = 'N/A';
+    let level = 'MSP1';
+    let phone = 'N/A';
+
+    // 1. Essayer de récupérer depuis localStorage (session rapide)
+    if (typeof window !== 'undefined') {
+      try {
+        const savedSession = localStorage.getItem('polytech_user_session');
+        if (savedSession) {
+          const parsed = JSON.parse(savedSession);
+          if (parsed.name) studentName = parsed.name;
+          if (parsed.matricule) matricule = parsed.matricule;
+          if (parsed.level) level = parsed.level;
+          if (parsed.phone) phone = parsed.phone;
+        }
+      } catch {
+        // Ignorer
+      }
     }
 
-    sendWhatsAppNotification(program.channel, {
-      studentName: profile?.full_name || 'Étudiant',
-      matricule: profile?.matricule || 'N/A',
-      level: profile?.level || 'N/A',
-      phone: profile?.phone || 'N/A',
+    // 2. Essayer Supabase
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (profile) {
+          studentName = profile.full_name || studentName;
+          matricule = profile.matricule || matricule;
+          level = profile.level || level;
+          phone = profile.phone || phone;
+        } else if (user.user_metadata) {
+          studentName = user.user_metadata.full_name || studentName;
+          matricule = user.user_metadata.matricule || matricule;
+          level = user.user_metadata.level || level;
+          phone = user.user_metadata.phone || phone;
+        }
+      }
+    } catch {
+      // Ignorer
+    }
+
+    sendWhatsAppNotification(channel, {
+      studentName,
+      matricule,
+      level,
+      phone,
       itemTitle: program.title,
-      objective,
+      objective: objective.trim() || 'Règlement de l\'adhésion VIP pour déblocage immédiat',
     });
 
     setLoading(false);
@@ -50,7 +86,7 @@ function VipApplicationModal({ program, onClose }: VipApplicationModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
       onClick={onClose}
     >
       <motion.div
@@ -58,65 +94,108 @@ function VipApplicationModal({ program, onClose }: VipApplicationModalProps) {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="glass-card w-full max-w-lg p-8 border border-poly-gold/40 shadow-2xl"
+        className="glass-card w-full max-w-lg p-8 border-2 border-[#D4AF37] shadow-2xl relative holographic rounded-3xl"
+        style={{
+          boxShadow: '0 0 50px rgba(212, 175, 55, 0.35)',
+        }}
       >
-        <div className="flex justify-between items-start mb-6">
+        <div className="flex justify-between items-start mb-5">
           <div>
-            <span className="text-2xl mb-2 block">{program.icon}</span>
-            <h3 className="text-slate-900 dark:text-white font-bold text-lg">{program.title}</h3>
-            <p className="text-poly-gold font-semibold text-sm mt-1">Mentor : {program.mentor}</p>
+            <div className="inline-flex items-center gap-1.5 bg-[#D4AF37]/20 border border-[#D4AF37]/40 rounded-full px-3 py-1 mb-2">
+              <Crown className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span className="text-[#D4AF37] text-xs font-black uppercase tracking-wider">
+                Espace VIP Monétisé
+              </span>
+            </div>
+            <h3 className="text-xl font-black text-slate-900 dark:text-white font-heading leading-tight">
+              {program.title}
+            </h3>
+            <p className="text-poly-gold font-bold text-xs mt-1">Mentor : {program.mentor}</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:text-white/40 dark:hover:text-white p-1">
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 dark:text-white/40 dark:hover:text-white p-1 rounded-lg"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="space-y-3 mb-6">
-          <div className="flex items-center gap-2 text-slate-600 dark:text-white/60 text-sm">
-            <Clock className="w-4 h-4 text-poly-cyan" />
-            <span>Durée : {program.duration}</span>
-          </div>
-          <div className="flex items-start gap-2 text-slate-600 dark:text-white/60 text-sm">
-            <Tag className="w-4 h-4 text-poly-gold mt-0.5 flex-shrink-0" />
-            <div className="flex flex-wrap gap-1">
-              {program.badges.map((b) => (
-                <span key={b} className="bg-poly-gold/15 text-poly-gold font-medium border border-poly-gold/30 rounded px-2 py-0.5 text-xs">
-                  {b}
-                </span>
-              ))}
+        {/* Bannière explicative de paiement */}
+        <div className="bg-amber-500/10 dark:bg-[#D4AF37]/15 border border-amber-500/30 dark:border-[#D4AF37]/40 rounded-2xl p-4 mb-5">
+          <div className="flex items-start gap-2.5">
+            <Lock className="w-5 h-5 text-[#D4AF37] flex-shrink-0 mt-0.5" />
+            <div className="text-xs leading-relaxed">
+              <p className="text-slate-900 dark:text-white font-bold mb-1">
+                Adhésion requise pour ce module
+              </p>
+              <p className="text-slate-600 dark:text-slate-300">
+                L&apos;accès complet (sessions en direct, mentorat individuel, fichiers sources et certification)
+                se débloque après validation de l&apos;adhésion par la direction via Orange Money ou Mobile Money.
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-slate-600 dark:text-white/60 text-sm">
-            <User className="w-4 h-4 text-poly-cyan" />
+        </div>
+
+        <div className="space-y-2 mb-5 text-xs text-slate-600 dark:text-white/70">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-poly-cyan" />
+            <span>Format intensif : <strong>{program.duration}</strong></span>
+          </div>
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4 text-poly-gold" />
             <span>{program.mentorTitle}</span>
           </div>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm text-slate-700 dark:text-white/60 mb-2 font-medium">
-            Votre objectif / vision (optionnel)
+        <div className="mb-5">
+          <label className="block text-xs font-bold text-slate-700 dark:text-white/80 mb-1.5 font-heading">
+            Votre projet ou motivation (optionnel)
           </label>
-          <textarea
-            rows={3}
-            placeholder={
-              program.channel === 'TECH'
-                ? 'Ex: Améliorer mes rapports de stage, maîtriser Python...'
-                : 'Ex: Développer mon leadership, créer ma startup...'
-            }
+          <input
+            type="text"
+            placeholder="Ex: Perfectionnement stage, création d'entreprise..."
             value={objective}
             onChange={(e) => setObjective(e.target.value)}
-            className="input-field resize-none"
+            className="input-field text-xs"
           />
         </div>
 
-        <button
-          onClick={handleApply}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-6 rounded-xl transition-all disabled:opacity-50 shadow-md shadow-emerald-600/20"
-        >
-          {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <MessageCircle className="w-5 h-5" />}
-          Postuler via WhatsApp
-        </button>
+        {/* Boutons de paiement direct vers Eugène Gwet ou Yannick Bikey */}
+        <div className="space-y-3">
+          <p className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider font-heading">
+            Choisissez votre interlocuteur pour régler :
+          </p>
+
+          <button
+            onClick={() => handlePayAndUnlock('VIP_EUGENE')}
+            disabled={loading}
+            className="w-full flex items-center justify-between gap-3 bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] font-black py-3.5 px-5 rounded-xl transition-all shadow-md shadow-[#D4AF37]/25 hover:scale-[1.02] active:scale-98 disabled:opacity-50"
+          >
+            <div className="flex items-center gap-2.5 text-left">
+              <Crown className="w-5 h-5 text-[#050B14]" />
+              <div>
+                <p className="text-sm leading-tight">Régler avec Eugène Samuel GWET</p>
+                <p className="text-[11px] opacity-75 font-semibold">Cofondateur & PCA Réussir Polytech</p>
+              </div>
+            </div>
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <MessageCircle className="w-5 h-5" />}
+          </button>
+
+          <button
+            onClick={() => handlePayAndUnlock('VIP_YANNICK')}
+            disabled={loading}
+            className="w-full flex items-center justify-between gap-3 bg-sky-600 hover:bg-sky-500 text-white font-black py-3 px-5 rounded-xl transition-all shadow-md shadow-sky-600/25 hover:scale-[1.02] active:scale-98 disabled:opacity-50"
+          >
+            <div className="flex items-center gap-2.5 text-left">
+              <Sparkles className="w-5 h-5 text-sky-200" />
+              <div>
+                <p className="text-sm leading-tight">Régler avec Yannick BIKEY</p>
+                <p className="text-[11px] opacity-75 font-semibold">Directeur Informatique et Opérationnel</p>
+              </div>
+            </div>
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <MessageCircle className="w-5 h-5" />}
+          </button>
+        </div>
       </motion.div>
     </motion.div>
   );
@@ -129,7 +208,6 @@ interface VipCardProps {
 
 export function VipCard({ program, index }: VipCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
-
   const isStrategy = program.channel === 'STRATEGY';
 
   return (
@@ -137,59 +215,82 @@ export function VipCard({ program, index }: VipCardProps) {
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: index * 0.1 }}
+        transition={{ duration: 0.5, delay: index * 0.08 }}
         whileHover={{ y: -6, transition: { duration: 0.2 } }}
-        className={`glass-card p-6 border transition-all group cursor-default shadow-sm dark:shadow-none ${
+        className={`glass-card p-6 border transition-all group cursor-default shadow-md dark:shadow-none relative flex flex-col justify-between ${
           isStrategy
-            ? 'border-poly-gold/30 hover:border-poly-gold/60'
-            : 'border-poly-cyan/30 hover:border-poly-cyan/60'
+            ? 'border-poly-gold/40 hover:border-poly-gold'
+            : 'border-poly-cyan/40 hover:border-poly-cyan'
         }`}
       >
-        {/* Icon & Title */}
-        <div className="flex items-start gap-4 mb-4">
-          <span className="text-4xl">{program.icon}</span>
-          <div>
-            <h3 className="text-slate-900 dark:text-white font-bold text-base leading-snug">{program.title}</h3>
-            <p className={`text-xs font-mono font-bold mt-1 ${isStrategy ? 'text-amber-600 dark:text-poly-gold' : 'text-sky-600 dark:text-poly-cyan'}`}>
-              {program.mentor}
-            </p>
+        {/* Badge VIP verrouillé */}
+        <div className="absolute top-4 right-4 z-10">
+          <div className="inline-flex items-center gap-1.5 bg-[#D4AF37]/15 border border-[#D4AF37]/40 rounded-full px-2.5 py-1 text-[11px] font-black text-[#D4AF37]">
+            <Lock className="w-3 h-3 text-[#D4AF37]" />
+            <span>VIP Réservé</span>
           </div>
         </div>
 
-        {/* Summary */}
-        <p className="text-slate-600 dark:text-white/50 text-sm leading-relaxed mb-4">{program.summary}</p>
+        <div>
+          {/* Icon & Title */}
+          <div className="flex items-start gap-4 mb-4 pr-20">
+            <span className="text-3xl">{program.icon}</span>
+            <div>
+              <h3 className="text-slate-900 dark:text-white font-black text-base leading-snug font-heading">
+                {program.title}
+              </h3>
+              <p className={`text-xs font-mono font-bold mt-1 ${isStrategy ? 'text-[#D4AF37]' : 'text-sky-600 dark:text-poly-cyan'}`}>
+                {program.mentor}
+              </p>
+            </div>
+          </div>
 
-        {/* Badges */}
-        <div className="flex flex-wrap gap-1 mb-4">
-          {program.badges.slice(0, 4).map((badge) => (
-            <span
-              key={badge}
-              className={`text-xs border rounded px-2 py-0.5 font-medium ${
-                isStrategy
-                  ? 'text-amber-700 dark:text-poly-gold/90 border-amber-500/30 bg-amber-500/10'
-                  : 'text-sky-700 dark:text-poly-cyan/90 border-sky-500/30 bg-sky-500/10'
-              }`}
-            >
-              {badge}
+          {/* Summary */}
+          <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed mb-4 font-medium">
+            {program.summary}
+          </p>
+
+          {/* Badges / Compétences */}
+          <div className="flex flex-wrap gap-1 mb-4">
+            {program.badges.slice(0, 4).map((badge) => (
+              <span
+                key={badge}
+                className={`text-[11px] border rounded-md px-2 py-0.5 font-bold ${
+                  isStrategy
+                    ? 'text-amber-800 dark:text-[#F3E5AB] border-[#D4AF37]/40 bg-[#D4AF37]/10'
+                    : 'text-sky-800 dark:text-sky-200 border-sky-500/30 bg-sky-500/10'
+                }`}
+              >
+                {badge}
+              </span>
+            ))}
+          </div>
+
+          {/* Aperçu des ressources bloquées */}
+          <div className="bg-slate-100 dark:bg-white/5 rounded-xl p-2.5 border border-dashed border-slate-300 dark:border-white/10 mb-5 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <span className="flex items-center gap-1.5">
+              <ShieldAlert className="w-3.5 h-3.5 text-[#D4AF37]" />
+              Sessions privées & supports sources
             </span>
-          ))}
+            <span className="text-[10px] font-mono font-bold text-[#D4AF37] uppercase bg-[#D4AF37]/15 px-1.5 py-0.5 rounded">
+              Verrouillé
+            </span>
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-slate-500 dark:text-white/40 text-xs font-medium">
+        {/* Footer avec Bouton de déblocage */}
+        <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/10 pt-4">
+          <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-xs font-bold">
             <Clock className="w-3.5 h-3.5" />
-            {program.duration}
+            <span>{program.duration}</span>
           </div>
+
           <button
             onClick={() => setModalOpen(true)}
-            className={`text-sm font-bold px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95 ${
-              isStrategy
-                ? 'bg-poly-gold text-poly-night hover:bg-poly-gold-hover shadow-sm'
-                : 'bg-sky-500 text-white hover:bg-sky-600 shadow-sm'
-            }`}
+            className="flex items-center gap-1.5 text-xs font-black px-4 py-2.5 rounded-xl transition-all shadow-md bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] hover:scale-105 active:scale-95"
           >
-            Postuler →
+            <Crown className="w-3.5 h-3.5" />
+            <span>Débloquer (VIP)</span>
           </button>
         </div>
       </motion.div>
@@ -202,3 +303,4 @@ export function VipCard({ program, index }: VipCardProps) {
     </>
   );
 }
+

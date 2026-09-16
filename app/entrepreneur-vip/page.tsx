@@ -6,13 +6,13 @@ export default function EntrepreneurVipPage() {
   return (
     <div className="min-h-screen pt-24 pb-16">
       {/* Hero */}
-      <div className="relative overflow-hidden mb-16">
+      <div className="relative overflow-hidden mb-12">
         <div className="absolute inset-0 bg-gradient-to-br from-poly-gold/15 via-transparent to-poly-cyan/15 dark:from-poly-gold/10 dark:via-poly-night dark:to-poly-cyan/10" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <div className="inline-flex items-center gap-2 bg-[#D4AF37]/15 border border-[#D4AF37]/40 rounded-full px-5 py-2 mb-6 shadow-sm">
             <Star className="w-4 h-4 text-[#D4AF37]" />
             <span className="text-[#D4AF37] text-sm font-black tracking-wider uppercase font-mono">
-              Espace VIP Exclusif
+              Espace VIP Exclusif • Showroom Officiel
             </span>
             <Star className="w-4 h-4 text-[#D4AF37]" />
           </div>
@@ -20,10 +20,31 @@ export default function EntrepreneurVipPage() {
             L&apos;Ingénieur Entrepreneur{' '}
             <span className="text-gold-gradient">(Espace VIP)</span>
           </h1>
-          <p className="text-slate-600 dark:text-slate-300 text-lg max-w-2xl mx-auto font-medium">
+          <p className="text-slate-600 dark:text-slate-300 text-lg max-w-3xl mx-auto font-medium mb-8">
             Deux volets de formation d&apos;élite pour forger les ingénieurs-bâtisseurs de demain.
             Technique de haute précision. Vision stratégique d&apos;empire.
           </p>
+
+          {/* Bannière d'accès unique et monétisation */}
+          <div className="max-w-2xl mx-auto glass-card p-5 border-2 border-[#D4AF37]/40 rounded-2xl bg-gradient-to-r from-[#D4AF37]/10 via-white/5 to-[#38BDF8]/10 text-left flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+            <div>
+              <p className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span>👑 Votre compte étudiant donne accès à tout le catalogue</span>
+              </p>
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                Consultez librement tous les programmes ci-dessous. Pour activer votre adhésion VIP et débloquer les sessions privées, réglez directement auprès de la direction sur WhatsApp.
+              </p>
+            </div>
+            <a
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_STRATEGY || '237672356441'}?text=${encodeURIComponent("Bonjour M. Eugène Samuel GWET (PCA Réussir Polytech), je souhaite souscrire et payer mon adhésion VIP pour l'Espace Ingénieur Entrepreneur. Merci de m'indiquer la procédure de règlement.")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0 btn-primary py-2.5 px-4 text-xs font-black text-[#050B14] flex items-center gap-1.5 shadow-md shadow-[#D4AF37]/30 hover:scale-105 transition-transform"
+            >
+              <span>Régler l&apos;Adhésion VIP</span>
+              <span>→</span>
+            </a>
+          </div>
         </div>
       </div>
 
