@@ -24,9 +24,78 @@ const createDefaultResources = (): Resource[] => [
 ];
 
 export const curriculum: Subject[] = [
-  // MSP1 — Semestre 1
-  { id: 'mth111', code: 'MTH111', name: 'Analyse réelle 1', semester: 1, level: 'MSP1', resources: createDefaultResources() },
-  { id: 'mth112', code: 'MTH112', name: 'Algèbre Générale', semester: 1, level: 'MSP1', resources: createDefaultResources() },
+  {
+    id: 'mth111',
+    code: 'MTH111',
+    name: 'Analyse réelle 1',
+    semester: 1,
+    level: 'MSP1',
+    resources: [
+      {
+        type: 'COURS',
+        label: 'Polycopié de cours',
+        isPaid: false,
+      },
+      {
+        type: 'TD',
+        label: 'Fiches de TD & Exercices',
+        url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf',
+        isPaid: false,
+        items: [
+          { title: 'Exercices d\'Analyse Réelle 1 — Bornes Sup/Inf, Suites & Topologie', url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf', date: 'Session 2020-2021' },
+          { title: 'Exercices d\'Analyse Réelle 1 — Parties majorées, Adhérence, Limites', url: '/documents/msp1/cc1-analyse-reelle1-2015-2016.pdf', date: 'Session 2015-2016' },
+        ],
+      },
+      {
+        type: 'EXAMEN',
+        label: 'Examens & CC Officiels',
+        url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf',
+        isPaid: false,
+        items: [
+          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf', date: '2020-2021' },
+          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Dr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2015-2016.pdf', date: '2015-2016' },
+        ],
+      },
+      {
+        type: 'CORRECTION',
+        label: 'Corrections Détaillées',
+        isPaid: true,
+      },
+    ],
+  },
+  {
+    id: 'mth112',
+    code: 'MTH112',
+    name: 'Algèbre Générale',
+    semester: 1,
+    level: 'MSP1',
+    resources: [
+      {
+        type: 'COURS',
+        label: 'Polycopié de cours magistral',
+        url: '/documents/msp1/cours-algebre-generale-polytechnique-bouetou.pdf',
+        isPaid: false,
+        items: [
+          { title: 'Cours d\'Algèbre Générale de l\'ENSPY (118 pages) — Pr Bouetou Bouetou Thomas', url: '/documents/msp1/cours-algebre-generale-polytechnique-bouetou.pdf', date: 'Édition 2022' },
+        ],
+      },
+      {
+        type: 'TD',
+        label: 'Fiches de Travaux Dirigés',
+        isPaid: false,
+      },
+      {
+        type: 'EXAMEN',
+        label: 'Épreuves & Examens officiels',
+        isPaid: false,
+      },
+      {
+        type: 'CORRECTION',
+        label: 'Corrections Détaillées',
+        isPaid: true,
+      },
+    ],
+  },
   { id: 'phy111', code: 'PHY111', name: 'Électromagnétisme 1', semester: 1, level: 'MSP1', resources: createDefaultResources() },
   { id: 'phy112', code: 'PHY112', name: 'Mécanique du point', semester: 1, level: 'MSP1', resources: createDefaultResources() },
   { id: 'phy113', code: 'PHY113', name: 'TP Physique', semester: 1, level: 'MSP1', resources: createDefaultResources() },
@@ -82,7 +151,39 @@ export const curriculum: Subject[] = [
   { id: 'mth122', code: 'MTH122', name: 'Géométrie euclidienne et affine', semester: 2, level: 'MSP1', resources: createDefaultResources() },
   { id: 'mth123', code: 'MTH123', name: 'Algèbre linéaire', semester: 2, level: 'MSP1', resources: createDefaultResources() },
   { id: 'phy121', code: 'PHY121', name: 'Électromagnétisme 2', semester: 2, level: 'MSP1', resources: createDefaultResources() },
-  { id: 'gmc121', code: 'GMC121', name: 'Technologie et sciences des matériaux', semester: 2, level: 'MSP1', resources: createDefaultResources() },
+  {
+    id: 'gmc121',
+    code: 'GMC121',
+    name: 'Technologie et sciences des matériaux (TSM)',
+    semester: 2,
+    level: 'MSP1',
+    resources: [
+      {
+        type: 'COURS',
+        label: 'Polycopié de cours magistral',
+        url: '/documents/msp1/cours-tsm-chapitre1-materiaux-bidoung.pdf',
+        isPaid: false,
+        items: [
+          { title: 'Cours TSM — Chapitre 1 : Définition, Classification et Élaboration des Matériaux', url: '/documents/msp1/cours-tsm-chapitre1-materiaux-bidoung.pdf', date: 'Jean Calvin Bidoung' },
+        ],
+      },
+      {
+        type: 'TD',
+        label: 'Fiches de Travaux Dirigés',
+        isPaid: false,
+      },
+      {
+        type: 'EXAMEN',
+        label: 'Épreuves & Examens officiels',
+        isPaid: false,
+      },
+      {
+        type: 'CORRECTION',
+        label: 'Corrections Détaillées',
+        isPaid: true,
+      },
+    ],
+  },
   { id: 'inf121', code: 'INF121', name: 'Informatique 2', semester: 2, level: 'MSP1', resources: createDefaultResources() },
   { id: 'lng121', code: 'LNG121', name: 'Langue Anglais/Français', semester: 2, level: 'MSP1', resources: createDefaultResources() },
   { id: 'mec121', code: 'MEC121', name: 'Dessin technique', semester: 2, level: 'MSP1', resources: createDefaultResources() },
