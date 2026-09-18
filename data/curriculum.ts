@@ -39,9 +39,11 @@ export const curriculum: Subject[] = [
       {
         type: 'TD',
         label: 'Fiches de TD & Exercices',
-        url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf',
+        url: '/documents/msp1/cc1-analyse-reelle1-2024-2025.pdf',
         isPaid: false,
         items: [
+          { title: 'Exercices d\'Analyse Réelle 1 — Bornes Sup/Inf, Suites & Adhérence', url: '/documents/msp1/cc1-analyse-reelle1-2024-2025.pdf', date: 'Session 2024-2025' },
+          { title: 'Exercices d\'Analyse Réelle 1 — Topologie, Suites, Épargne & Bosquets', url: '/documents/msp1/cc1-analyse-reelle1-2022-2023.pdf', date: 'Session 2022-2023' },
           { title: 'Exercices d\'Analyse Réelle 1 — Bornes Sup/Inf, Suites & Topologie', url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf', date: 'Session 2020-2021' },
           { title: 'Exercices d\'Analyse Réelle 1 — Parties majorées, Adhérence, Limites', url: '/documents/msp1/cc1-analyse-reelle1-2015-2016.pdf', date: 'Session 2015-2016' },
         ],
@@ -49,11 +51,13 @@ export const curriculum: Subject[] = [
       {
         type: 'EXAMEN',
         label: 'Examens & CC Officiels',
-        url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf',
+        url: '/documents/msp1/cc1-analyse-reelle1-2024-2025.pdf',
         isPaid: false,
         items: [
-          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf', date: '2020-2021' },
-          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Dr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2015-2016.pdf', date: '2015-2016' },
+          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2024-2025.pdf', date: 'Novembre 2024' },
+          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2022-2023.pdf', date: 'Novembre 2022' },
+          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf', date: 'Décembre 2020' },
+          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Dr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2015-2016.pdf', date: 'Novembre 2015' },
         ],
       },
       {
@@ -96,8 +100,76 @@ export const curriculum: Subject[] = [
       },
     ],
   },
-  { id: 'phy111', code: 'PHY111', name: 'Électromagnétisme 1', semester: 1, level: 'MSP1', resources: createDefaultResources() },
-  { id: 'phy112', code: 'PHY112', name: 'Mécanique du point', semester: 1, level: 'MSP1', resources: createDefaultResources() },
+  {
+    id: 'phy111',
+    code: 'PHY111',
+    name: 'Électromagnétisme 1',
+    semester: 1,
+    level: 'MSP1',
+    resources: [
+      {
+        type: 'COURS',
+        label: 'Polycopié de cours magistral',
+        url: '/documents/msp1/cours-electromagnetisme-remaoun.pdf',
+        isPaid: false,
+        items: [
+          { title: 'Polycopié d\'Électromagnétisme avec exercices (113 pages) — Dr Sidi Mohammed Remaoun', url: '/documents/msp1/cours-electromagnetisme-remaoun.pdf', date: 'Master & Licence' },
+        ],
+      },
+      {
+        type: 'TD',
+        label: 'Exercices & Travaux Dirigés',
+        url: '/documents/msp1/cours-electromagnetisme-remaoun.pdf',
+        isPaid: false,
+        items: [
+          { title: 'Exercices résolus d\'Électrostatique, Magnétostatique et Régimes variables', url: '/documents/msp1/cours-electromagnetisme-remaoun.pdf', date: 'Inclus dans polycopié' },
+        ],
+      },
+      {
+        type: 'EXAMEN',
+        label: 'Épreuves & Examens officiels',
+        isPaid: false,
+      },
+      {
+        type: 'CORRECTION',
+        label: 'Corrections Détaillées',
+        isPaid: true,
+      },
+    ],
+  },
+  {
+    id: 'phy112',
+    code: 'PHY112',
+    name: 'Mécanique du point',
+    semester: 1,
+    level: 'MSP1',
+    resources: [
+      {
+        type: 'COURS',
+        label: 'Polycopié de cours magistral',
+        url: '/documents/msp1/cours-mecanique1-enspy-djob.pdf',
+        isPaid: false,
+        items: [
+          { title: 'Cours de Mécanique 1 (31 pages) — Dr Roger Djob (ENSPY / Éséka)', url: '/documents/msp1/cours-mecanique1-enspy-djob.pdf', date: '2025/2026' },
+        ],
+      },
+      {
+        type: 'TD',
+        label: 'Fiches de Travaux Dirigés',
+        isPaid: false,
+      },
+      {
+        type: 'EXAMEN',
+        label: 'Épreuves & Examens officiels',
+        isPaid: false,
+      },
+      {
+        type: 'CORRECTION',
+        label: 'Corrections Détaillées',
+        isPaid: true,
+      },
+    ],
+  },
   { id: 'phy113', code: 'PHY113', name: 'TP Physique', semester: 1, level: 'MSP1', resources: createDefaultResources() },
   
   // INFORMATIQUE 1 — ÉPREUVES RÉELLES OFFICIELLES CHARGÉES

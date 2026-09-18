@@ -58,11 +58,11 @@ function ResourceListModal({ resource, subjectCode, onClose }: ResourceModalProp
                 className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 hover:border-[#D4AF37]/50 transition-all flex items-center justify-between gap-4 group"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#D4AF37] transition-colors line-clamp-2">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white group-hover:text-[#D4AF37] transition-colors line-clamp-2">
                     {item.title}
                   </p>
                   {item.date && (
-                    <span className="text-[11px] font-mono font-bold text-[#D4AF37] bg-[#D4AF37]/10 px-2 py-0.5 rounded mt-1 inline-block">
+                    <span className="text-[11px] font-mono text-[#D4AF37] bg-[#D4AF37]/10 px-2 py-0.5 rounded mt-1 inline-block">
                       Session {item.date}
                     </span>
                   )}
@@ -327,7 +327,7 @@ export function SubjectCard({ subject, index }: SubjectCardProps) {
                 <button
                   key={resource.type}
                   onClick={() => setCorrectionOpen(true)}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all hover:scale-[1.03] active:scale-[0.97] font-bold ${cfg.color}`}
+                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all hover:scale-[1.03] active:scale-[0.97] font-medium ${cfg.color}`}
                 >
                   <Lock className="w-4 h-4" />
                   <span className="text-xs">Correction 🔑</span>
@@ -348,7 +348,7 @@ export function SubjectCard({ subject, index }: SubjectCardProps) {
                     alert('Ce document est en cours de numérisation par notre équipe académique.');
                   }
                 }}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all hover:scale-[1.03] active:scale-[0.97] font-bold ${cfg.color}`}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all hover:scale-[1.03] active:scale-[0.97] font-medium ${cfg.color}`}
               >
                 <Icon className="w-4 h-4" />
                 <span className="text-xs">{cfg.label}</span>
