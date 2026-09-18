@@ -15,10 +15,19 @@ export function TeamCard({ member, index }: TeamCardProps) {
   const [hasError, setHasError] = useState(false);
 
   // Active l'affichage des photos officielles disponibles (fallback initiales si absence ou erreur)
-  const hasOfficialPhoto = Boolean(
-    member.photo &&
-    member.id !== 'atyame-yolande'
-  );
+  const MEMBERS_WITH_OFFICIAL_PHOTO = new Set([
+    'eugene-gwet',
+    'stevia-matho',
+    'alex-ngoua',
+    'christian-khouya',
+    'bikey-yannick',
+    'loice-tadontsa',
+    'rose-mbog',
+    'atyame-yolande',
+    'franck',
+    'pacha',
+  ]);
+  const hasOfficialPhoto = MEMBERS_WITH_OFFICIAL_PHOTO.has(member.id);
 
   const initials = member.name
     .split(' ')
