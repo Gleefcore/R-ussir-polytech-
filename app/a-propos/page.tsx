@@ -22,7 +22,7 @@ export default function AProposPage() {
             <span className="text-gold-gradient">Réussir Polytech</span>
           </h1>
           <p className="text-slate-600 dark:text-white/50 max-w-2xl mx-auto">
-            13 architectes de l&apos;excellence. Unis par les actes constitutifs d&apos;Éseka du{' '}
+            {team.length} architectes de l&apos;excellence. Unis par les actes constitutifs d&apos;Éseka du{' '}
             <span className="text-poly-gold font-bold">07 Mai 2026</span>.
           </p>
         </div>

@@ -14,16 +14,11 @@ interface TeamCardProps {
 export function TeamCard({ member, index }: TeamCardProps) {
   const [hasError, setHasError] = useState(false);
 
-  // Active l'affichage des photos dès qu'elles sont disponibles
-  const hasOfficialPhoto =
-    member.id === 'eugene-gwet' ||
-    member.id === 'bikey-yannick' ||
-    member.id === 'stevia-matho' ||
-    member.id === 'alex-ngoua' ||
-    member.id === 'christian-khouya' ||
-    member.id === 'pacha' ||
-    member.id === 'loice-tadontsa' ||
-    member.id === 'rose-mbog';
+  // Active l'affichage des photos officielles disponibles (fallback initiales si absence ou erreur)
+  const hasOfficialPhoto = Boolean(
+    member.photo &&
+    member.id !== 'atyame-yolande'
+  );
 
   const initials = member.name
     .split(' ')

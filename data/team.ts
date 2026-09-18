@@ -59,13 +59,22 @@ export const team: TeamMember[] = [
     order: 5,
   },
   {
+    id: 'loice-tadontsa',
+    name: 'TADONTSA JEUGO LOÏCE GRACIELLE',
+    title: 'Coordinatrice des activités et séances de travail',
+    role: 'Coordinatrice',
+    description: 'Orchestratrice de la dynamique collective. Planifie et anime les sessions académiques pour maximiser la productivité du groupe.',
+    photo: '/assets/team/loice-tadontsa.jpg',
+    order: 6,
+  },
+  {
     id: 'rose-mbog',
     name: 'MBOG ROSE EMMANUELLA',
     title: 'Directrice Informatique Adjointe',
     role: 'DIA & Responsable Matériel',
     description: 'Responsable du matériel technique. Assure la continuité des infrastructures numériques et le support opérationnel.',
     photo: '/assets/team/rose-mbog.jpg',
-    order: 6,
+    order: 7,
   },
   {
     id: 'emmanuella-amour',
@@ -74,7 +83,7 @@ export const team: TeamMember[] = [
     role: 'Ambassadrice',
     description: 'Première représentante de la marque Réussir Polytech. Porte les valeurs de la communauté auprès du plus grand nombre.',
     photo: '/assets/team/emmanuella-amour.jpg',
-    order: 7,
+    order: 8,
   },
   {
     id: 'atyame-yolande',
@@ -83,7 +92,7 @@ export const team: TeamMember[] = [
     role: 'Ambassadrice',
     description: 'Deuxième représentante officielle. Renforce le rayonnement de Réussir Polytech au sein de l\'École Polytechnique.',
     photo: '/assets/team/atyame-yolande.jpg',
-    order: 8,
+    order: 9,
   },
   {
     id: 'franck',
@@ -92,7 +101,7 @@ export const team: TeamMember[] = [
     role: 'Communication',
     description: 'Voix et image de la communauté. Gère les canaux de communication et assiste le Secrétaire Général dans ses missions.',
     photo: '/assets/team/franck.jpg',
-    order: 9,
+    order: 10,
   },
   {
     id: 'pacha',
@@ -101,6 +110,6 @@ export const team: TeamMember[] = [
     role: 'Leader Cadets',
     description: 'Guide et mentor des étudiants MSP1 en filière généraliste. Catalyseur de cohésion et d\'excellence pour les nouvelles recrues.',
     photo: '/assets/team/pacha.jpg',
-    order: 10,
+    order: 11,
   },
 ];
