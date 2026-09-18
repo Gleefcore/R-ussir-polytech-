@@ -51,9 +51,11 @@ export const curriculum: Subject[] = [
       {
         type: 'EXAMEN',
         label: 'Examens & CC Officiels',
-        url: '/documents/msp1/cc1-analyse-reelle1-2024-2025.pdf',
+        url: '/documents/msp1/examen-analyse-reelle1-2025-2026.pdf',
         isPaid: false,
         items: [
+          { title: 'Examen Final — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/examen-analyse-reelle1-2025-2026.pdf', date: '2025-2026' },
+          { title: 'Examen Final — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/examen-analyse-reelle1-2024-2025.pdf', date: '2024-2025' },
           { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2024-2025.pdf', date: 'Novembre 2024' },
           { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2022-2023.pdf', date: 'Novembre 2022' },
           { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf', date: 'Décembre 2020' },
@@ -86,12 +88,26 @@ export const curriculum: Subject[] = [
       {
         type: 'TD',
         label: 'Fiches de Travaux Dirigés',
+        url: '/documents/msp1/cc1-algebre1-nov-2024-yatat.pdf',
         isPaid: false,
+        items: [
+          { title: 'Exercices d\'Algèbre 1 — Logique, Négations, Tautologies, Ensembles & Applications (Dr Yatat)', url: '/documents/msp1/cc1-algebre1-nov-2024-yatat.pdf', date: 'Novembre 2024' },
+          { title: 'Exercices d\'Algèbre 1 — Groupes, Anneaux, Morphismes & Polynômes (Pr Bouetou)', url: '/documents/msp1/cc1-algebre1-nov-2021-bouetou.pdf', date: 'Novembre 2021' },
+        ],
       },
       {
         type: 'EXAMEN',
         label: 'Épreuves & Examens officiels',
+        url: '/documents/msp1/examen-algebre1-janvier-2024-yatat.pdf',
         isPaid: false,
+        items: [
+          { title: 'Examen Final — Algèbre 1 (Dr Yatat Valaire)', url: '/documents/msp1/examen-algebre1-janvier-2024-yatat.pdf', date: 'Janvier 2024' },
+          { title: 'Examen 1er Semestre — Algèbre (Pr Bouetou Bouetou)', url: '/documents/msp1/examen-algebre1-janvier-2023-bouetou.pdf', date: 'Janvier 2023' },
+          { title: 'Examen Semestriel — Algèbre 1', url: '/documents/msp1/examen-algebre1-janvier-2022.pdf', date: 'Janvier 2022' },
+          { title: 'Contrôle Continu — Algèbre 1 (Dr Yatat Valaire)', url: '/documents/msp1/cc1-algebre1-nov-2024-yatat.pdf', date: 'Novembre 2024' },
+          { title: 'Contrôle Continu — Algèbre (Pr Bouetou Bouetou)', url: '/documents/msp1/cc1-algebre1-nov-2021-bouetou.pdf', date: 'Novembre 2021' },
+          { title: 'Contrôle Continu — Algèbre 1', url: '/documents/msp1/cc1-algebre1-dec-2020.pdf', date: 'Décembre 2020' },
+        ],
       },
       {
         type: 'CORRECTION',

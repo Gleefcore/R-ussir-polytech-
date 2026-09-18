@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, MessageCircle, X, Loader2, BookOpen, FileText, Award, Download, ExternalLink, Sparkles } from 'lucide-react';
 import { type Subject, type Resource } from '@/data/curriculum';
@@ -14,6 +14,47 @@ interface ResourceModalProps {
 }
 
 function ResourceListModal({ resource, subjectCode, onClose }: ResourceModalProps) {
+  const [cloudItems, setCloudItems] = useState<Array<{ title: string; url: string; date?: string }>>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadFromCloud = async () => {
+      try {
+        const res = await fetch(`/api/publish-document?subjectCode=${subjectCode.toLowerCase()}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.resources && Array.isArray(data.resources) && isMounted) {
+          const typeMap: Record<string, string> = {
+            exam: 'EXAMEN',
+            course: 'COURS',
+            td: 'TD',
+            correction: 'CORRECTION',
+          };
+          const matched = data.resources
+            .filter((r: { type: string; title: string; file_url: string; description?: string }) => typeMap[r.type] === resource.type)
+            .map((r: { title: string; file_url: string; description?: string }) => ({
+              title: r.title,
+              url: r.file_url,
+              date: r.description ? r.description.replace('Session : ', '') : 'En ligne',
+            }));
+          setCloudItems(matched);
+        }
+      } catch {
+        // Fallback silencieux
+      }
+    };
+    loadFromCloud();
+    return () => { isMounted = false; };
+  }, [resource.type, subjectCode]);
+
+  // Fusionner sans doublon les documents locaux et ceux de Supabase
+  const combinedItems = [...(resource.items || [])];
+  for (const ci of cloudItems) {
+    if (!combinedItems.some((item) => item.title.toLowerCase().trim() === ci.title.toLowerCase().trim())) {
+      combinedItems.unshift(ci);
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -50,9 +91,9 @@ function ResourceListModal({ resource, subjectCode, onClose }: ResourceModalProp
           </button>
         </div>
 
-        <div className="space-y-3 mb-6">
-          {resource.items && resource.items.length > 0 ? (
-            resource.items.map((item, i) => (
+        <div className="space-y-3 mb-6 max-h-[60vh] overflow-y-auto pr-1">
+          {combinedItems.length > 0 ? (
+            combinedItems.map((item, i) => (
               <div
                 key={i}
                 className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 hover:border-[#D4AF37]/50 transition-all flex items-center justify-between gap-4 group"

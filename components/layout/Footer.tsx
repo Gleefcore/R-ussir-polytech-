@@ -50,6 +50,7 @@ export function Footer() {
                 { href: '/msp2', label: 'MSP2' },
                 { href: '/entrepreneur-vip', label: 'VIP Élite' },
                 { href: '/a-propos', label: 'Notre équipe' },
+                { href: '/admin/publier', label: 'Publier une épreuve ⚡' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
