@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// Assurer la résilience réseau en environnement local ou proxy
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dztibqpfatzubvglkkki.supabase.co';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
@@ -76,23 +82,33 @@ const SUBJECTS_CATALOG: Record<
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const subjectCode = searchParams.get('subjectCode')?.toLowerCase();
+    const subjectCode = searchParams.get('subjectCode')?.toLowerCase().trim();
+
+    const noCacheHeaders = {
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+      'CDN-Cache-Control': 'no-store',
+      'Vercel-CDN-Cache-Control': 'no-store',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    };
 
     if (subjectCode) {
       const meta = SUBJECTS_CATALOG[subjectCode];
-      if (!meta) {
-        return NextResponse.json({ resources: [] });
-      }
-
-      const { data, error } = await supabase
+      let query = supabase
         .from('resources')
         .select('*')
         .eq('status', 'published')
-        .eq('subject_id', meta.id)
         .order('created_at', { ascending: false });
 
+      if (meta?.id) {
+        query = query.or(`subject_id.eq.${meta.id},storage_path.ilike.%/${subjectCode}/%`);
+      } else {
+        query = query.ilike('storage_path', `%/${subjectCode}/%`);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
-      return NextResponse.json({ resources: data || [] });
+      return NextResponse.json({ resources: data || [] }, { headers: noCacheHeaders });
     }
 
     // Récupérer tous les documents pour le cockpit administrateur
@@ -103,7 +119,10 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return NextResponse.json({ resources: data || [], catalog: SUBJECTS_CATALOG });
+    return NextResponse.json(
+      { resources: data || [], catalog: SUBJECTS_CATALOG },
+      { headers: noCacheHeaders }
+    );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Erreur interne';
     return NextResponse.json({ error: msg }, { status: 500 });
