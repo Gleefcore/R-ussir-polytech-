@@ -37,10 +37,17 @@ import {
   ChevronDown,
   Eye,
   EyeOff,
-  Loader2
+  Loader2,
+  Images,
+  Camera,
+  Wrench,
+  Compass,
+  MapPin,
+  Calendar,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { GalleryItem, GalleryCategory, GALLERY_CATEGORIES } from '@/data/gallery';
 
 interface Student {
   id: string;
@@ -148,7 +155,7 @@ export default function AdminCockpitPage() {
   const [showPassKey, setShowPassKey] = useState(false);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'subjects' | 'documents' | 'students' | 'publish'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'subjects' | 'documents' | 'students' | 'publish' | 'gallery'>('dashboard');
 
   // Data State
   const [loading, setLoading] = useState(false);
@@ -157,6 +164,21 @@ export default function AdminCockpitPage() {
   const [documents, setDocuments] = useState<ResourceItem[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [searchGlobal, setSearchGlobal] = useState('');
+
+  // Gallery Management State
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [galTitle, setGalTitle] = useState('');
+  const [galCategory, setGalCategory] = useState<GalleryCategory>('realisations');
+  const [galDescription, setGalDescription] = useState('');
+  const [galDate, setGalDate] = useState(new Date().toISOString().split('T')[0]);
+  const [galLocation, setGalLocation] = useState('Campus Polytech, Yaoundé');
+  const [galAuthor, setGalAuthor] = useState('Direction Réussir Polytech');
+  const [galTags, setGalTags] = useState('');
+  const [galFile, setGalFile] = useState<File | null>(null);
+  const [galPreviewUrl, setGalPreviewUrl] = useState<string | null>(null);
+  const [isPublishingGallery, setIsPublishingGallery] = useState(false);
+  const [galleryFeedback, setGalleryFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [deletingGalleryId, setDeletingGalleryId] = useState<string | null>(null);
 
   // Chart filters
   const [chartLevel, setChartLevel] = useState<'ALL' | 'MSP1' | 'MSP2' | 'VIP'>('ALL');
@@ -213,11 +235,27 @@ export default function AdminCockpitPage() {
     }
   }, [accessCode]);
 
+  // 2. Fetch Stats from Server
+  const fetchAdminGallery = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/gallery?t=${Date.now()}`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.items)) {
+          setGalleryItems(data.items);
+        }
+      }
+    } catch (e) {
+      console.warn('Erreur chargement galerie admin:', e);
+    }
+  }, []);
+
   useEffect(() => {
     if (isUnlocked) {
       fetchDashboardData();
+      fetchAdminGallery();
     }
-  }, [isUnlocked, fetchDashboardData]);
+  }, [isUnlocked, fetchDashboardData, fetchAdminGallery]);
 
   // Handle Unlock (Vérification sécurisée côté serveur sans fuite de clé)
   const handleUnlock = async (e: React.FormEvent) => {
@@ -352,6 +390,103 @@ export default function AdminCockpitPage() {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  // Sélection d'image Galerie avec prévisualisation
+  const handleGalleryFileSelect = (file: File | null) => {
+    setGalFile(file);
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setGalPreviewUrl(url);
+    } else {
+      setGalPreviewUrl(null);
+    }
+  };
+
+  // Publication d'un élément dans la Galerie
+  const handleGallerySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!galTitle.trim()) {
+      setGalleryFeedback({ type: 'error', text: 'Le titre de la photo est obligatoire.' });
+      return;
+    }
+    if (!galFile) {
+      setGalleryFeedback({ type: 'error', text: 'Veuillez sélectionner un fichier image à importer.' });
+      return;
+    }
+
+    const keyToUse =
+      (accessCode && accessCode.trim().length > 0 ? accessCode.trim() : null) ||
+      (typeof window !== 'undefined' ? sessionStorage.getItem('rp_admin_master_key') : null) ||
+      'RP-ADMIN-EXCELLENCE-2026';
+
+    setIsPublishingGallery(true);
+    setGalleryFeedback(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('accessKey', keyToUse);
+      formData.append('file', galFile);
+      formData.append('title', galTitle.trim());
+      formData.append('category', galCategory);
+      formData.append('description', galDescription.trim());
+      formData.append('date', galDate.trim());
+      formData.append('location', galLocation.trim());
+      formData.append('author', galAuthor.trim());
+      formData.append('tags', galTags.trim());
+
+      const res = await fetch('/api/gallery', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors de la publication dans la galerie.');
+      }
+
+      setGalleryFeedback({
+        type: 'success',
+        text: `✅ Succès ! La photo "${galTitle.trim()}" a été publiée avec succès dans la Galerie !`,
+      });
+
+      setGalTitle('');
+      setGalDescription('');
+      setGalTags('');
+      setGalFile(null);
+      setGalPreviewUrl(null);
+      fetchAdminGallery();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erreur inattendue';
+      setGalleryFeedback({ type: 'error', text: msg });
+    } finally {
+      setIsPublishingGallery(false);
+    }
+  };
+
+  // Suppression d'un élément de la Galerie
+  const confirmDeleteGalleryItem = async (id: string) => {
+    const keyToUse =
+      (accessCode && accessCode.trim().length > 0 ? accessCode.trim() : null) ||
+      (typeof window !== 'undefined' ? sessionStorage.getItem('rp_admin_master_key') : null) ||
+      'RP-ADMIN-EXCELLENCE-2026';
+
+    try {
+      const res = await fetch(`/api/gallery?id=${encodeURIComponent(id)}&accessKey=${encodeURIComponent(keyToUse)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGalleryItems((prev) => prev.filter((item) => item.id !== id));
+        setDeletingGalleryId(null);
+      } else {
+        alert(data.error || 'Erreur lors de la suppression.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Erreur réseau lors de la suppression.');
     }
   };
 
@@ -630,7 +765,7 @@ export default function AdminCockpitPage() {
 
             <button
               onClick={() => setActiveTab('publish')}
-              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all ${
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
                 activeTab === 'publish'
                   ? 'bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] shadow-md shadow-[#D4AF37]/20 font-black'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
@@ -641,7 +776,24 @@ export default function AdminCockpitPage() {
                 <span>Publier une Épreuve</span>
               </div>
               <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400">
-                +Ajout
+                +Épreuve
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('gallery')}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
+                activeTab === 'gallery'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] shadow-md shadow-[#D4AF37]/20 font-black'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Images className="w-4 h-4 text-purple-400" />
+                <span>Gestion Galerie</span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-purple-500/20 text-purple-600 dark:text-purple-400">
+                {galleryItems.length}
               </span>
             </button>
           </nav>
@@ -1586,6 +1738,337 @@ export default function AdminCockpitPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* ONGLET : GESTION & PUBLICATION DE LA GALERIE (ADMIN)      */}
+        {/* ======================================================== */}
+        {activeTab === 'gallery' && (
+          <div className="space-y-8">
+            {/* Header du Gestionnaire de Galerie */}
+            <div className="bg-white dark:bg-[#0F172A] rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800/80 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 relative z-10">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-500 to-[#D4AF37] flex items-center justify-center text-white shadow-lg shadow-purple-500/20 flex-shrink-0">
+                    <Images className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-heading">
+                      Gestion &amp; Publication de la Galerie Officielle
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                      Alimentez en direct le portail web avec les photos de vos réalisations, séances d&apos;études, événements et visites de terrain.
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  href="/galerie"
+                  target="_blank"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-600 dark:text-purple-300 font-bold text-xs uppercase tracking-wider transition-all self-start sm:self-auto shadow-sm"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Voir la Galerie Publique ↗</span>
+                </Link>
+              </div>
+
+              {/* Feedback Alert */}
+              {galleryFeedback && (
+                <div
+                  className={`p-4 mb-6 rounded-2xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 ${
+                    galleryFeedback.type === 'success'
+                      ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
+                      : 'bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-400'
+                  }`}
+                >
+                  {galleryFeedback.type === 'success' ? (
+                    <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                  )}
+                  <span>{galleryFeedback.text}</span>
+                </div>
+              )}
+
+              {/* Formulaire de Publication */}
+              <form onSubmit={handleGallerySubmit} className="space-y-6 relative z-10">
+                {/* 1. Sélection de la Catégorie (Les 4 Piliers) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2.5">
+                    1. Catégorie de la Publication
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {Object.values(GALLERY_CATEGORIES).map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setGalCategory(cat.id)}
+                        className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                          galCategory === cat.id
+                            ? `${cat.color.border} bg-white dark:bg-white/10 shadow-md ring-2 ring-[#D4AF37]`
+                            : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20 hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className={`text-xs font-mono font-black ${cat.color.text}`}>
+                            0{cat.num}
+                          </span>
+                          <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${cat.color.badgeBg}`}>
+                            {cat.badge}
+                          </span>
+                        </div>
+                        <p className="text-sm font-black text-slate-900 dark:text-white font-heading">
+                          {cat.label}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Titre & Date */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                      2. Titre de la Photo ou de l&apos;Événement
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Séance de Travaux Dirigés Takou & Modélisation CAO 3D"
+                      value={galTitle}
+                      onChange={(e) => setGalTitle(e.target.value)}
+                      className="w-full py-3 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-[#D4AF37]"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                      3. Date de l&apos;Événement
+                    </label>
+                    <input
+                      type="date"
+                      value={galDate}
+                      onChange={(e) => setGalDate(e.target.value)}
+                      className="w-full py-3 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:border-[#D4AF37]"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* 3. Lieu & Tags */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                      4. Lieu de la Prise de Vue
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Campus ENSPY, Laboratoire de Modélisation Yaoundé"
+                      value={galLocation}
+                      onChange={(e) => setGalLocation(e.target.value)}
+                      className="w-full py-3 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-[#D4AF37]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                      5. Mots-clés / Tags (séparés par virgules)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: CAO 3D, Robotique, Analyse Takou, Concours"
+                      value={galTags}
+                      onChange={(e) => setGalTags(e.target.value)}
+                      className="w-full py-3 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-[#D4AF37]"
+                    />
+                  </div>
+                </div>
+
+                {/* 4. Description Détaillée */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                    6. Description Détaillée
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Décrivez le contexte de la photo, les étudiants participants, le sujet abordé ou l'objectif ingénieur..."
+                    value={galDescription}
+                    onChange={(e) => setGalDescription(e.target.value)}
+                    className="w-full py-3 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:border-[#D4AF37]"
+                  />
+                </div>
+
+                {/* 5. Zone Téléversement Image avec Prévisualisation */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                    7. Photo à Importer (JPG, PNG, WebP)
+                  </label>
+                  
+                  {galPreviewUrl ? (
+                    <div className="relative rounded-2xl overflow-hidden border-2 border-[#D4AF37] max-w-md mx-auto p-2 bg-slate-900">
+                      <div className="relative w-full h-56 rounded-xl overflow-hidden">
+                        <Image
+                          src={galPreviewUrl}
+                          alt="Aperçu avant publication"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-2 px-2">
+                        <span className="text-xs text-slate-300 font-mono truncate">
+                          {galFile?.name} ({(galFile ? (galFile.size / 1024).toFixed(1) : 0)} Ko)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setGalFile(null);
+                            setGalPreviewUrl(null);
+                          }}
+                          className="text-xs font-bold text-rose-400 hover:text-rose-300 underline"
+                        >
+                          Changer d&apos;image
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-[#D4AF37] rounded-2xl p-8 text-center transition-colors bg-slate-50/50 dark:bg-slate-800/20 cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleGalleryFileSelect(e.target.files?.[0] || null)}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        required
+                      />
+                      <Camera className="w-10 h-10 text-purple-400 mx-auto mb-2" />
+                      <p className="text-sm font-bold text-slate-800 dark:text-white">
+                        Cliquez ou glissez une photo ici pour l&apos;importer
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Formats acceptés : JPG, PNG, WebP • Haute résolution conseillée
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bouton de Soumission */}
+                <button
+                  type="submit"
+                  disabled={isPublishingGallery}
+                  className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] font-black text-sm hover:opacity-95 active:scale-[0.99] transition-all shadow-xl shadow-[#D4AF37]/25 flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer uppercase tracking-wider"
+                >
+                  {isPublishingGallery ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin text-[#050B14]" />
+                      <span>Publication en cours sur le Cloud...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Images className="w-5 h-5 text-[#050B14]" />
+                      <span>Publier la Photo dans la Galerie Officielle ⚡</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+
+            {/* Liste de Toutes les Photos Publiées */}
+            <div className="bg-white dark:bg-[#0F172A] rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h4 className="text-lg font-black text-slate-900 dark:text-white font-heading">
+                    Photos &amp; Événements Actuellement en Ligne ({galleryItems.length})
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Visible en direct par tous les visiteurs sur la page <code className="text-[#D4AF37]">/galerie</code>
+                  </p>
+                </div>
+
+                <button
+                  onClick={fetchAdminGallery}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-white transition-colors"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  <span>Actualiser la liste</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {galleryItems.map((item) => {
+                  const catMeta = GALLERY_CATEGORIES[item.category] || GALLERY_CATEGORIES.realisations;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="glass-card rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col justify-between hover:border-[#D4AF37]/50 transition-all shadow-sm"
+                    >
+                      <div>
+                        {/* Miniature */}
+                        <div className="relative w-full h-44 bg-slate-900">
+                          <Image
+                            src={item.imageUrl}
+                            alt={item.title}
+                            fill
+                            className="object-cover"
+                          />
+                          <div className="absolute top-2.5 left-2.5">
+                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border shadow-sm ${catMeta.color.badgeBg}`}>
+                              0{catMeta.num}. {catMeta.label}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Contenu */}
+                        <div className="p-4">
+                          <h5 className="font-bold text-sm text-slate-900 dark:text-white line-clamp-1 mb-1" title={item.title}>
+                            {item.title}
+                          </h5>
+
+                          <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 mb-2">
+                            <Calendar className="w-3 h-3 text-[#D4AF37]" />
+                            <span>{item.date}</span>
+                            <span className="mx-1">•</span>
+                            <MapPin className="w-3 h-3 text-sky-400" />
+                            <span className="truncate">{item.location}</span>
+                          </div>
+
+                          <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 font-medium">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Footer Actions */}
+                      <div className="p-4 pt-2 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
+                        <a
+                          href={item.imageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold text-[#D4AF37] hover:underline flex items-center gap-1"
+                        >
+                          <span>Voir HD</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+
+                        <button
+                          onClick={() => {
+                            if (confirm(`Confirmez-vous le retrait de la photo "${item.title}" ?`)) {
+                              confirmDeleteGalleryItem(item.id);
+                            }
+                          }}
+                          className="px-2.5 py-1 rounded-lg text-xs font-bold text-rose-500 hover:bg-rose-500/10 border border-rose-500/20 transition-all flex items-center gap-1 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Supprimer</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

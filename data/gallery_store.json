@@ -1,0 +1,50 @@
+[
+  {
+    "id": "gal-1",
+    "title": "Modélisation Mécanique & Conception CAO 3D",
+    "category": "realisations",
+    "description": "Session de conception numérique et modélisation paramétrique assistée par ordinateur menée sous la supervision du bureau G-INNOVA.",
+    "imageUrl": "/assets/gallery/cad-engineering-2.jpg",
+    "date": "2026-02-28",
+    "location": "Laboratoire de Modélisation Polytech, Yaoundé",
+    "author": "Direction Réussir Polytech",
+    "tags": ["CAO 3D", "Ingénierie", "G-INNOVA", "SolidWorks"],
+    "createdAt": "2026-02-28T14:30:00Z"
+  },
+  {
+    "id": "gal-2",
+    "title": "Travaux Dirigés & Résolution Takou Analyse Réelle",
+    "category": "etudes",
+    "description": "Séance d'étude collaborative en classe préparatoire : étude des séries de Riemann, calcul différentiel et résolutions d'épreuves.",
+    "imageUrl": "/assets/gallery/lab-collaboration-3.jpg",
+    "date": "2026-03-05",
+    "location": "Salle d'Étude Amphi 200, Yaoundé",
+    "author": "Intellectual Academy & Réussir Polytech",
+    "tags": ["Maths Takou", "MSP1", "Analyse Réelle", "Répétitions"],
+    "createdAt": "2026-03-05T10:15:00Z"
+  },
+  {
+    "id": "gal-3",
+    "title": "Séminaire Haute Performance & Leadership d'Ingénieur",
+    "category": "evenements",
+    "description": "Conférence spéciale réunissant les élèves-ingénieurs autour de la vision industrielle, de la discipline mentale et du leadership opérationnel.",
+    "imageUrl": "/assets/gallery/family-leaders-portrait.jpg",
+    "date": "2026-03-12",
+    "location": "Centre de Conférences Polytech",
+    "author": "Eugène Samuel GWET & Bikey Yannick",
+    "tags": ["Leadership", "Conférence", "VIP", "Excellence"],
+    "createdAt": "2026-03-12T16:00:00Z"
+  },
+  {
+    "id": "gal-4",
+    "title": "Immersion Laboratoire Robotique & Automatismes Industriels",
+    "category": "visites",
+    "description": "Visite guidée et immersion pratique des étudiants au sein des bancs de test mécatroniques et bancs d'automatisation industrielle.",
+    "imageUrl": "/assets/gallery/lab-robotics-1.jpg",
+    "date": "2026-03-18",
+    "location": "Plateforme Technologique Industrielle",
+    "author": "Bureau d'Études Polytech",
+    "tags": ["Robotique", "Visite Industrielle", "Automatique", "Terrain"],
+    "createdAt": "2026-03-18T11:45:00Z"
+  }
+]

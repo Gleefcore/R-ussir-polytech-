@@ -58,6 +58,7 @@ export function Footer() {
                 { href: '/msp1', label: 'MSP1' },
                 { href: '/msp2', label: 'MSP2' },
                 { href: '/entrepreneur-vip', label: 'VIP Élite' },
+                { href: '/galerie', label: 'Galerie' },
                 { href: '/a-propos', label: 'Notre équipe' },
                 { href: '/admin', label: 'Espace Administrateur 🔒' },
                 { href: '/politique-de-confidentialite', label: 'Politique de Confidentialité' },

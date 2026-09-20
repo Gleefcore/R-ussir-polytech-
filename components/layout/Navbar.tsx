@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, GraduationCap, Star, Users, LayoutDashboard, ShieldCheck, LogOut } from 'lucide-react';
+import { Menu, X, GraduationCap, Star, Users, LayoutDashboard, ShieldCheck, LogOut, Images } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { createClient } from '@/lib/supabaseClient';
 
@@ -21,6 +21,7 @@ const navLinks = [
   { href: '/msp1', label: 'MSP1', icon: GraduationCap, isPublic: true },
   { href: '/msp2', label: 'MSP2', icon: GraduationCap, isPublic: true },
   { href: '/entrepreneur-vip', label: 'L\'Ingénieur Entrepreneur (Espace VIP)', icon: Star, isPublic: true },
+  { href: '/galerie', label: 'Galerie', icon: Images, isPublic: true },
   { href: '/a-propos', label: 'Notre Équipe', icon: Users, isPublic: true },
 ];
 
