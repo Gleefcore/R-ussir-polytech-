@@ -1,9 +1,18 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { MessageCircle } from 'lucide-react';
 
 export function Footer() {
+  const pathname = usePathname();
   const support = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT || '237672356441';
+
+  // Masquer le pied de page sur le cockpit administrateur
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <footer className="border-t border-slate-200 dark:border-white/5 bg-slate-100 dark:bg-poly-card mt-20 transition-colors duration-300">

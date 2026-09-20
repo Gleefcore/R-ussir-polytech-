@@ -91,6 +91,11 @@ export function Navbar() {
   const effectiveLevel = activeSession?.level || user?.user_metadata?.level || 'MSP1';
   const isLoggedIn = !!(activeSession || user);
 
+  // Masquer la barre de navigation publique sur le cockpit administrateur pour éviter toute superposition
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
