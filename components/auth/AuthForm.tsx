@@ -135,93 +135,62 @@ export function AuthForm() {
     setCelebrating(true);
   };
 
+  // ==========================================
+  // CONNEXION RÉSILIENTE (MATRICULE OU EMAIL)
+  // ==========================================
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const identifier = loginIdentifier.trim();
-    let authEmail = identifier;
-    let foundDisplayName = identifier;
-    let resolvedLevel = 'MSP1';
-
-    // Si ce n'est pas un email (ne contient pas @), on recherche le profil par matricule
-    if (!identifier.includes('@')) {
-      const cleanMatricule = identifier.toUpperCase();
-      const { data: profileFound } = await supabase
-        .from('profiles')
-        .select('email, matricule, full_name, level')
-        .eq('matricule', cleanMatricule)
-        .maybeSingle();
-
-      if (profileFound && profileFound.email) {
-        authEmail = profileFound.email;
-        foundDisplayName = profileFound.full_name || cleanMatricule;
-        if (profileFound.level) resolvedLevel = profileFound.level;
-      } else {
-        const safeLocal = cleanMatricule.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-        authEmail = `${safeLocal}@polytech.rp`;
-      }
-    }
-
-    const { data: signData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: authEmail,
-      password: loginPassword,
-    });
-
-    if (signInError) {
-      // Fallback si l'utilisateur a tapé son matricule
-      if (!identifier.includes('@')) {
-        const safeLocal = identifier.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-        const fallbackEmail = `${safeLocal}@polytech.rp`;
-        if (fallbackEmail !== authEmail) {
-          const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
-            email: fallbackEmail,
-            password: loginPassword,
-          });
-          if (!retryError) {
-            persistCredentials(identifier, loginPassword);
-            const name = retryData.user?.user_metadata?.full_name || identifier;
-            const dest = retryData.user?.user_metadata?.level === 'MSP2' ? '/msp2' : '/msp1';
-            triggerSuccessAndRedirect(name, dest, retryData.user?.user_metadata?.level || 'MSP1');
-            setLoading(false);
-            return;
-          }
-        }
-      }
-      setError("Identifiants incorrects. Vérifiez votre matricule/email et mot de passe.");
-      setLoading(false);
-    } else {
-      // Résoudre le niveau si pas encore identifié
-      if (signData?.user?.id) {
-        const { data: userProfile } = await supabase
-          .from('profiles')
-          .select('level, full_name')
-          .eq('id', signData.user.id)
-          .maybeSingle();
-        if (userProfile?.level) {
-          resolvedLevel = userProfile.level;
-        } else if (signData.user.user_metadata?.level) {
-          resolvedLevel = signData.user.user_metadata.level;
-        }
-      }
-
-      persistCredentials(identifier, loginPassword);
-      const name = signData.user?.user_metadata?.full_name || foundDisplayName;
-      const dest = resolvedLevel === 'MSP2' ? '/msp2' : '/msp1';
-
-      persistActiveSession({
-        name,
-        matricule: identifier,
-        level: resolvedLevel,
-        email: authEmail,
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: loginIdentifier.trim(),
+          password: loginPassword,
+        }),
       });
 
-      triggerSuccessAndRedirect(name, dest, resolvedLevel);
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Erreur lors de la connexion.');
+      }
+
+      // Synchroniser la session dans le client Supabase
+      if (data.session) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+      }
+
+      // Mémoriser les identifiants
+      persistCredentials(loginIdentifier, loginPassword);
+
+      // Mémoriser la session locale active
+      persistActiveSession({
+        name: data.fullName,
+        matricule: data.matricule,
+        level: data.level,
+        email: data.email,
+      });
+
+      const dest = data.level === 'MSP2' ? '/msp2' : '/msp1';
+      triggerSuccessAndRedirect(data.fullName, dest, data.level);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Identifiants incorrects.';
+      setError(msg);
+    } finally {
       setLoading(false);
     }
   };
 
+  // ==========================================
+  // INSCRIPTION RÉSILIENTE & AUTO-CONFIRMÉE
+  // ==========================================
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reg.avatar) {
@@ -231,88 +200,66 @@ export function AuthForm() {
 
     const cleanMatricule = reg.matricule.trim();
     if (!cleanMatricule) {
-      setError('Veuillez renseigner votre matricule.');
+      setError('Veuillez renseigner votre matricule académique.');
       return;
     }
 
     setLoading(true);
     setError('');
 
-    const userEmail = reg.email.trim()
-      ? reg.email.trim().toLowerCase()
-      : `${cleanMatricule.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}@polytech.rp`;
-
-    // 1. Inscription Auth
-    const { data: authData, error: signUpError } = await supabase.auth.signUp({
-      email: userEmail,
-      password: reg.password,
-      options: {
-        data: {
-          full_name: reg.fullName.trim(),
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: reg.fullName.trim(),
+          email: reg.email.trim(),
           matricule: cleanMatricule,
           phone: reg.phone.trim(),
           level: reg.level,
-        },
-      },
-    });
+          password: reg.password,
+        }),
+      });
 
-    if (signUpError || !authData.user) {
-      setError(signUpError?.message || 'Erreur lors de la création du compte.');
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Erreur lors de la création du compte.');
+      }
+
+      // Upload de l'avatar si utilisateur créé
+      if (data.user?.id && reg.avatar) {
+        const fileExt = reg.avatar.name.split('.').pop() || 'jpg';
+        const avatarPath = `${data.user.id}.${fileExt}`;
+        await supabase.storage.from('avatars').upload(avatarPath, reg.avatar, { upsert: true });
+      }
+
+      // Synchroniser la session dans le client Supabase
+      if (data.session) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+      }
+
+      persistCredentials(cleanMatricule, reg.password);
+
+      persistActiveSession({
+        name: data.fullName,
+        matricule: data.matricule,
+        level: data.level,
+        email: data.email,
+        phone: reg.phone.trim(),
+      });
+
+      const dest = data.level === 'MSP2' ? '/msp2' : '/msp1';
+      triggerSuccessAndRedirect(data.fullName, dest, data.level);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erreur lors de l\'inscription.';
+      setError(msg);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const userId = authData.user.id;
-
-    // 2. Upload de l'avatar
-    const fileExt = reg.avatar.name.split('.').pop() || 'jpg';
-    const avatarPath = `${userId}.${fileExt}`;
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(avatarPath, reg.avatar, { upsert: true });
-
-    let avatarUrl = '';
-    if (!uploadError) {
-      const { data: publicUrlData } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(avatarPath);
-      avatarUrl = publicUrlData.publicUrl;
-    }
-
-    // 3. Sauvegarde profil
-    const profilePayload: Record<string, unknown> = {
-      id: userId,
-      full_name: reg.fullName.trim(),
-      matricule: cleanMatricule,
-      email: userEmail,
-      phone: reg.phone.trim(),
-      level: reg.level,
-      avatar_url: avatarUrl || '',
-    };
-
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert(profilePayload, { onConflict: 'id' });
-
-    if (profileError) {
-      delete profilePayload.email;
-      await supabase.from('profiles').upsert(profilePayload, { onConflict: 'id' });
-    }
-
-    // Sauvegarder automatiquement les identifiants pour la prochaine fois
-    persistCredentials(cleanMatricule, reg.password);
-
-    persistActiveSession({
-      name: reg.fullName.trim(),
-      matricule: cleanMatricule,
-      level: reg.level,
-      email: userEmail,
-      phone: reg.phone.trim(),
-    });
-
-    const dest = reg.level === 'MSP2' ? '/msp2' : '/msp1';
-    triggerSuccessAndRedirect(reg.fullName.trim(), dest, reg.level);
-    setLoading(false);
   };
 
   const canSubmitRegister =
@@ -356,7 +303,7 @@ export function AuthForm() {
           ))}
         </div>
 
-        {/* Message d'aide si mot de passe pré-rempli */}
+        {/* Message d'aide si identifiants pré-remplis */}
         {mode === 'login' && savedCredentialFound && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
@@ -368,15 +315,15 @@ export function AuthForm() {
           </motion.div>
         )}
 
-        {/* Erreur éventuelle */}
+        {/* Erreur éventuelle avec message clair */}
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-2 bg-red-500/15 border border-red-500/30 rounded-xl p-4 mb-6 text-red-600 dark:text-red-400 text-sm font-semibold"
+            className="flex items-start gap-2.5 bg-red-500/15 border border-red-500/30 rounded-xl p-4 mb-6 text-red-600 dark:text-red-400 text-xs sm:text-sm font-semibold"
           >
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            {error}
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <span>{error}</span>
           </motion.div>
         )}
 
@@ -385,21 +332,21 @@ export function AuthForm() {
           <form onSubmit={handleLogin} className="space-y-4" autoComplete="on">
             <div>
               <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1.5 font-heading">
-                Matricule ou Adresse Email
+                Matricule académique ou Email
               </label>
               <input
                 id="username"
                 name="username"
                 type="text"
                 autoComplete="username"
-                placeholder="Ex: 24P100, 2024Q15, ou votre@email.com"
+                placeholder="Ex: 25Q529, 25Q526, 24P100, ou email@..."
                 value={loginIdentifier}
                 onChange={(e) => setLoginIdentifier(e.target.value)}
-                className="input-field"
+                className="input-field font-mono font-bold"
                 required
               />
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                Connectez-vous avec n&apos;importe quel matricule universitaire ou votre email.
+                Saisissez votre matricule (Polytech Yaoundé, Douala...) ou votre adresse email.
               </p>
             </div>
 
@@ -448,7 +395,7 @@ export function AuthForm() {
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Connexion au cockpit...</span>
+                  <span>Connexion en cours...</span>
                 </>
               ) : (
                 <>
@@ -534,7 +481,7 @@ export function AuthForm() {
               </label>
               <input
                 type="text"
-                placeholder="Ex: 24P100, 2024Q15, 2024P089..."
+                placeholder="Ex: 25Q529, 25Q526, 24P100, 2024Q15..."
                 value={reg.matricule}
                 onChange={(e) =>
                   setReg((p) => ({ ...p, matricule: e.target.value.trim().toUpperCase() }))

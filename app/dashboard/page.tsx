@@ -110,7 +110,7 @@ export default async function DashboardPage() {
           >
             <User className="w-8 h-8 text-violet-600 dark:text-violet-400 mb-3" />
             <h3 className="text-slate-900 dark:text-white font-bold">Équipe dirigeante</h3>
-            <p className="text-slate-500 dark:text-white/40 text-sm mt-1">13 membres fondateurs & leaders</p>
+            <p className="text-slate-500 dark:text-white/40 text-sm mt-1">14 membres fondateurs & mentors</p>
           </Link>
         </div>
 
