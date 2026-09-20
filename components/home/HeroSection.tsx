@@ -1,278 +1,182 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowRight,
-  ArrowUpRight,
-  Play,
-  CheckCircle2,
-  Cpu,
-  Brain,
-  Cog,
+  GraduationCap,
   Sparkles,
-  Layers,
+  Search,
+  BookOpen,
+  ArrowRight,
   ShieldCheck,
+  Users,
+  CheckCircle2,
+  FileText,
+  Star,
 } from 'lucide-react';
 
-const teamAvatars = [
-  { name: 'Eugène Gwet', photo: '/assets/team/eugene-gwet.jpg' },
-  { name: 'Stevia Matho', photo: '/assets/team/stevia-matho.jpg' },
-  { name: 'Pierre Yannick Bikei', photo: '/assets/team/bikey-yannick.jpg' },
-  { name: 'Loïce Tadontsa', photo: '/assets/team/loice-tadontsa.jpg' },
-];
-
-const labTabs = [
-  {
-    id: 'robotics',
-    name: 'Robotique & CAO 3D',
-    icon: Cog,
-    image: '/assets/gallery/lab-robotics-1.jpg',
-    telemetry: 'SolidWorks 2026 • Cinématique 6 Axes • Bras Robotisé',
-    status: 'Atelier Mécanique Actif',
-    metrics: { resolution: '0.001 mm', mode: 'Asservissement PID', env: 'ENSPY Lab 01' },
-    link: '/msp1',
-  },
-  {
-    id: 'datascience',
-    name: 'Data Science & IA',
-    icon: Brain,
-    image: '/assets/gallery/lab-collaboration-3.jpg',
-    telemetry: 'Python 3.12 • Deep Learning • Tenseurs & Optimisation',
-    status: 'Calcul Intensif Déployé',
-    metrics: { resolution: 'FP32 CUDA', mode: 'Réseaux de Neurones', env: 'Serveur Cloud' },
-    link: '/msp1',
-  },
-  {
-    id: 'cad',
-    name: 'Bureau G-INNOVA',
-    icon: Layers,
-    image: '/assets/gallery/cad-engineering-2.jpg',
-    telemetry: 'Tables Tactiles • RDM des Matériaux • Prototypage',
-    status: 'Conception Collaborative',
-    metrics: { resolution: '4K Ultra-Touch', mode: 'Modélisation CAO', env: 'Station Pro' },
-    link: '/entrepreneur-vip',
-  },
-];
-
 export function HeroSection() {
-  const [activeTab, setActiveTab] = useState(0);
-  const currentTab = labTabs[activeTab];
+  const [searchWord, setSearchWord] = useState('');
+
+  const quickSubjects = [
+    { label: 'Analyse 1 (Takou)', href: '/msp1' },
+    { label: 'Algèbre (Bouetou)', href: '/msp1' },
+    { label: 'Électromagnétisme', href: '/msp1' },
+    { label: 'Mécanique du Point', href: '/msp1' },
+    { label: 'Algèbre Multilinéaire (MSP2)', href: '/msp2' },
+    { label: 'Probabilités (MSP2)', href: '/msp2' },
+  ];
 
   return (
-    <section className="relative pt-28 pb-12 sm:pt-32 sm:pb-16 overflow-hidden">
-      {/* Background technique discret */}
-      <div className="absolute inset-0 bg-[#F8FAFC] dark:bg-[#040812] transition-colors duration-500" />
-      
-      {/* Grille technique d'ingénieur */}
-      <div
-        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
-        style={{
-          backgroundImage: `linear-gradient(to right, #0284C7 1px, transparent 1px), linear-gradient(to bottom, #0284C7 1px, transparent 1px)`,
-          backgroundSize: '48px 48px',
-        }}
-      />
+    <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-16 overflow-hidden">
+      {/* Halos doux en fond */}
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-[#D4AF37]/10 via-[#0284C7]/10 to-transparent blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        {/* GRAND CONTENEUR INDUSTRIEL FORGEX (Arrondi 36px, sombre, haute précision) */}
-        <div className="relative rounded-[32px] sm:rounded-[40px] overflow-hidden bg-[#070E1B] border border-slate-800 shadow-2xl text-white">
-          
-          {/* Halos d'ambiance industrielle */}
-          <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
-          <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#D4AF37]/15 rounded-full blur-[140px] pointer-events-none" />
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center p-6 sm:p-10 lg:p-14 relative z-10">
+        
+        {/* GRANDE CARTE D'ACCUEIL CHALEUREUSE & PRESTIGIEUSE (Courbes douces 40px) */}
+        <div className="rounded-[32px] sm:rounded-[44px] overflow-hidden bg-white/90 dark:bg-[#070E1B]/95 border border-slate-200/80 dark:border-white/10 shadow-xl p-6 sm:p-10 lg:p-14 transition-all">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
-            {/* COLONNE GAUCHE : TYPOGRAPHIE & SLOGANS OFFICIELS */}
-            <div className="lg:col-span-6 flex flex-col justify-center">
+            {/* COLONNE GAUCHE : TEXTES, RECHERCHE & PORTAILS */}
+            <div className="lg:col-span-7 flex flex-col justify-center">
               
-              {/* Eyebrow haute technologie */}
+              {/* Badge d'Élite Cameroun */}
               <div className="mb-4">
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 font-mono text-[11px] sm:text-xs font-bold tracking-widest uppercase shadow-inner">
-                  <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-                  GROUPE D'ÉTUDES D'ÉLITE • ENSPY POLYTECH
+                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/35 text-[#D4AF37] font-mono text-xs font-bold tracking-wider uppercase">
+                  <GraduationCap className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  ÉCOLES POLYTECHNIQUES DU CAMEROUN • ENSPY & MSP
                 </span>
               </div>
 
-              {/* Titre Principal Exact */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.04] font-heading mb-3">
+              {/* Titre Officiel Exact */}
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08] font-heading text-slate-900 dark:text-white mb-3">
                 Réussir Polytech
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-[#D4AF37]">
+                <span className="text-gold-gradient">
                   à tout prix.
                 </span>
               </h1>
 
-              {/* Slogan officiel certifié */}
-              <p className="text-lg sm:text-xl font-bold text-slate-200 font-mono tracking-wide mb-5 flex items-center gap-2">
-                <span className="text-[#D4AF37]">“</span>
-                L'excellence est notre seul standard.
-                <span className="text-[#D4AF37]">”</span>
+              {/* Slogan officiel en exergue */}
+              <p className="text-base sm:text-xl font-bold font-mono text-slate-800 dark:text-slate-200 tracking-wide mb-4">
+                &ldquo;L&apos;excellence est notre seul standard.&rdquo;
               </p>
 
-              {/* Paragraphe de présentation de la plateforme */}
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-8 max-w-xl font-medium">
-                La plateforme d'ingénierie universitaire développée par le Groupe <strong>Réussir Polytech</strong>. Nous offrons à chaque élève-ingénieur les outils et ressources indispensables pour progresser et dominer son cursus : polycopiés de cours certifiés, archives d'épreuves résolues (Takou, Bouetou, Remaoun), banques de TD et mentorat d'élite.
+              {/* Description claire et sincère pour les étudiants */}
+              <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed mb-6 font-medium">
+                La plateforme d&apos;entraide et de documentation officielle des élèves-ingénieurs. Retrouvez en libre accès tous les polycopiés de cours certifiés, les annales d&apos;examens et de contrôles continus (Takou, Bouetou, Remaoun) et les fiches de travaux dirigés pour réussir vos filières <strong>MSP1</strong> et <strong>MSP2</strong>.
               </p>
 
-              {/* Boutons CTA d'ingénierie Forgex */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-10">
+              {/* BARRE DE RECHERCHE INTUITIVE */}
+              <div className="mb-6 p-2 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-[#D4AF37]/20 text-[#D4AF37] flex-shrink-0">
+                  <Search className="w-4 h-4" />
+                </div>
+                <input
+                  type="text"
+                  value={searchWord}
+                  onChange={(e) => setSearchWord(e.target.value)}
+                  placeholder="Rechercher une matière ou un prof (Analyse 1, Algèbre, Électrostatique...)"
+                  className="w-full bg-transparent text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
+                />
+                <Link
+                  href={searchWord ? `/msp1?q=${encodeURIComponent(searchWord)}` : '/msp1'}
+                  className="px-4 py-2 rounded-xl bg-[#D4AF37] hover:bg-[#C59B27] text-[#050B14] text-xs font-bold transition-all flex-shrink-0"
+                >
+                  Trouver
+                </Link>
+              </div>
+
+              {/* Accès Rapides les plus demandés */}
+              <div className="flex flex-wrap items-center gap-1.5 mb-8">
+                <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mr-1">Populaire :</span>
+                {quickSubjects.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-[#D4AF37]/15 hover:text-[#D4AF37] text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-white/5 transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+
+              {/* LES 3 PORTAILS D'ACCÈS MAJEURS (Boutons larges, confortables au doigt) */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 <Link
                   href="/msp1"
-                  className="btn-forgex-primary shadow-blue-500/30 group"
+                  className="p-4 rounded-2xl bg-gradient-to-br from-[#D4AF37] to-[#AA7A1E] text-slate-950 font-black flex items-center justify-between shadow-lg shadow-[#D4AF37]/20 hover:scale-[1.02] active:scale-[0.98] transition-all group"
                 >
-                  <span className="font-bold">Explorer la Plateforme</span>
-                  <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-wider block opacity-80">1ère Année</span>
+                    <span className="text-sm sm:text-base">Portail MSP1</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link
+                  href="/msp2"
+                  className="p-4 rounded-2xl bg-slate-900 text-white dark:bg-white/10 dark:text-white font-bold flex items-center justify-between border border-slate-300 dark:border-white/15 hover:scale-[1.02] active:scale-[0.98] transition-all group"
+                >
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-wider block opacity-70">2ème Année</span>
+                    <span className="text-sm sm:text-base">Portail MSP2</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
 
                 <Link
                   href="/entrepreneur-vip"
-                  className="btn-forgex-secondary group"
+                  className="p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 text-white font-bold flex items-center justify-between shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all group"
                 >
-                  <Sparkles className="w-4 h-4 text-[#D4AF37]" />
-                  <span>Espace VIP Ingénieur</span>
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-wider block opacity-80">Leadership & Métiers</span>
+                    <span className="text-sm sm:text-base">Espace VIP</span>
+                  </div>
+                  <Star className="w-4 h-4 text-amber-300" />
                 </Link>
               </div>
 
-              {/* Preuve sociale : 4 avatars des dirigeants & mentors */}
-              <div className="flex items-center gap-4 pt-6 border-t border-slate-800">
-                <div className="flex -space-x-3 overflow-hidden">
-                  {teamAvatars.map((member, i) => (
-                    <div
-                      key={i}
-                      className="relative w-10 h-10 rounded-full border-2 border-[#070E1B] overflow-hidden shadow-md"
-                    >
-                      <Image
-                        src={member.photo}
-                        alt={member.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
-                    <span>Rejoint par +500 futurs ingénieurs</span>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
-                  </p>
-                  <p className="text-[11px] text-slate-400 font-mono">
-                    14 Dirigeants & Mentors dévoués à votre réussite
-                  </p>
-                </div>
-              </div>
             </div>
 
-            {/* COLONNE DROITE : TÉLÉMÉTRIE & SHOWCASE INTERACTIF D'INGÉNIERIE */}
-            <div className="lg:col-span-6 relative">
-              <div className="relative rounded-3xl overflow-hidden border border-slate-700/80 bg-slate-900/90 shadow-2xl">
-                
-                {/* Onglets de commutation de laboratoire */}
-                <div className="flex items-center gap-1 p-2 bg-slate-950/90 border-b border-slate-800 overflow-x-auto no-scrollbar">
-                  {labTabs.map((tab, idx) => {
-                    const Icon = tab.icon;
-                    const isActive = activeTab === idx;
-                    return (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(idx)}
-                        className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all whitespace-nowrap ${
-                          isActive
-                            ? 'bg-blue-600 text-white shadow-md'
-                            : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                        }`}
-                      >
-                        <Icon className="w-3.5 h-3.5" />
-                        <span>{tab.name}</span>
-                      </button>
-                    );
-                  })}
+            {/* COLONNE DROITE : PHOTO DE LA FAMILLE POLYTECH VIVANTE & STUDIEUSE */}
+            <div className="lg:col-span-5 relative">
+              <div className="rounded-3xl overflow-hidden border-2 border-slate-200 dark:border-white/10 shadow-2xl relative">
+                <div className="relative h-[320px] sm:h-[400px] w-full">
+                  <Image
+                    src="/assets/gallery/family-leaders-portrait.jpg"
+                    alt="L'équipe et mentors de Réussir Polytech"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
                 </div>
 
-                {/* Cadre Visuel avec Balayage Laser & Télémétrie */}
-                <div className="relative h-[320px] sm:h-[380px] w-full overflow-hidden group">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={currentTab.id}
-                      initial={{ opacity: 0, scale: 1.05 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                      className="absolute inset-0"
-                    >
-                      <Image
-                        src={currentTab.image}
-                        alt={currentTab.name}
-                        fill
-                        className="object-cover"
-                        priority
-                      />
-                      {/* Gradient sombre pour lisibilité des données */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/20" />
-                    </motion.div>
-                  </AnimatePresence>
-
-                  {/* Ligne de balayage laser d'ingénieur */}
-                  <div className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#38BDF8] animate-laser-scan pointer-events-none" />
-
-                  {/* Badge statut temps réel en haut */}
-                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/80 border border-emerald-500/40 backdrop-blur-md">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-radar-pulse" />
-                      <span className="text-[10px] font-mono font-bold tracking-wider text-emerald-400 uppercase">
-                        {currentTab.status}
-                      </span>
-                    </div>
-
-                    <span className="text-[10px] font-mono text-slate-300 px-2.5 py-1 rounded-lg bg-slate-950/80 border border-slate-700 backdrop-blur-md">
-                      ENSPY 2026
+                {/* Badge en bas : Une communauté vivante */}
+                <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-slate-950/85 backdrop-blur-md border border-white/15 text-white">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400">
+                      Collectif Actif • ENSPY
                     </span>
                   </div>
-
-                  {/* Panneau de télémétrie en bas */}
-                  <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-slate-950/90 border border-slate-700/80 backdrop-blur-xl">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="text-[11px] font-mono text-blue-400 font-bold uppercase tracking-wider">
-                          Télémétrie Active
-                        </p>
-                        <h3 className="text-sm sm:text-base font-bold text-white font-heading">
-                          {currentTab.telemetry}
-                        </h3>
-                      </div>
-                      <Link
-                        href={currentTab.link}
-                        className="w-9 h-9 rounded-xl bg-blue-600/30 hover:bg-blue-600 border border-blue-500/50 flex items-center justify-center text-white transition-colors"
-                        title="Consulter ce pôle"
-                      >
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
-                    </div>
-
-                    {/* Mini jauges métriques */}
-                    <div className="grid grid-cols-3 gap-2 pt-2.5 border-t border-slate-800/80 text-[10px] font-mono">
-                      <div>
-                        <span className="text-slate-400 block">Précision</span>
-                        <span className="text-white font-bold">{currentTab.metrics.resolution}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block">Mode</span>
-                        <span className="text-white font-bold">{currentTab.metrics.mode}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block">Environnement</span>
-                        <span className="text-sky-400 font-bold">{currentTab.metrics.env}</span>
-                      </div>
-                    </div>
-                  </div>
+                  <p className="text-xs sm:text-sm font-bold font-heading">
+                    14 Dirigeants & Mentors dévoués à votre succès
+                  </p>
+                  <p className="text-[11px] text-slate-300 mt-0.5">
+                    Séances de travail, résolution d&apos;épreuves et accompagnement fraternel continu.
+                  </p>
                 </div>
               </div>
             </div>
 
           </div>
         </div>
+
       </div>
     </section>
   );

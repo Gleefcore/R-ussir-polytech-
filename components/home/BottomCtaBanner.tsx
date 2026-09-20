@@ -17,21 +17,21 @@ export function BottomCtaBanner() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
             
             <div className="lg:col-span-8">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 font-mono text-xs font-bold tracking-widest uppercase mb-4">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/30 text-[#D4AF37] font-mono text-xs font-bold tracking-widest uppercase mb-4">
                 <Sparkles className="w-3.5 h-3.5" />
-                ENGAGEMENT D'EXCELLENCE ENSPY
+                ENGAGEMENT D&apos;EXCELLENCE POLYTECH
               </span>
 
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-heading tracking-tight leading-tight mb-3">
-                Prêt à Propulser votre Cursus d'Ingénieur ?
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-heading tracking-tight leading-tight mb-3 text-white">
+                Prêt à Propulser votre Cursus d&apos;Ingénieur ?
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-[#D4AF37]">
-                  L'excellence est notre seul standard.
+                <span className="text-gold-gradient">
+                  L&apos;excellence est notre seul standard.
                 </span>
               </h2>
 
               <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl font-medium">
-                Rejoignez dès maintenant la communauté Réussir Polytech et accédez à l'intégralité des polycopiés certifiés, annales résolues et séances de mentorat spécialisées.
+                Rejoignez dès maintenant la communauté Réussir Polytech et accédez à l&apos;intégralité des polycopiés certifiés, annales résolues et séances de mentorat avec les aînés.
               </p>
             </div>
 
