@@ -34,7 +34,10 @@ import {
   PlusCircle,
   MessageCircle,
   FileCheck,
-  ChevronDown
+  ChevronDown,
+  Eye,
+  EyeOff,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -140,6 +143,8 @@ export default function AdminCockpitPage() {
   const [accessCode, setAccessCode] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [unlocking, setUnlocking] = useState(false);
+  const [showPassKey, setShowPassKey] = useState(false);
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'dashboard' | 'subjects' | 'documents' | 'students' | 'publish'>('dashboard');
@@ -173,7 +178,7 @@ export default function AdminCockpitPage() {
   useEffect(() => {
     try {
       const savedKey = sessionStorage.getItem('rp_admin_master_key');
-      if (savedKey && (savedKey === 'RP-ADMIN-EXCELLENCE-2026' || savedKey === 'POLYTECH2026')) {
+      if (savedKey) {
         setAccessCode(savedKey);
         setIsUnlocked(true);
       }
@@ -213,17 +218,36 @@ export default function AdminCockpitPage() {
     }
   }, [isUnlocked, fetchDashboardData]);
 
-  // Handle Unlock
-  const handleUnlock = (e: React.FormEvent) => {
+  // Handle Unlock (Vérification sécurisée côté serveur sans fuite de clé)
+  const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
     const clean = accessCode.trim().toUpperCase();
-    if (clean === 'RP-ADMIN-EXCELLENCE-2026' || clean === 'POLYTECH2026') {
+    if (!clean) return;
+
+    setUnlocking(true);
+    setAuthError('');
+
+    try {
+      const res = await fetch(`/api/admin/stats?accessKey=${encodeURIComponent(clean)}&t=${Date.now()}`, {
+        cache: 'no-store',
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error('Code d\'accès incorrect. Accès strictement réservé à la Direction.');
+      }
+
       setIsUnlocked(true);
-      setAuthError('');
       sessionStorage.setItem('rp_admin_master_key', clean);
-      fetchDashboardData();
-    } else {
-      setAuthError('Code d\'accès administrateur incorrect.');
+      setSummary(data.summary);
+      setSubjectStats(data.subjectStats || []);
+      setDocuments(data.documents || []);
+      setStudents(data.students || []);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Code d\'accès invalide.';
+      setAuthError(msg);
+    } finally {
+      setUnlocking(false);
     }
   };
 
@@ -414,27 +438,48 @@ export default function AdminCockpitPage() {
           <form onSubmit={handleUnlock} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                Clé Maître d&apos;Accès Direction
+                Clé d&apos;Accès Sécurisée Direction
               </label>
               <div className="relative">
                 <input
-                  type="password"
-                  placeholder="RP-ADMIN-EXCELLENCE-2026"
+                  type={showPassKey ? 'text' : 'password'}
+                  placeholder="••••••••••••••••"
+                  autoComplete="current-password"
                   value={accessCode}
                   onChange={(e) => setAccessCode(e.target.value)}
-                  className="w-full bg-[#1E293B]/80 border border-slate-700 focus:border-[#D4AF37] rounded-xl px-4 py-3.5 text-sm text-white font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/30 transition-all placeholder:text-slate-600"
+                  className="w-full bg-[#1E293B]/80 border border-slate-700 focus:border-[#D4AF37] rounded-xl px-4 py-3.5 pr-12 text-sm text-white font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/30 transition-all placeholder:text-slate-600"
                   required
                 />
-                <KeyRound className="w-4 h-4 text-slate-500 absolute right-4 top-4 pointer-events-none" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassKey(!showPassKey)}
+                  className="absolute right-3.5 top-3.5 text-slate-400 hover:text-white transition-colors p-1"
+                  title={showPassKey ? 'Masquer le code' : 'Afficher le code'}
+                >
+                  {showPassKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
+              <p className="text-[11px] text-slate-500 mt-1.5 font-medium">
+                Accès strictement restreint à la Direction Réussir Polytech.
+              </p>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] font-black text-sm hover:opacity-95 active:scale-[0.98] transition-all shadow-lg shadow-[#D4AF37]/20 flex items-center justify-center gap-2"
+              disabled={unlocking}
+              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] font-black text-sm hover:opacity-95 active:scale-[0.98] transition-all shadow-lg shadow-[#D4AF37]/20 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <Unlock className="w-4 h-4" />
-              <span>Déverrouiller le Cockpit</span>
+              {unlocking ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-[#050B14]" />
+                  <span>Vérification sécurisée...</span>
+                </>
+              ) : (
+                <>
+                  <Unlock className="w-4 h-4" />
+                  <span>Déverrouiller le Cockpit</span>
+                </>
+              )}
             </button>
           </form>
 
