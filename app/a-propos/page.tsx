@@ -1,10 +1,8 @@
 import { team } from '@/data/team';
 import { TeamCard } from '@/components/about/TeamCard';
-import { Crown, Users, Quote } from 'lucide-react';
+import { Users, Quote } from 'lucide-react';
 
 export default function AProposPage() {
-  const founders = team.filter((m) => m.isFounder);
-  const others = team.filter((m) => !m.isFounder);
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -40,29 +38,15 @@ export default function AProposPage() {
           <p className="text-slate-400 dark:text-white/30 text-xs mt-3 font-mono font-medium">— Axiome fondateur, Éseka 2026</p>
         </div>
 
-        {/* Founders */}
+        {/* Organigramme Officiel */}
         <div className="mb-12">
-          <div className="flex items-center gap-3 mb-6">
-            <Crown className="w-5 h-5 text-poly-gold" />
-            <h2 className="text-xl font-black text-slate-900 dark:text-white">Conseil Fondateur</h2>
+          <div className="flex items-center gap-3 mb-8">
+            <Users className="w-6 h-6 text-poly-gold" />
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white">Organigramme Officiel des 14 Membres</h2>
             <div className="flex-1 h-px bg-poly-gold/20" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {founders.map((member, index) => (
-              <TeamCard key={member.id} member={member} index={index} />
-            ))}
-          </div>
-        </div>
-
-        {/* Direction & Team */}
-        <div>
-          <div className="flex items-center gap-3 mb-6">
-            <Users className="w-5 h-5 text-poly-cyan" />
-            <h2 className="text-xl font-black text-slate-900 dark:text-white">Direction & Équipe Opérationnelle</h2>
-            <div className="flex-1 h-px bg-poly-cyan/20" />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {others.map((member, index) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {team.map((member, index) => (
               <TeamCard key={member.id} member={member} index={index} />
             ))}
           </div>
