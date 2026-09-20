@@ -12,6 +12,7 @@ import {
   UserCheck,
   TrendingUp,
   Award,
+  Globe,
 } from 'lucide-react';
 import { type PartnerCompany } from '@/data/partners';
 
@@ -45,7 +46,7 @@ export function PartnerCard({ partner, index }: PartnerCardProps) {
                   src={partner.logo}
                   alt={`Logo officiel ${partner.name}`}
                   fill
-                  className="object-contain p-1.5"
+                  className="object-contain p-1"
                   onError={() => setImgError(true)}
                   priority={index === 0}
                 />
@@ -108,11 +109,11 @@ export function PartnerCard({ partner, index }: PartnerCardProps) {
           {partner.description}
         </p>
 
-        {/* Services Clés d'Ingénierie */}
+        {/* Services Clés */}
         <div className="mb-6">
           <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white font-heading mb-3 flex items-center gap-1.5">
             <Sparkles className={`w-3.5 h-3.5 ${partner.themeColor.text}`} />
-            <span>Pôles de Compétences & Services d&apos;Élite</span>
+            <span>Pôles de Compétences & Services Clés</span>
           </h4>
           <div className="space-y-2.5">
             {partner.services.map((service, sIdx) => (
@@ -157,23 +158,38 @@ export function PartnerCard({ partner, index }: PartnerCardProps) {
         </div>
       </div>
 
-      {/* Action Footer: WhatsApp Direct CTA */}
-      <div className="border-t border-slate-200 dark:border-white/10 pt-5 mt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+      {/* Action Footer: Website + WhatsApp Direct CTA */}
+      <div className="border-t border-slate-200 dark:border-white/10 pt-5 mt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400">
           <TrendingUp className="w-4 h-4 text-emerald-500" />
-          <span>Synergie Réussir Polytech</span>
+          <span>Partenaire Réussir Polytech</span>
         </div>
 
-        <a
-          href={`https://wa.me/${partner.whatsapp}?text=${encodeURIComponent(partner.whatsappMessage)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-black text-xs uppercase tracking-wider text-slate-900 bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] shadow-lg shadow-[#D4AF37]/25 hover:shadow-xl hover:scale-[1.03] active:scale-98 transition-all"
-        >
-          <MessageCircle className="w-4 h-4" />
-          <span>Collaborer via WhatsApp</span>
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          {partner.websiteUrl && (
+            <a
+              href={partner.websiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl font-bold text-xs text-slate-700 dark:text-slate-200 bg-slate-200/80 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/15 border border-slate-300 dark:border-white/10 transition-all shadow-sm"
+            >
+              <Globe className="w-3.5 h-3.5 text-poly-cyan" />
+              <span>Visiter le site web</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
+            </a>
+          )}
+
+          <a
+            href={`https://wa.me/${partner.whatsapp}?text=${encodeURIComponent(partner.whatsappMessage)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider text-slate-900 bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] shadow-lg shadow-[#D4AF37]/25 hover:shadow-xl hover:scale-[1.02] active:scale-98 transition-all whitespace-nowrap"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>Contacter sur WhatsApp</span>
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
       </div>
     </motion.div>
   );

@@ -436,10 +436,10 @@ export default function EntrepreneurVipPage() {
                 </h2>
 
                 <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-medium mb-8">
-                  Réussir Polytech et ses entreprises partenaires mobilisent leurs expertises pour vous accompagner.
-                  Bénéficiez de la CAO 3D et du prototypage avec <strong>G-INNOVA</strong>, du développement logiciel avec{' '}
-                  <strong>Les As de l&apos;Informatique</strong>, et du renforcement méthodologique avec{' '}
-                  <strong>Intellectual Academy</strong>.
+                  Réussir Polytech et ses structures partenaires mobilisent leurs expertises pour vous accompagner.
+                  Bénéficiez du design graphique, de sites web et d&apos;outils informatiques avec <strong>G-INNOVA</strong>,
+                  du développement applicatif avec <strong>Les As de l&apos;Informatique</strong>, et du renforcement
+                  académique par cours de répétition d&apos;excellence avec <strong>Intellectual Academy</strong>.
                 </p>
 
                 {/* Étapes du processus */}
@@ -448,23 +448,23 @@ export default function EntrepreneurVipPage() {
                     <span className="text-xs font-black text-emerald-500 font-mono">ÉTAPE 01</span>
                     <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1">Cahier des Charges</h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      Définition précise du besoin, des contraintes mécaniques ou logicielles.
+                      Définition du besoin, de l&apos;activité, des livrables attendus et des objectifs opérationnels.
                     </p>
                   </div>
 
                   <div className="bg-white/80 dark:bg-black/40 border border-slate-200 dark:border-white/10 p-4 rounded-2xl">
                     <span className="text-xs font-black text-[#D4AF37] font-mono">ÉTAPE 02</span>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1">Conception & Code</h4>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1">Design, Web & Code</h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      Modélisation 3D avec G-INNOVA et architecture logicielle avec Les As de l&apos;Informatique.
+                      Identité visuelle & site web avec G-INNOVA, architectures logicielles avec Les As de l&apos;Informatique.
                     </p>
                   </div>
 
                   <div className="bg-white/80 dark:bg-black/40 border border-slate-200 dark:border-white/10 p-4 rounded-2xl">
                     <span className="text-xs font-black text-sky-500 font-mono">ÉTAPE 03</span>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1">Prototype & Déploiement</h4>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1">Lancement & Suivi</h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      Impression 3D, tests en conditions réelles et présentation devant jury d&apos;ingénieurs.
+                      Mise en ligne, outils de gestion et accompagnement sur mesure par l&apos;écosystème Réussir Polytech.
                     </p>
                   </div>
                 </div>
