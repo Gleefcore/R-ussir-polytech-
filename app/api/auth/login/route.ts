@@ -21,54 +21,59 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanId = identifier.trim();
-    let targetEmail = cleanId.toLowerCase();
+    const cleanUpper = cleanId.toUpperCase();
+    const cleanLower = cleanId.toLowerCase();
+    let targetEmail = cleanLower;
     let targetUser: any = null;
 
-    // 1. Si ce n'est pas un email (ex: 25Q529, 24P100), recherche par matricule dans les comptes
-    if (!cleanId.includes('@')) {
-      const cleanMatricule = cleanId.toUpperCase();
-      const { data: userList, error: listError } = await supabase.auth.admin.listUsers({
-        perPage: 1000,
-      });
+    // Récupérer la liste des utilisateurs pour résolution par Matricule, Nom ou Email
+    const { data: userList } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+    const users = userList?.users || [];
 
-      if (!listError && userList?.users) {
-        targetUser = userList.users.find(
-          (u) =>
-            u.user_metadata?.matricule?.trim().toUpperCase() === cleanMatricule ||
-            u.email?.split('@')[0]?.toUpperCase() === cleanMatricule
-        );
-      }
+    if (cleanId.includes('@')) {
+      // 1. Recherche directe par email
+      targetUser = users.find((u) => u.email?.toLowerCase() === cleanLower);
+    } else {
+      // 2. Recherche par Matricule, puis par Nom/Prénom, puis par Téléphone
+      targetUser = users.find((u) => {
+        const mat = u.user_metadata?.matricule?.trim().toUpperCase();
+        const name = u.user_metadata?.full_name?.trim().toLowerCase();
+        const emailPrefix = u.email?.split('@')[0]?.toUpperCase();
+        const phone = (u.user_metadata?.phone || u.phone || '').replace(/[^0-9]/g, '');
+        const searchPhone = cleanId.replace(/[^0-9]/g, '');
+
+        if (mat && mat === cleanUpper) return true;
+        if (emailPrefix && emailPrefix === cleanUpper) return true;
+        if (name && (name === cleanLower || (cleanLower.length >= 3 && name.includes(cleanLower)))) return true;
+        if (searchPhone.length >= 8 && phone.includes(searchPhone)) return true;
+        return false;
+      });
 
       if (targetUser && targetUser.email) {
         targetEmail = targetUser.email.toLowerCase();
       } else {
-        // Fallback email généré lors d'inscriptions sans email
-        const safeLocal = cleanMatricule.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        // Fallback matricule
+        const safeLocal = cleanUpper.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
         targetEmail = `${safeLocal}@polytech.rp`;
       }
-    } else {
-      // Si c'est un email direct, chercher l'utilisateur
-      const { data: userList } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-      targetUser = userList?.users?.find((u) => u.email?.toLowerCase() === targetEmail);
     }
 
-    // 2. Si l'utilisateur existe mais que son email n'est pas encore confirmé, on l'auto-confirme immédiatement
+    // 3. Si l'utilisateur existe mais que son email n'est pas encore confirmé, auto-confirmation immédiate
     if (targetUser && !targetUser.email_confirmed_at) {
       await supabase.auth.admin.updateUserById(targetUser.id, { email_confirm: true });
     }
 
-    // 3. Tentative de connexion par mot de passe
+    // 4. Tentative de connexion par mot de passe
     const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
       email: targetEmail,
       password: password,
     });
 
     if (signInError) {
-      // Si l'utilisateur n'avait pas été trouvé par matricule
-      if (!targetUser && !cleanId.includes('@')) {
+      if (!targetUser) {
         return NextResponse.json(
           {
-            error: `Aucun compte n'a été trouvé avec le matricule "${cleanId}". Vérifiez votre saisie ou créez votre compte dans l'onglet Inscription.`,
+            error: `Aucun compte n'a été trouvé correspondant à "${cleanId}". Vous pouvez vous connecter avec votre matricule, votre nom ou votre email.`,
           },
           { status: 404 }
         );

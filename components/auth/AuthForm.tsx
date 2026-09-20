@@ -332,21 +332,21 @@ export function AuthForm() {
           <form onSubmit={handleLogin} className="space-y-4" autoComplete="on">
             <div>
               <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1.5 font-heading">
-                Matricule académique ou Email
+                Matricule académique, Nom ou Email
               </label>
               <input
                 id="username"
                 name="username"
                 type="text"
                 autoComplete="username"
-                placeholder="Ex: 25Q529, 25Q526, 24P100, ou email@..."
+                placeholder="Ex: 25Q529, Yannick Bikei, ou email@..."
                 value={loginIdentifier}
                 onChange={(e) => setLoginIdentifier(e.target.value)}
-                className="input-field font-mono font-bold"
+                className="input-field font-semibold"
                 required
               />
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                Saisissez votre matricule (Polytech Yaoundé, Douala...) ou votre adresse email.
+                Connectez-vous facilement avec votre <strong>matricule</strong> (ex: 25Q...), votre <strong>nom</strong> ou votre <strong>email</strong>.
               </p>
             </div>
 
