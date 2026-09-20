@@ -125,6 +125,13 @@ const familyPhotos = [
     tag: 'N°13 • Leader Cadets',
     isLarge: false,
   },
+  {
+    image: '/assets/team/alex-ngoua.jpg',
+    title: 'BIC-ROUGE',
+    caption: 'Leader des Cadets & Mentor Technique MSP1',
+    tag: 'N°14 • Leader Cadets',
+    isLarge: false,
+  },
 ];
 
 export function FamilyGalleryMarquee() {
@@ -132,11 +139,8 @@ export function FamilyGalleryMarquee() {
   const isInView = useInView(ref, { once: true, margin: '-60px' });
 
   return (
-    <section ref={ref} className="py-24 relative overflow-hidden bg-slate-100/70 dark:bg-[#050A14]/80 border-t border-slate-200 dark:border-white/5">
-      {/* Background radial glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-gradient-to-r from-[#D4AF37]/10 via-[#38BDF8]/10 to-transparent blur-[140px] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 relative z-10 text-center">
+    <section ref={ref} className="py-20 bg-white dark:bg-[#070E1B] border-t border-slate-200 dark:border-slate-800 transition-colors duration-500 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -163,8 +167,8 @@ export function FamilyGalleryMarquee() {
       {/* DÉFILEMENT CONTINU DE GAUCHE VERS LA DROITE (marquee-reverse) */}
       <div className="relative w-full overflow-hidden py-4 group">
         {/* Gradient fades on edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-r from-slate-100 dark:from-[#050A14] to-transparent z-20 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-l from-slate-100 dark:from-[#050A14] to-transparent z-20 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-r from-white dark:from-[#070E1B] to-transparent z-20 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-l from-white dark:from-[#070E1B] to-transparent z-20 pointer-events-none" />
 
         {/* Marquee Track: anime de gauche vers la droite */}
         <div className="flex gap-6 w-max animate-marquee-reverse hover:[animation-play-state:paused]">

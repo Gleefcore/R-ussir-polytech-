@@ -87,10 +87,40 @@
     @apply border border-[#D4AF37]/50 text-[#D4AF37] dark:text-[#F3E5AB] hover:bg-[#D4AF37]/10 font-bold py-3.5 px-7 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm;
   }
 
+  /* Boutons Haute Performance Style Forgex */
+  .btn-forgex-primary {
+    @apply relative overflow-hidden bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-7 rounded-xl shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2.5 tracking-wide transition-all duration-300 hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .btn-forgex-secondary {
+    @apply border border-white/20 bg-white/5 hover:bg-white/10 text-white font-bold py-3.5 px-7 rounded-xl flex items-center justify-center gap-2.5 backdrop-blur-md transition-all duration-300 hover:scale-[1.02] active:scale-[0.98];
+  }
+
   /* Champs de formulaire soignés */
   .input-field {
     @apply w-full bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 dark:bg-poly-night dark:border-white/15 dark:text-white dark:placeholder-slate-500 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/30 transition-all duration-200 font-medium;
   }
+}
+
+/* Animations d'ingénierie & télémétrie */
+@keyframes laser-scan {
+  0% { top: 0%; opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { top: 100%; opacity: 0.2; }
+}
+
+.animate-laser-scan {
+  animation: laser-scan 3.5s ease-in-out infinite;
+}
+
+@keyframes radar-pulse {
+  0% { transform: scale(0.95); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 0.4; }
+  100% { transform: scale(0.95); opacity: 0.9; }
+}
+
+.animate-radar-pulse {
+  animation: radar-pulse 2.2s infinite ease-in-out;
 }
 
 /* Effet holographique prestigieux */
