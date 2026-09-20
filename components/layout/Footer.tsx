@@ -51,6 +51,7 @@ export function Footer() {
                 { href: '/entrepreneur-vip', label: 'VIP Élite' },
                 { href: '/a-propos', label: 'Notre équipe' },
                 { href: '/admin/publier', label: 'Publier une épreuve ⚡' },
+                { href: '/politique-de-confidentialite', label: 'Politique de Confidentialité' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -84,9 +85,18 @@ export function Footer() {
           <p className="text-slate-500 dark:text-white/30 text-xs">
             © {new Date().getFullYear()} Réussir Polytech. Actes constitutifs d&apos;Éseka — 07 Mai 2026.
           </p>
-          <p className="text-slate-400 dark:text-white/20 text-xs font-mono">
-            Solidarité · Rigueur · Bienveillance · Transparence
-          </p>
+          <div className="flex items-center gap-3 text-xs">
+            <Link
+              href="/politique-de-confidentialite"
+              className="text-slate-500 hover:text-poly-gold transition-colors font-medium"
+            >
+              Politique de Confidentialité
+            </Link>
+            <span className="text-slate-400 dark:text-white/20">•</span>
+            <p className="text-slate-400 dark:text-white/20 font-mono">
+              Solidarité · Rigueur · Bienveillance · Transparence
+            </p>
+          </div>
         </div>
       </div>
     </footer>
