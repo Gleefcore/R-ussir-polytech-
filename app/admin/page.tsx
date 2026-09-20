@@ -1830,15 +1830,15 @@ export default function AdminCockpitPage() {
                   </div>
                 </div>
 
-                {/* 2. Titre & Date */}
+                {/* 2. Titre, Date & Lieu */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="sm:col-span-2">
+                  <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                      2. Titre de la Photo ou de l&apos;Événement
+                      2. Titre de la Photo
                     </label>
                     <input
                       type="text"
-                      placeholder="Ex: Séance de Travaux Dirigés Takou & Modélisation CAO 3D"
+                      placeholder="Ex: Séance de Travaux Dirigés Takou"
                       value={galTitle}
                       onChange={(e) => setGalTitle(e.target.value)}
                       className="w-full py-3 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-[#D4AF37]"
@@ -1848,7 +1848,7 @@ export default function AdminCockpitPage() {
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                      3. Date de l&apos;Événement
+                      3. Date
                     </label>
                     <input
                       type="date"
@@ -1858,49 +1858,19 @@ export default function AdminCockpitPage() {
                       required
                     />
                   </div>
-                </div>
 
-                {/* 3. Lieu & Tags */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                      4. Lieu de la Prise de Vue
+                      4. Lieu
                     </label>
                     <input
                       type="text"
-                      placeholder="Ex: Campus ENSPY, Laboratoire de Modélisation Yaoundé"
+                      placeholder="Ex: Campus Polytech"
                       value={galLocation}
                       onChange={(e) => setGalLocation(e.target.value)}
-                      className="w-full py-3 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-[#D4AF37]"
+                      className="w-full py-3 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-[#D4AF37]"
                     />
                   </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                      5. Mots-clés / Tags (séparés par virgules)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Ex: CAO 3D, Robotique, Analyse Takou, Concours"
-                      value={galTags}
-                      onChange={(e) => setGalTags(e.target.value)}
-                      className="w-full py-3 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-[#D4AF37]"
-                    />
-                  </div>
-                </div>
-
-                {/* 4. Description Détaillée */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                    6. Description Détaillée
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="Décrivez le contexte de la photo, les étudiants participants, le sujet abordé ou l'objectif ingénieur..."
-                    value={galDescription}
-                    onChange={(e) => setGalDescription(e.target.value)}
-                    className="w-full py-3 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:border-[#D4AF37]"
-                  />
                 </div>
 
                 {/* 5. Zone Téléversement Image avec Prévisualisation */}
