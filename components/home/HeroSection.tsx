@@ -3,7 +3,18 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Zap, Shield, Users, Award, BookOpen, Star, ChevronRight } from 'lucide-react';
+import {
+  ArrowRight,
+  Zap,
+  Users,
+  Award,
+  BookOpen,
+  Star,
+  Cpu,
+  Brain,
+  Cog,
+  Binary,
+} from 'lucide-react';
 
 const subjectsMarquee = [
   'MTH111 — Analyse réelle 1',
@@ -23,6 +34,8 @@ const pillarsMarquee = [
   '🎯 RIGUEUR ACADÉMIQUE ABSOLUE',
   '💛 BIENVEILLANCE DU COLLECTIF',
   '👁️ TRANSPARENCE TOTALE',
+  '🤖 ROBOTIQUE & MÉCANIQUE AVANCÉE',
+  '🧠 DATA SCIENCE & INTELLIGENCE ARTIFICIELLE',
   '🏛️ ACTES D\'ÉSEKA DU 07 MAI 2026',
   '🚀 ÉLITE DE L\'INGÉNIERIE AFRICAINE',
 ];
@@ -66,59 +79,80 @@ export function HeroSection() {
             animate="show"
             className="lg:col-span-7 text-center lg:text-left pt-6"
           >
-            {/* Badge institutionnel d'élite */}
+            {/* Slogan officiel visible dans les labos */}
             <motion.div
               variants={fadeUp}
               className="inline-flex items-center gap-2.5 bg-gradient-to-r from-[#D4AF37]/15 to-[#38BDF8]/15 border border-[#D4AF37]/40 rounded-full px-5 py-2 mb-6 shadow-sm backdrop-blur-md"
             >
               <Zap className="w-4 h-4 text-[#D4AF37] animate-pulse" />
-              <span className="text-[#D4AF37] dark:text-[#F3E5AB] text-xs font-black tracking-widest uppercase">
-                Plateforme SaaS d&apos;Excellence Académique
+              <span className="text-[#D4AF37] dark:text-[#F3E5AB] text-xs font-black tracking-widest uppercase font-mono">
+                INNOVER • APPRENDRE • CONSTRUIRE DEMAIN
               </span>
             </motion.div>
 
-            {/* Grand Titre Majestueux */}
+            {/* Grand Titre Majestueux axé Ingénierie */}
             <motion.h1
               variants={fadeUp}
-              className="text-4xl sm:text-6xl lg:text-7xl font-black leading-[1.08] mb-6 font-heading tracking-tight"
+              className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.12] mb-6 font-heading tracking-tight"
             >
-              <span className="text-slate-900 dark:text-white">Réussir</span>{' '}
-              <span className="text-gold-gradient drop-shadow-sm">Polytech</span>
+              <span className="text-slate-900 dark:text-white">L&apos;Excellence</span>{' '}
+              <span className="text-gold-gradient drop-shadow-sm">Polytechnicienne</span>
               <br />
-              <span className="text-slate-700 dark:text-slate-200 text-3xl sm:text-5xl lg:text-6xl font-extrabold">
-                à tout prix.
+              <span className="text-slate-700 dark:text-slate-200 text-3xl sm:text-4xl lg:text-5xl font-extrabold">
+                au Cœur du Génie Moderne.
               </span>
             </motion.h1>
 
-            {/* Sous-titre à fort impact */}
+            {/* Sous-titre valorisant Mécanique, Data Science & IA */}
             <motion.p
               variants={fadeUp}
-              className="text-slate-600 dark:text-slate-300 text-lg sm:text-xl leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0 font-medium"
+              className="text-slate-600 dark:text-slate-300 text-base sm:text-lg leading-relaxed mb-6 max-w-2xl mx-auto lg:mx-0 font-medium"
             >
-              Le sanctuaire numérique de l&apos;élève ingénieur. Accédez aux polycopiés intégraux, fiches de TD, archives d&apos;examens officiels et programmes de haute voltige entrepreneuriale.
+              Le sanctuaire académique des élèves ingénieurs : <strong className="text-slate-900 dark:text-white font-bold">Génie Mécanique, Data Science, Intelligence Artificielle & Systèmes Embarqués</strong>. Polycopiés intégraux, annales certifiées, banques de travaux dirigés et accélérateur de projets techniques.
             </motion.p>
+
+            {/* Badges des filières clés */}
+            <motion.div variants={fadeUp} className="flex flex-wrap gap-2 justify-center lg:justify-start mb-8">
+              {[
+                { label: 'Génie Mécanique & CAO', icon: Cog, color: 'text-amber-500' },
+                { label: 'Data Science & IA', icon: Brain, color: 'text-sky-400' },
+                { label: 'Électronique & Embarqué', icon: Cpu, color: 'text-emerald-400' },
+                { label: 'Maths & Physique', icon: Binary, color: 'text-purple-400' },
+              ].map((pill) => {
+                const PillIcon = pill.icon;
+                return (
+                  <span
+                    key={pill.label}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-white/60 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 shadow-sm"
+                  >
+                    <PillIcon className={`w-3.5 h-3.5 ${pill.color}`} />
+                    {pill.label}
+                  </span>
+                );
+              })}
+            </motion.div>
 
             {/* Statistiques clés en cartes valorisées */}
             <motion.div
               variants={fadeUp}
-              className="grid grid-cols-3 gap-3 sm:gap-5 mb-10 max-w-lg mx-auto lg:mx-0"
+              className="grid grid-cols-3 gap-3 sm:gap-4 mb-10 max-w-lg mx-auto lg:mx-0"
             >
               {[
-                { icon: Users, value: '150+', label: 'Membres Actifs', color: 'text-[#D4AF37]' },
+                { icon: Users, value: '14', label: 'Mentors & Dirigeants', color: 'text-[#D4AF37]' },
                 { icon: BookOpen, value: '35+', label: 'Matières Couvertes', color: 'text-sky-500' },
-                { icon: Award, value: '10', label: 'Modules VIP Élite', color: 'text-[#D4AF37]' },
+                { icon: Award, value: '100%', label: 'Archives Certifiées', color: 'text-[#D4AF37]' },
               ].map(({ icon: Icon, value, label, color }) => (
                 <div
                   key={label}
-                  className="glass-card p-4 text-center sm:text-left border border-slate-200 dark:border-white/10"
+                  className="glass-card p-3.5 sm:p-4 text-center sm:text-left border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm"
                 >
                   <div className="flex items-center justify-center sm:justify-start gap-1.5 mb-1">
                     <Icon className={`w-4 h-4 ${color}`} />
-                    <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-heading">
+                    <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-heading">
                       {value}
                     </span>
                   </div>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] font-semibold uppercase tracking-wider">
                     {label}
                   </p>
                 </div>
@@ -130,47 +164,77 @@ export function HeroSection() {
               variants={fadeUp}
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
-              <Link href="/auth" className="btn-primary flex items-center justify-center gap-3 group text-base">
-                <span>Accéder à la Plateforme</span>
+              <Link href="/msp1" className="btn-primary flex items-center justify-center gap-3 group text-base">
+                <span>Accéder au Curriculum MSP1 & MSP2</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
               </Link>
-              <Link href="/a-propos" className="btn-secondary flex items-center justify-center gap-2 text-base">
+              <Link href="/entrepreneur-vip" className="btn-secondary flex items-center justify-center gap-2 text-base">
                 <Star className="w-4 h-4 text-[#D4AF37]" />
-                <span>Découvrir l&apos;Équipe Fondatrice</span>
+                <span>Coin de l&apos;Ingénieur VIP</span>
               </Link>
             </motion.div>
           </motion.div>
 
-          {/* Logo Flottant & Rayonnement Visuel */}
+          {/* Nouveau Logo Circulaire 3D Officiel & Showcase */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="lg:col-span-5 flex items-center justify-center relative"
+            className="lg:col-span-5 flex flex-col items-center justify-center relative"
           >
             <div className="relative">
               {/* Cercles orbitaux concentriques avec éclats dorés */}
-              <div className="absolute -inset-10 rounded-full border border-[#D4AF37]/30 dark:border-[#D4AF37]/20 animate-spin-slow" />
+              <div className="absolute -inset-10 rounded-full border border-[#D4AF37]/30 dark:border-[#D4AF37]/20 animate-spin-slow pointer-events-none" />
               <div className="absolute -inset-20 rounded-full border border-sky-500/20 dark:border-sky-500/10 pointer-events-none" />
 
-              {/* Conteneur principal du Logo officiel Polytech */}
+              {/* Emblème circulaire officiel 3D */}
               <motion.div
-                animate={{ y: [0, -18, 0] }}
+                animate={{ y: [0, -14, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative w-72 h-72 sm:w-88 sm:h-88 glass-card p-10 holographic border-2 border-[#D4AF37]/40 shadow-2xl flex items-center justify-center rounded-3xl"
+                className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full p-2 bg-gradient-to-tr from-[#0284C7] via-[#D4AF37] to-[#0284C7] shadow-2xl flex items-center justify-center overflow-hidden group cursor-pointer"
                 style={{
-                  boxShadow: '0 25px 50px -12px rgba(212, 175, 55, 0.25)',
+                  boxShadow: '0 25px 60px -15px rgba(2, 132, 199, 0.4), 0 0 50px rgba(212, 175, 55, 0.3)',
                 }}
               >
-                <Image
-                  src="/assets/logo-polytech.png"
-                  alt="Logo Officiel Réussir Polytech"
-                  fill
-                  className="object-contain p-6"
-                  priority
-                />
+                <div className="relative w-full h-full rounded-full overflow-hidden bg-white dark:bg-[#081224] p-3 flex items-center justify-center">
+                  <Image
+                    src="/assets/logo-official-3d.jpg"
+                    alt="Emblème Officiel Réussir Polytech 3D"
+                    fill
+                    className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
+                    priority
+                  />
+                </div>
               </motion.div>
             </div>
+
+            {/* Carte de prévisualisation laboratoire en direct sous le logo */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="mt-8 glass-card p-3 rounded-2xl border border-slate-200 dark:border-white/10 shadow-lg flex items-center gap-3.5 max-w-sm"
+            >
+              <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border border-[#D4AF37]/40">
+                <Image
+                  src="/assets/gallery/lab-robotics-1.jpg"
+                  alt="Labo Robotique"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                    Laboratoire Actif
+                  </span>
+                </div>
+                <p className="text-xs font-bold text-slate-800 dark:text-white truncate">
+                  Simulation CAO & Robotique ENSPY
+                </p>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>
@@ -178,28 +242,28 @@ export function HeroSection() {
       {/* BANDEAU DÉFILANT DYNAMIQUE N°1 (Marquee Matières) */}
       <div className="relative w-full overflow-hidden mt-16 py-3.5 bg-slate-900/90 dark:bg-[#070E1C] border-y border-[#D4AF37]/30 text-white backdrop-blur-md">
         <div className="flex w-[200%] animate-marquee">
-          {[...subjectsMarquee, ...subjectsMarquee].map((item, idx) => (
+          {[...subjectsMarquee, ...subjectsMarquee].map((subject, idx) => (
             <span
               key={idx}
-              className="flex items-center gap-3 px-8 text-xs sm:text-sm font-mono font-bold tracking-wider text-slate-200 whitespace-nowrap"
+              className="flex items-center gap-3 text-xs sm:text-sm font-mono font-bold tracking-wider whitespace-nowrap mx-4 sm:mx-6 text-slate-200"
             >
-              <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-ping" />
-              <span>{item}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              {subject}
             </span>
           ))}
         </div>
       </div>
 
-      {/* BANDEAU DÉFILANT DYNAMIQUE N°2 (Marquee Piliers & Fondations) */}
-      <div className="relative w-full overflow-hidden py-2.5 bg-gradient-to-r from-[#D4AF37]/20 via-sky-500/15 to-[#D4AF37]/20 border-b border-[#D4AF37]/25">
+      {/* BANDEAU DÉFILANT DYNAMIQUE N°2 (Marquee Piliers & Esprit) */}
+      <div className="relative w-full overflow-hidden py-2 bg-gradient-to-r from-[#D4AF37]/20 via-sky-500/20 to-[#D4AF37]/20 border-b border-[#D4AF37]/20 backdrop-blur-sm">
         <div className="flex w-[200%] animate-marquee-reverse">
-          {[...pillarsMarquee, ...pillarsMarquee].map((item, idx) => (
+          {[...pillarsMarquee, ...pillarsMarquee].map((pillar, idx) => (
             <span
               key={idx}
-              className="flex items-center gap-2 px-10 text-xs font-black tracking-widest uppercase text-slate-800 dark:text-[#F3E5AB] whitespace-nowrap"
+              className="flex items-center gap-2 text-[11px] sm:text-xs font-mono font-black tracking-widest uppercase whitespace-nowrap mx-6 text-slate-900 dark:text-[#F3E5AB]"
             >
-              <ChevronRight className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>{item}</span>
+              <span>{pillar}</span>
+              <span className="text-sky-500">•</span>
             </span>
           ))}
         </div>

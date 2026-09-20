@@ -12,7 +12,7 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="relative w-10 h-10">
+              <div className="relative w-11 h-11 rounded-full overflow-hidden border border-[#D4AF37]/50 shadow-md p-0.5 bg-white dark:bg-slate-900 flex items-center justify-center">
                 <Image src="/assets/logo-polytech.png" alt="Logo" fill className="object-contain" />
               </div>
               <div>

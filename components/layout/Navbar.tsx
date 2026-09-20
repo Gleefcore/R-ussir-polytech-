@@ -103,12 +103,12 @@ export function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo officiel avec marque d'excellence */}
           <Link href="/" className="flex items-center gap-3.5 group">
-            <div className="relative w-12 h-12 rounded-xl p-1 bg-gradient-to-tr from-[#D4AF37]/20 to-transparent border border-[#D4AF37]/30 shadow-md">
+            <div className="relative w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-[#0284C7] to-[#D4AF37] border border-[#D4AF37]/50 shadow-md flex items-center justify-center overflow-hidden">
               <Image
                 src="/assets/logo-polytech.png"
                 alt="Réussir Polytech"
                 fill
-                className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
+                className="object-contain p-0.5 group-hover:scale-110 transition-transform duration-300"
               />
             </div>
             <div>
