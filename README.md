@@ -122,7 +122,6 @@ Placez ces fichiers dans `/public/assets/` :
 - `team/atyame-yolande.jpg` — Photo Atyame Yolande
 - `team/franck.jpg` — Photo Franck
 - `team/pacha.jpg` — Photo Pacha
-- `team/bic-rouge.jpg` — Photo Bic-rouge
 
 > En l'absence des photos, les initiales des prénoms s'affichent automatiquement.
 

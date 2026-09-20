@@ -42,7 +42,7 @@ export default function AProposPage() {
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-8">
             <Users className="w-6 h-6 text-poly-gold" />
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white">Organigramme Officiel des 14 Membres</h2>
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white">Organigramme Officiel ({team.length} Membres)</h2>
             <div className="flex-1 h-px bg-poly-gold/20" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

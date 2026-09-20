@@ -125,13 +125,6 @@ const familyPhotos = [
     tag: 'N°13 • Leader Cadets',
     isLarge: false,
   },
-  {
-    image: '/assets/team/alex-ngoua.jpg',
-    title: 'BIC-ROUGE',
-    caption: 'Leader des Cadets & Mentor Technique MSP1',
-    tag: 'N°14 • Leader Cadets',
-    isLarge: false,
-  },
 ];
 
 export function FamilyGalleryMarquee() {

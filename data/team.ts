@@ -131,13 +131,4 @@ export const team: TeamMember[] = [
     photo: '/assets/team/pacha.jpg',
     order: 13,
   },
-  {
-    id: 'bic-rouge',
-    name: 'BIC-ROUGE',
-    title: 'Leader des cadets techniciens',
-    role: 'Leader Techniciens',
-    description: 'Référent technique des cadets. Encadre et motive les étudiants de filière technique vers l\'excellence polytechnicienne.',
-    photo: '/assets/team/bic-rouge.jpg',
-    order: 14,
-  },
 ];
