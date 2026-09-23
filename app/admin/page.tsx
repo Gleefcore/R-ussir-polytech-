@@ -393,6 +393,30 @@ export default function AdminCockpitPage() {
     }
   };
 
+  // Suppression d'un élève
+  const handleDeleteStudent = async (id: string) => {
+    const keyToUse =
+      (accessCode && accessCode.trim().length > 0 ? accessCode.trim() : null) ||
+      (typeof window !== 'undefined' ? sessionStorage.getItem('rp_admin_master_key') : null) ||
+      'RP-ADMIN-EXCELLENCE-2026';
+    try {
+      const res = await fetch(`/api/admin/users?id=${id}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-key': keyToUse },
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setStudents((prev) => prev.filter((s) => s.id !== id));
+        fetchDashboardData();
+      } else {
+        alert(data.error || 'Erreur lors de la suppression.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erreur réseau lors de la suppression.');
+    }
+  };
+
   // Sélection d'image Galerie avec prévisualisation
   const handleGalleryFileSelect = (file: File | null) => {
     setGalFile(file);
@@ -2138,17 +2162,31 @@ export default function AdminCockpitPage() {
                         </span>
                       </td>
                       <td className="py-3.5 px-3 text-right">
-                        {student.phone && student.phone !== 'N/A' && (
-                          <a
-                            href={`https://wa.me/${student.phone.replace(/[^0-9]/g, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 transition-colors font-bold text-[11px]"
+                        <div className="flex items-center justify-end gap-2">
+                          {student.phone && student.phone !== 'N/A' && (
+                            <a
+                              href={`https://wa.me/${student.phone.replace(/[^0-9]/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 transition-colors font-bold text-[11px]"
+                            >
+                              <MessageCircle className="w-3 h-3" />
+                              <span>Message</span>
+                            </a>
+                          )}
+                          <button
+                            onClick={() => {
+                              if (confirm(`Confirmez-vous la suppression définitive du compte de ${student.fullName} ?`)) {
+                                handleDeleteStudent(student.id);
+                              }
+                            }}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500/25 transition-colors font-bold text-[11px]"
+                            title="Supprimer le compte"
                           >
-                            <MessageCircle className="w-3 h-3" />
-                            <span>Message</span>
-                          </a>
-                        )}
+                            <Trash2 className="w-3 h-3" />
+                            <span>Supprimer</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

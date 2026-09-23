@@ -37,12 +37,10 @@ const CLOUD_STORAGE_KEY = 'gallery/gallery_store.json';
 async function readGalleryStore(): Promise<GalleryItem[]> {
   // 1. Tenter la lecture depuis Supabase Storage (cloud persistant entre déploiements et serveurs)
   try {
-    const { data, error } = await supabase.storage
-      .from('academic-files')
-      .download(CLOUD_STORAGE_KEY);
-
-    if (data && !error) {
-      const text = await data.text();
+    const url = `${supabaseUrl}/storage/v1/object/public/academic-files/${CLOUD_STORAGE_KEY}?t=${Date.now()}`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (res.ok) {
+      const text = await res.text();
       const parsed = JSON.parse(text);
       if (Array.isArray(parsed) && parsed.length > 0) {
         // Mettre à jour le fichier local en tâche de fond si le disque est accessible
