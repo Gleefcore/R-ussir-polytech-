@@ -449,8 +449,18 @@ export default function AdminCockpitPage() {
 
       setGalleryFeedback({
         type: 'success',
-        text: `✅ Succès ! La photo "${galTitle.trim()}" a été publiée avec succès dans la Galerie !`,
+        text: `✅ Succès ! La photo "${galTitle.trim()}" a été publiée avec succès et est immédiatement visible en ligne dans la Galerie !`,
       });
+
+      // Synchroniser en temps réel toutes les pages Galerie ouvertes
+      try {
+        const channel = new BroadcastChannel('rp_gallery_sync');
+        channel.postMessage({ type: 'GALLERY_UPDATED', timestamp: Date.now() });
+        channel.close();
+      } catch {}
+      try {
+        localStorage.setItem('rp_gallery_updated', Date.now().toString());
+      } catch {}
 
       setGalTitle('');
       setGalDescription('');
@@ -481,6 +491,14 @@ export default function AdminCockpitPage() {
       if (data.success) {
         setGalleryItems((prev) => prev.filter((item) => item.id !== id));
         setDeletingGalleryId(null);
+        try {
+          const channel = new BroadcastChannel('rp_gallery_sync');
+          channel.postMessage({ type: 'GALLERY_UPDATED', timestamp: Date.now() });
+          channel.close();
+        } catch {}
+        try {
+          localStorage.setItem('rp_gallery_updated', Date.now().toString());
+        } catch {}
       } else {
         alert(data.error || 'Erreur lors de la suppression.');
       }
@@ -1780,18 +1798,30 @@ export default function AdminCockpitPage() {
               {/* Feedback Alert */}
               {galleryFeedback && (
                 <div
-                  className={`p-4 mb-6 rounded-2xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 ${
+                  className={`p-4 mb-6 rounded-2xl text-xs sm:text-sm font-semibold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
                     galleryFeedback.type === 'success'
                       ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
                       : 'bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-400'
                   }`}
                 >
-                  {galleryFeedback.type === 'success' ? (
-                    <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                  ) : (
-                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                  <div className="flex items-center gap-2.5">
+                    {galleryFeedback.type === 'success' ? (
+                      <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                    ) : (
+                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    )}
+                    <span>{galleryFeedback.text}</span>
+                  </div>
+                  {galleryFeedback.type === 'success' && (
+                    <Link
+                      href="/galerie"
+                      target="_blank"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex-shrink-0 cursor-pointer"
+                    >
+                      <span>Voir la Galerie en ligne</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </Link>
                   )}
-                  <span>{galleryFeedback.text}</span>
                 </div>
               )}
 

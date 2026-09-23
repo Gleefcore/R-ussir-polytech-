@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -26,10 +26,16 @@ export default function GaleriePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeLightboxIndex, setActiveLightboxIndex] = useState<number | null>(null);
 
-  // Charger les photos
-  const fetchGalleryItems = async () => {
+  // Charger les photos en direct avec contournement de tout cache
+  const fetchGalleryItems = useCallback(async () => {
     try {
-      const res = await fetch(`/api/gallery?t=${Date.now()}`, { cache: 'no-store' });
+      const res = await fetch(`/api/gallery?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+        },
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.items) && data.items.length > 0) {
@@ -39,11 +45,41 @@ export default function GaleriePage() {
     } catch (e) {
       console.warn('Erreur chargement galerie:', e);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchGalleryItems();
-  }, []);
+
+    // 1. Polling haute fréquence (toutes les 6 secondes) pour afficher toute nouvelle photo instantanément
+    const interval = setInterval(fetchGalleryItems, 6000);
+
+    // 2. Rafraîchissement immédiat quand la fenêtre/onglet reprend le focus
+    const onFocus = () => fetchGalleryItems();
+    window.addEventListener('focus', onFocus);
+
+    // 3. Écoute temps réel cross-onglets (BroadcastChannel & storage)
+    let channel: BroadcastChannel | null = null;
+    try {
+      channel = new BroadcastChannel('rp_gallery_sync');
+      channel.onmessage = () => {
+        fetchGalleryItems();
+      };
+    } catch {}
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'rp_gallery_updated') {
+        fetchGalleryItems();
+      }
+    };
+    window.addEventListener('storage', onStorage);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('storage', onStorage);
+      if (channel) channel.close();
+    };
+  }, [fetchGalleryItems]);
 
   // Filtrage
   const filteredItems = useMemo(() => {
@@ -220,6 +256,7 @@ export default function GaleriePage() {
                       src={item.imageUrl}
                       alt={item.title}
                       fill
+                      unoptimized={item.imageUrl.startsWith('http')}
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     />
@@ -304,6 +341,7 @@ export default function GaleriePage() {
                   src={activeItem.imageUrl}
                   alt={activeItem.title}
                   fill
+                  unoptimized={activeItem.imageUrl.startsWith('http')}
                   className="object-contain"
                   priority
                 />

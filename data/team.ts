@@ -60,7 +60,7 @@ export const team: TeamMember[] = [
   },
   {
     id: 'sarah-ondoua',
-    name: 'ONDOUA ELLE SARA',
+    name: 'ONDOUA ELLA SARA',
     title: 'Cofondatrice',
     role: 'Fondatrice',
     description: 'Pilier de la fondation de Réussir Polytech. Contribue activement à l\'épanouissement de la communauté étudiante.',

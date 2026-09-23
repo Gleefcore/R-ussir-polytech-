@@ -71,7 +71,7 @@ const familyPhotos = [
   },
   {
     image: '/assets/team/sarah-ondoua.jpg',
-    title: 'ONDOUA ELLE SARA',
+    title: 'ONDOUA ELLA SARA',
     caption: 'Cofondatrice',
     tag: 'N°6 • Fondatrice',
     isLarge: false,
