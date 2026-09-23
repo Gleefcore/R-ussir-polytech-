@@ -54,12 +54,12 @@ export const curriculum: Subject[] = [
         url: '/documents/msp1/examen-analyse-reelle1-2025-2026.pdf',
         isPaid: false,
         items: [
-          { title: 'Examen Final — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/examen-analyse-reelle1-2025-2026.pdf', date: '2025-2026' },
-          { title: 'Examen Final — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/examen-analyse-reelle1-2024-2025.pdf', date: '2024-2025' },
-          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2024-2025.pdf', date: 'Novembre 2024' },
-          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2022-2023.pdf', date: 'Novembre 2022' },
-          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Pr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf', date: 'Décembre 2020' },
-          { title: 'Contrôle Continu N°1 — Analyse Réelle 1 (Dr E. Takou)', url: '/documents/msp1/cc1-analyse-reelle1-2015-2016.pdf', date: 'Novembre 2015' },
+          { title: 'Examen Final — Analyse Réelle 1 (Session Principale)', url: '/documents/msp1/examen-analyse-reelle1-2025-2026.pdf', date: '2025-2026' },
+          { title: 'Examen Final — Analyse Réelle 1 (Session Normale)', url: '/documents/msp1/examen-analyse-reelle1-2024-2025.pdf', date: '2024-2025' },
+          { title: 'Contrôle Continu N°1 — Analyse Réelle 1', url: '/documents/msp1/cc1-analyse-reelle1-2024-2025.pdf', date: 'Novembre 2024' },
+          { title: 'Contrôle Continu N°1 — Analyse Réelle 1', url: '/documents/msp1/cc1-analyse-reelle1-2022-2023.pdf', date: 'Novembre 2022' },
+          { title: 'Contrôle Continu N°1 — Analyse Réelle 1', url: '/documents/msp1/cc1-analyse-reelle1-2020-2021.pdf', date: 'Décembre 2020' },
+          { title: 'Contrôle Continu N°1 — Analyse Réelle 1', url: '/documents/msp1/cc1-analyse-reelle1-2015-2016.pdf', date: 'Novembre 2015' },
         ],
       },
       {

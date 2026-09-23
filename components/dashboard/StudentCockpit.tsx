@@ -63,7 +63,7 @@ export function StudentCockpit({ level, title, subtitle }: StudentCockpitProps) 
       'vient de télécharger l\'épreuve de Physique CC',
       'vient de lancer la révision d\'Analyse',
       'vient de rejoindre la salle d\'étude',
-      'est en train de s\'entraîner sur les annales de Takou',
+      'est en train de s\'entraîner sur les annales d\'examens',
       'consulte la fiche de TD n°2',
       'vient de commencer un marathon de révision',
     ];

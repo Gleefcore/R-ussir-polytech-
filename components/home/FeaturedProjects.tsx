@@ -9,7 +9,7 @@ import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
 const projects = [
   {
     title: "Annales Officielles Concours & MSP1",
-    subtitle: "Sessions récentes certifiées avec résolutions intégrales Takou & Bouetou.",
+    subtitle: "Sessions récentes certifiées avec résolutions intégrales et barèmes officiels.",
     image: "/assets/gallery/cad-engineering-2.jpg",
     tag: "MSP1 Mathématiques & Physique",
     link: "/msp1",

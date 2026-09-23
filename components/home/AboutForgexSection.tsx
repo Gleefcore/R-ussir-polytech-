@@ -14,7 +14,7 @@ const aboutCards = [
     image: "/assets/gallery/lab-robotics-1.jpg",
     badge: "100% Certifié",
     link: "/msp1",
-    highlight: "Takou • Bouetou • Remaoun",
+    highlight: "Enseignements Magistraux Certifiés",
   },
   {
     icon: FileText,

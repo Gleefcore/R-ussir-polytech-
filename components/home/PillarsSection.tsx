@@ -6,7 +6,7 @@ const pillars = [
   {
     icon: BookOpen,
     title: 'Polycopiés & Cours Certifiés',
-    desc: 'Supports de cours magistraux officiels dispensés par vos professeurs (Pr Takou, Pr Bouetou, Dr Yatat, Bidoung). Tout le contenu théorique pour comprendre et maîtriser vos démonstrations.',
+    desc: 'Supports de cours magistraux officiels dispensés par le corps professoral émérite des écoles polytechniques du Cameroun (notamment Pr Takou, Pr Bouetou, Pr Mama, Dr Yatat et leurs pairs). Tout le contenu théorique pour maîtriser vos démonstrations.',
   },
   {
     icon: FileCheck,

@@ -23,19 +23,19 @@ export function DownloadCelebrationModal({
   useEffect(() => {
     if (!isOpen) return;
 
-    // 1. Tirs de confettis en série (Jets de feu, jets de lumière, jets de fleurs)
-    const duration = 2500;
+    // 1. Tirs de confettis en série (Or Polytech, Bleu Céleste et Blanc)
+    const duration = 2200;
     const animationEnd = Date.now() + duration;
 
-    // Salve 1 : Explosion centrale immédiate (Or & Feu)
+    // Salve 1 : Explosion centrale immédiate (Or Polytech)
     confetti({
-      particleCount: 80,
-      spread: 100,
+      particleCount: 70,
+      spread: 90,
       origin: { y: 0.6 },
-      colors: ['#FF4500', '#FF8C00', '#FFD700', '#FFA500', '#D4AF37'],
+      colors: ['#D4AF37', '#F59E0B', '#FCD34D', '#FFFFFF', '#0284C7'],
     });
 
-    // Salve 2 : Jets latéraux continus (Fleurs & Lumière)
+    // Salve 2 : Jets latéraux continus (Or & Bleu Céleste)
     const interval: NodeJS.Timeout = setInterval(() => {
       const timeLeft = animationEnd - Date.now();
 
@@ -43,24 +43,24 @@ export function DownloadCelebrationModal({
         return clearInterval(interval);
       }
 
-      const particleCount = 40 * (timeLeft / duration);
+      const particleCount = 35 * (timeLeft / duration);
 
-      // Jet gauche (Fleurs : Roses, mauves, émeraudes)
+      // Jet gauche (Or Polytech)
       confetti({
         particleCount,
         angle: 60,
-        spread: 70,
+        spread: 60,
         origin: { x: 0, y: 0.7 },
-        colors: ['#FF1493', '#FF69B4', '#00FF7F', '#D4AF37', '#9370DB'],
+        colors: ['#D4AF37', '#F59E0B', '#FFFBEB'],
       });
 
-      // Jet droit (Lumière & Flammes : Étoiles d'or et de feu)
+      // Jet droit (Bleu Polytech & Lumière Blanche)
       confetti({
         particleCount,
         angle: 120,
-        spread: 70,
+        spread: 60,
         origin: { x: 1, y: 0.7 },
-        colors: ['#FFD700', '#00FFFF', '#FF4500', '#FFF8DC', '#38BDF8'],
+        colors: ['#0284C7', '#38BDF8', '#FFFFFF', '#D4AF37'],
       });
     }, 250);
 
@@ -71,16 +71,16 @@ export function DownloadCelebrationModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#050B14]/85 backdrop-blur-md">
         <motion.div
-          initial={{ opacity: 0, scale: 0.8, y: 20 }}
+          initial={{ opacity: 0, scale: 0.85, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.8, y: 20 }}
+          exit={{ opacity: 0, scale: 0.85, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-lg rounded-3xl bg-gradient-to-b from-[#0F1E36] to-[#060D18] border-2 border-[#D4AF37] p-6 sm:p-8 text-center text-white shadow-[0_0_50px_rgba(212,175,55,0.4)] overflow-hidden"
+          className="relative w-full max-w-lg rounded-3xl bg-gradient-to-b from-[#0A1628] via-[#050B14] to-[#040812] border-2 border-[#D4AF37] p-6 sm:p-8 text-center text-white shadow-[0_0_50px_rgba(212,175,55,0.3)] overflow-hidden"
         >
-          {/* Rayons lumineux animés en fond */}
-          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-gradient-to-b from-amber-400/20 via-rose-500/10 to-transparent blur-3xl pointer-events-none" />
+          {/* Rayons lumineux animés en fond (Or & Bleu Polytech) */}
+          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-gradient-to-b from-[#D4AF37]/20 via-[#0284C7]/15 to-transparent blur-3xl pointer-events-none" />
 
           {/* Bouton Fermer */}
           <button
@@ -90,28 +90,23 @@ export function DownloadCelebrationModal({
             <X className="w-5 h-5" />
           </button>
 
-          {/* Icône du trophée rayonnant */}
-          <div className="relative mx-auto mb-5 w-24 h-24 rounded-full bg-gradient-to-tr from-[#D4AF37] via-amber-300 to-amber-500 p-1 flex items-center justify-center shadow-xl shadow-amber-500/30">
-            <div className="w-full h-full rounded-full bg-[#0A1628] flex items-center justify-center relative overflow-hidden">
-              <Trophy className="w-12 h-12 text-[#D4AF37] animate-bounce" />
-              <div className="absolute inset-0 bg-gradient-to-t from-amber-500/20 to-transparent" />
+          {/* Icône du trophée rayonnant d'ingénierie */}
+          <div className="relative mx-auto mb-5 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#D4AF37] via-amber-300 to-[#D4AF37] p-1 flex items-center justify-center shadow-xl shadow-amber-500/20">
+            <div className="w-full h-full rounded-full bg-[#0A1628] flex items-center justify-center relative overflow-hidden border border-[#D4AF37]/40">
+              <Trophy className="w-10 h-10 sm:w-12 sm:h-12 text-[#D4AF37] animate-bounce" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#D4AF37]/20 to-transparent" />
             </div>
-            {/* Fleurs et flammes autour du trophée */}
-            <span className="absolute -top-1 -right-1 text-2xl animate-spin" style={{ animationDuration: '6s' }}>🌸</span>
-            <span className="absolute -bottom-1 -left-1 text-2xl animate-pulse">🔥</span>
-            <span className="absolute top-1/2 -left-3 text-2xl">✨</span>
-            <span className="absolute top-1/2 -right-3 text-2xl">💐</span>
           </div>
 
-          {/* Titre Triomphal */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-black uppercase tracking-wider mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>Félicitations pour ton travail !</span>
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          {/* Titre Triomphal sobre & prestigieux */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/35 text-[#D4AF37] text-xs font-black uppercase tracking-wider mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>Félicitations pour ton initiative !</span>
+            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-2">
-            Ton cours est <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-[#D4AF37] to-amber-400">téléchargé !</span> 🚀
+          <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-2 font-heading">
+            Document <span className="text-gold-gradient">téléchargé !</span> 🚀
           </h2>
 
           <div className="p-3 rounded-2xl bg-white/5 border border-white/10 my-4 text-left">

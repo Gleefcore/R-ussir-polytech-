@@ -21,7 +21,7 @@ const stats = [
     icon: FileCheck,
     value: '500+',
     label: 'Épreuves & Corrigés Types',
-    sub: 'Archives Takou & Bouetou',
+    sub: 'Archives Officielles des Examens',
   },
   {
     icon: Award,

@@ -65,10 +65,10 @@ const disciplines = [
     icon: Binary,
     image: '/assets/gallery/family-leaders-portrait.jpg',
     tags: ['Analyse Réelle', 'Maxwell & Ondes', 'Algèbre Linéaire', 'Mécanique Point'],
-    color: 'from-purple-500/20 via-indigo-500/10 to-transparent',
-    border: 'border-purple-500/30 group-hover:border-purple-500/60',
-    iconColor: 'text-purple-400',
-    stat: 'Cours Takou & Bouetou',
+    color: 'from-[#D4AF37]/20 via-sky-500/10 to-transparent',
+    border: 'border-[#D4AF37]/30 group-hover:border-[#D4AF37]/60',
+    iconColor: 'text-[#D4AF37]',
+    stat: 'Enseignements Certifiés',
   },
 ];
 

@@ -24,8 +24,8 @@ export function HeroSection() {
   const [searchWord, setSearchWord] = useState('');
 
   const quickSearches = [
-    { label: 'Analyse (Takou)', level: 'MSP1', href: '/msp1?q=analyse' },
-    { label: 'Algèbre (Bouetou)', level: 'MSP1', href: '/msp1?q=algebre' },
+    { label: 'Analyse Réelle 1 & 2', level: 'MSP1', href: '/msp1?q=analyse' },
+    { label: 'Algèbre Linéaire', level: 'MSP1', href: '/msp1?q=algebre' },
     { label: 'Algèbre Multilinéaire', level: 'MSP2', href: '/msp2?q=algebre' },
     { label: 'Électromagnétisme', level: 'MSP1', href: '/msp1?q=electromag' },
     { label: 'Probabilités & Stats', level: 'MSP2', href: '/msp2?q=probabilites' },
@@ -74,7 +74,7 @@ export function HeroSection() {
 
               {/* Description vendeuse orientée résultats concrets */}
               <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed mb-6 font-medium">
-                La plateforme de référence conçue par les majors et mentors de Polytechnique. Retrouvez en libre accès tous les <strong>polycopiés certifiés</strong>, les <strong>fiches de TD</strong> et les <strong>annales d&apos;examens et de CC résolues</strong> (Takou, Bouetou, Remaoun, Yatat) pour dominer vos semestres.
+                La plateforme officielle conçue par les majors et aînés de promotion de Polytechnique. Retrouvez en libre accès tous les <strong>cours certifiés</strong>, les <strong>fiches de travaux dirigés</strong> et les <strong>annales d&apos;examens et de contrôles continus</strong> issus des épreuves dispensées par le corps professoral émérite des écoles polytechniques du Cameroun (notamment Pr Takou, Pr Bouetou, Pr Mama, Dr Yatat et leurs pairs) pour dominer vos semestres.
               </p>
 
               {/* BARRE DE RECHERCHE RAPIDE */}
@@ -135,7 +135,7 @@ export function HeroSection() {
                         Filière MSP 1
                       </h3>
                       <p className="text-xs font-semibold text-slate-900/80 mt-1 leading-snug">
-                        Analyse 1 & 2 (Takou), Algèbre (Bouetou), Mécanique, Électrostatique, Chimie.
+                        Analyse Réelle, Algèbre Fondamentale, Mécanique du Point, Électrostatique, Chimie.
                       </p>
                     </div>
                     <div className="mt-4 pt-3 border-t border-slate-950/20 flex items-center justify-between text-xs font-black">
@@ -147,14 +147,14 @@ export function HeroSection() {
                   {/* CARTE MSP 2 */}
                   <Link
                     href="/msp2"
-                    className="p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-sky-950 to-blue-950 text-white font-black shadow-xl shadow-sky-900/30 hover:scale-[1.02] active:scale-[0.98] transition-all group flex flex-col justify-between border-2 border-sky-400/40"
+                    className="p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-[#0A1628] to-[#040D1B] text-white font-black shadow-xl shadow-slate-950/40 hover:scale-[1.02] active:scale-[0.98] transition-all group flex flex-col justify-between border-2 border-[#D4AF37]/40"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                        <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30">
                           2ème Année • ENSPY
                         </span>
-                        <ArrowRight className="w-5 h-5 text-sky-400 group-hover:translate-x-1.5 transition-transform" />
+                        <ArrowRight className="w-5 h-5 text-[#D4AF37] group-hover:translate-x-1.5 transition-transform" />
                       </div>
                       <h3 className="text-xl font-black tracking-tight leading-tight text-white">
                         Filière MSP 2
@@ -163,28 +163,28 @@ export function HeroSection() {
                         Algèbre Multilinéaire, Séries Intégrales, Thermodynamique, Électrocinétique.
                       </p>
                     </div>
-                    <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-black text-sky-300">
+                    <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-black text-[#D4AF37]">
                       <span>Accéder au Cockpit MSP2</span>
                       <span>→</span>
                     </div>
                   </Link>
                 </div>
 
-                {/* CARTE BANDEAU VIP */}
+                {/* CARTE BANDEAU VIP (AUX COULEURS STRICTES NOIR & OR POLYTECH) */}
                 <Link
                   href="/entrepreneur-vip"
-                  className="mt-3.5 p-4 rounded-2xl bg-gradient-to-r from-purple-900/60 via-indigo-900/60 to-blue-900/60 border border-purple-500/30 hover:border-purple-400/60 text-white transition-all flex items-center justify-between group shadow-lg"
+                  className="mt-3.5 p-4 rounded-2xl bg-gradient-to-r from-[#0A1628] via-[#0C2340] to-[#040D1B] border-2 border-[#D4AF37]/40 hover:border-[#D4AF37] text-white transition-all flex items-center justify-between group shadow-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                      <Star className="w-5 h-5 text-amber-300 fill-amber-300" />
+                    <div className="p-2.5 rounded-xl bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40">
+                      <Star className="w-5 h-5 text-[#D4AF37] fill-[#D4AF37]" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-purple-300 font-bold">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-[#D4AF37] font-bold">
                           Espace d&apos;Élite Métiers
                         </span>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 font-black">
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#D4AF37] text-slate-950 font-black">
                           VIP
                         </span>
                       </div>
@@ -196,7 +196,7 @@ export function HeroSection() {
                       </p>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-purple-300 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-[#D4AF37] group-hover:translate-x-1 transition-transform flex-shrink-0" />
                 </Link>
               </div>
 
@@ -261,37 +261,37 @@ export function HeroSection() {
         {/* 4 PILIERS DE PRESTIGE INDUSTRIEL (RASSURANCE INGÉNIEUR) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-8">
           <div className="p-4 rounded-2xl bg-white dark:bg-[#070E1B] border border-slate-200 dark:border-white/10 shadow-sm flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex-shrink-0">
+            <div className="p-2.5 rounded-xl bg-[#D4AF37]/15 text-[#D4AF37] flex-shrink-0 border border-[#D4AF37]/30">
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
               <p className="text-xs font-black text-slate-900 dark:text-white">Polycopiés Certifiés</p>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400">Conformes aux professeurs</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">Conformes au programme officiel</p>
             </div>
           </div>
 
           <div className="p-4 rounded-2xl bg-white dark:bg-[#070E1B] border border-slate-200 dark:border-white/10 shadow-sm flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex-shrink-0">
+            <div className="p-2.5 rounded-xl bg-sky-500/15 text-sky-400 flex-shrink-0 border border-sky-500/30">
               <FileCheck className="w-5 h-5" />
             </div>
             <div>
               <p className="text-xs font-black text-slate-900 dark:text-white">Annales CC & Examens</p>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400">Takou, Bouetou, Remaoun</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">Épreuves du corps professoral</p>
             </div>
           </div>
 
           <div className="p-4 rounded-2xl bg-white dark:bg-[#070E1B] border border-slate-200 dark:border-white/10 shadow-sm flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex-shrink-0">
+            <div className="p-2.5 rounded-xl bg-[#D4AF37]/15 text-[#D4AF37] flex-shrink-0 border border-[#D4AF37]/30">
               <DownloadCloud className="w-5 h-5" />
             </div>
             <div>
               <p className="text-xs font-black text-slate-900 dark:text-white">Téléchargement Direct</p>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400">Accès immédiat sans délai</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">Accès libre sans friction</p>
             </div>
           </div>
 
           <div className="p-4 rounded-2xl bg-white dark:bg-[#070E1B] border border-slate-200 dark:border-white/10 shadow-sm flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex-shrink-0">
+            <div className="p-2.5 rounded-xl bg-sky-500/15 text-sky-400 flex-shrink-0 border border-sky-500/30">
               <Users className="w-5 h-5" />
             </div>
             <div>
