@@ -228,19 +228,23 @@ export function AuthForm() {
         throw new Error(data.error || 'Erreur lors de la création du compte.');
       }
 
-      // Upload de l'avatar si utilisateur créé
+      // Upload sécurisé de l'avatar via l'API serveur (sans blocage RLS)
+      let uploadedAvatarUrl = null;
       if (data.user?.id && reg.avatar) {
-        const fileExt = reg.avatar.name.split('.').pop() || 'jpg';
-        const avatarPath = `${data.user.id}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage.from('avatars').upload(avatarPath, reg.avatar, { upsert: true });
-        
-        if (!uploadError && uploadData) {
-           const { data: pubUrl } = supabase.storage.from('avatars').getPublicUrl(avatarPath);
-           if (pubUrl?.publicUrl) {
-              // Update user metadata with avatar_url
-              await supabase.auth.updateUser({ data: { avatar_url: pubUrl.publicUrl } });
-              data.session.user.user_metadata.avatar_url = pubUrl.publicUrl;
-           }
+        try {
+          const avatarData = new FormData();
+          avatarData.append('file', reg.avatar);
+          avatarData.append('userId', data.user.id);
+          const avRes = await fetch('/api/user/avatar', {
+            method: 'POST',
+            body: avatarData,
+          });
+          const avJson = await avRes.json();
+          if (avJson.success && avJson.avatarUrl) {
+            uploadedAvatarUrl = avJson.avatarUrl;
+          }
+        } catch (e) {
+          console.error('Avatar upload error:', e);
         }
       }
 
@@ -260,7 +264,7 @@ export function AuthForm() {
         level: data.level,
         email: data.email,
         phone: reg.phone.trim(),
-        avatar_url: data.session?.user?.user_metadata?.avatar_url || null,
+        avatar_url: uploadedAvatarUrl || data.session?.user?.user_metadata?.avatar_url || null,
       });
 
       const dest = data.level === 'MSP2' ? '/msp2' : '/msp1';

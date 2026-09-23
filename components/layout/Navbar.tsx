@@ -160,32 +160,26 @@ export function Navbar() {
               <div className="hidden md:flex items-center gap-2.5">
                 <Link
                   href={effectiveLevel === 'MSP2' ? '/msp2' : '/msp1'}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black bg-[#D4AF37]/15 text-[#D4AF37] border border-[#D4AF37]/35 hover:bg-[#D4AF37]/25 transition-all shadow-sm"
-                >
-                  <GraduationCap className="w-4 h-4" />
-                  <span>Mes Cours ({effectiveLevel})</span>
-                </Link>
-
-                <Link
-                  href="/dashboard"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 transition-all shadow-sm"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-white/5 border border-[#D4AF37]/40 hover:bg-[#D4AF37]/10 transition-all shadow-sm group"
                 >
                   {activeSession?.avatar_url || user?.user_metadata?.avatar_url ? (
-                    <div className="relative w-6 h-6 rounded-full overflow-hidden border border-slate-300 dark:border-white/20">
-                      <Image
+                    <div className="relative w-7 h-7 rounded-full overflow-hidden border-2 border-[#D4AF37]">
+                      <img
                         src={(activeSession?.avatar_url || user?.user_metadata?.avatar_url) as string}
                         alt={activeSession?.name || user?.user_metadata?.full_name || 'Profil'}
-                        fill
-                        className="object-cover"
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   ) : (
-                    <div className="w-6 h-6 rounded-full bg-sky-500/20 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold text-[10px] uppercase">
+                    <div className="w-7 h-7 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center font-bold text-[10px] uppercase border border-[#D4AF37]/30">
                       {(activeSession?.name || user?.user_metadata?.full_name || 'RP').substring(0, 2)}
                     </div>
                   )}
-                  <span className="hidden sm:inline-block max-w-[100px] truncate">
-                    {activeSession?.name || user?.user_metadata?.full_name || 'Profil'}
+                  <span className="max-w-[120px] truncate text-slate-900 dark:text-white font-bold">
+                    {(activeSession?.name || user?.user_metadata?.full_name || 'Mon Compte').split(' ')[0]}
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#D4AF37] text-slate-950 font-black">
+                    {effectiveLevel}
                   </span>
                 </Link>
 
@@ -247,30 +241,25 @@ export function Navbar() {
                 <Link
                   href={effectiveLevel === 'MSP2' ? '/msp2' : '/msp1'}
                   onClick={() => setOpen(false)}
-                  className="block px-4 py-3 rounded-xl text-sm text-[#D4AF37] font-bold bg-[#D4AF37]/10"
-                >
-                  Mes Cours ({effectiveLevel})
-                </Link>
-                <Link
-                  href="/dashboard"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm text-slate-800 dark:text-white font-bold bg-slate-100 dark:bg-white/5"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-800 dark:text-white font-bold bg-[#D4AF37]/10 border border-[#D4AF37]/30"
                 >
                   {activeSession?.avatar_url || user?.user_metadata?.avatar_url ? (
-                    <div className="relative w-6 h-6 rounded-full overflow-hidden border border-slate-300 dark:border-white/20">
-                      <Image
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-[#D4AF37]">
+                      <img
                         src={(activeSession?.avatar_url || user?.user_metadata?.avatar_url) as string}
                         alt={activeSession?.name || user?.user_metadata?.full_name || 'Profil'}
-                        fill
-                        className="object-cover"
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   ) : (
-                    <div className="w-6 h-6 rounded-full bg-sky-500/20 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold text-[10px] uppercase">
+                    <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center font-bold text-xs uppercase">
                       {(activeSession?.name || user?.user_metadata?.full_name || 'RP').substring(0, 2)}
                     </div>
                   )}
-                  <span>Mon Espace Profil</span>
+                  <div className="flex-1">
+                    <p className="leading-tight font-black">{activeSession?.name || user?.user_metadata?.full_name || 'Mon Compte'}</p>
+                    <p className="text-[11px] text-[#D4AF37] font-mono">Tableau de bord {effectiveLevel}</p>
+                  </div>
                 </Link>
                 <button
                   onClick={handleSignOut}

@@ -49,16 +49,21 @@ export function StudentMarquee({ level }: { level: 'MSP1' | 'MSP2' }) {
         <Marquee speed={40} gradient={false} pauseOnHover={true} autoFill={true}>
           {students.map((s, i) => (
             <div key={`${s.id}-${i}`} className="flex flex-col items-center mx-4 gap-2">
-              <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-slate-200 dark:border-white/10 shadow-sm bg-slate-100 dark:bg-slate-800">
+              <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-[#D4AF37]/60 shadow-md bg-slate-800 flex items-center justify-center flex-shrink-0">
                 {s.avatarUrl ? (
-                  <Image src={s.avatarUrl} alt={s.fullName} fill className="object-cover" />
+                  <img
+                    src={s.avatarUrl}
+                    alt={s.fullName}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-poly-cyan/20 text-poly-cyan font-bold text-sm uppercase">
                     {s.fullName.substring(0, 2)}
                   </div>
                 )}
               </div>
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 max-w-[70px] truncate text-center">
+              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 max-w-[80px] truncate text-center">
                 {s.fullName.split(' ')[0]}
               </span>
             </div>
