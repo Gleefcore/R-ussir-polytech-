@@ -6,6 +6,7 @@ import { Lock, MessageCircle, X, Loader2, BookOpen, FileText, Award, Download, S
 import { type Subject, type Resource } from '@/data/curriculum';
 import { sendWhatsAppNotification } from '@/lib/whatsapp';
 import { createClient } from '@/lib/supabaseClient';
+import { DownloadCelebrationModal } from './DownloadCelebrationModal';
 
 interface CloudDoc {
   id: string;
@@ -27,6 +28,7 @@ interface ResourceModalProps {
 function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: ResourceModalProps) {
   const [cloudItems, setCloudItems] = useState<CloudDoc[]>(initialCloudDocs);
   const [loading, setLoading] = useState(false);
+  const [celebrationDoc, setCelebrationDoc] = useState<{ title: string; url: string } | null>(null);
 
   const fetchCloudDocs = useCallback(async () => {
     setLoading(true);
@@ -193,16 +195,22 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
                   </div>
                 </div>
 
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] font-black text-xs shadow-md shadow-[#D4AF37]/20 hover:scale-105 active:scale-95 transition-all flex-shrink-0"
+                <button
+                  onClick={() => {
+                    setCelebrationDoc({ title: item.title, url: item.url });
+                    const link = document.createElement('a');
+                    link.href = item.url;
+                    link.download = item.title || 'cours-polytech.pdf';
+                    link.target = '_blank';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-amber-400 to-[#F3E5AB] text-[#050B14] font-black text-xs shadow-md shadow-[#D4AF37]/25 hover:scale-105 active:scale-95 transition-all flex-shrink-0"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Ouvrir PDF</span>
-                </a>
+                  <Download className="w-4 h-4 text-[#050B14]" />
+                  <span>Télécharger</span>
+                </button>
               </motion.div>
             ))
           ) : (
@@ -235,6 +243,17 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
         >
           Fermer la liste
         </button>
+
+        {/* Modal d'animation explosive de félicitations */}
+        {celebrationDoc && (
+          <DownloadCelebrationModal
+            isOpen={!!celebrationDoc}
+            documentTitle={celebrationDoc.title}
+            documentUrl={celebrationDoc.url}
+            subjectName={subject.name}
+            onClose={() => setCelebrationDoc(null)}
+          />
+        )}
       </motion.div>
     </motion.div>
   );
