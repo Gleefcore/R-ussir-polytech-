@@ -61,26 +61,27 @@ export function TeamCard({ member, index }: TeamCardProps) {
         </div>
       )}
 
-      {/* Avatar Container */}
-      <div className="relative w-24 h-24 mx-auto mb-4 mt-2">
-        <div className="w-24 h-24 rounded-full border-2 border-poly-gold/50 overflow-hidden bg-slate-100 dark:bg-poly-night flex items-center justify-center shadow-lg relative">
+      {/* Photo Container Format 4*4 Officiel */}
+      <div className="relative w-44 h-44 sm:w-48 sm:h-48 aspect-square mx-auto mb-4 mt-2">
+        <div className="w-full h-full rounded-2xl border-2 border-poly-gold/50 overflow-hidden bg-slate-100 dark:bg-poly-night shadow-xl relative group-hover:border-poly-gold transition-colors duration-300">
           {hasOfficialPhoto && !hasError ? (
             <Image
               src={member.photo}
               alt={member.name}
               fill
-              className="object-cover object-top"
+              className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
               onError={() => setHasError(true)}
               priority={member.order <= 3}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-poly-gold/25 via-poly-night/60 to-poly-cyan/25 text-slate-800 dark:text-white font-black text-2xl tracking-wider select-none">
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-poly-gold/25 via-poly-night/60 to-poly-cyan/25 text-slate-800 dark:text-white font-black text-3xl tracking-wider select-none">
               {initials}
             </div>
           )}
         </div>
         {/* Order badge */}
-        <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white dark:bg-poly-card border-2 border-poly-gold flex items-center justify-center shadow-md z-10">
+        <div className="absolute -bottom-2 -right-2 px-2.5 py-1 rounded-xl bg-white/95 dark:bg-[#070E1B]/95 border-2 border-poly-gold flex items-center gap-1 shadow-lg z-10 backdrop-blur-md">
+          <span className="text-[10px] font-mono text-poly-gold font-bold">N°</span>
           <span className="text-poly-gold text-xs font-black">{member.order}</span>
         </div>
       </div>
