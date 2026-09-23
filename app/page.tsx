@@ -4,6 +4,9 @@ import { PillarsSection } from '@/components/home/PillarsSection';
 import { FamilyGalleryMarquee } from '@/components/home/FamilyGalleryMarquee';
 import { BottomCtaBanner } from '@/components/home/BottomCtaBanner';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default function HomePage() {
   return (
     <>

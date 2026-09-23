@@ -2,6 +2,9 @@ import { team } from '@/data/team';
 import { TeamCard } from '@/components/about/TeamCard';
 import { Users, Quote } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default function AProposPage() {
 
   return (
