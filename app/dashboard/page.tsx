@@ -35,7 +35,16 @@ export default async function DashboardPage() {
   const matricule = profile?.matricule || (user.user_metadata?.matricule as string) || 'Non assigné';
   const level = profile?.level || (user.user_metadata?.level as string) || 'MSP1';
   const phone = profile?.phone || (user.user_metadata?.phone as string) || '';
-  const avatarUrl = profile?.avatar_url || '';
+  let avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || '';
+
+  // Fallback au cas où l'utilisateur s'est inscrit avant le patch metadata
+  if (!avatarUrl) {
+    const { data: files } = await supabase.storage.from('avatars').list('', { search: user.id });
+    if (files && files.length > 0) {
+      const { data } = supabase.storage.from('avatars').getPublicUrl(files[0].name);
+      avatarUrl = data.publicUrl;
+    }
+  }
 
   const initials = fullName
     .split(' ')
