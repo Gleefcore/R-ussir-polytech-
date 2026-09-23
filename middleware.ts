@@ -33,20 +33,41 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+  const userLevel = user?.user_metadata?.level;
 
-  // Si l'utilisateur non connecté tente d'accéder à une route strictement protégée
+  // Redirection d'un utilisateur non connecté essayant d'accéder aux routes protégées
   const isProtected = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
-  if (isProtected && !user) {
+  const isMsp1 = pathname.startsWith('/msp1');
+  const isMsp2 = pathname.startsWith('/msp2');
+  const isVip = pathname.startsWith('/entrepreneur-vip');
+
+  const requiresAuth = isProtected || isMsp1 || isMsp2 || isVip;
+
+  if (requiresAuth && !user) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth';
     url.searchParams.set('redirectedFrom', pathname);
     return NextResponse.redirect(url);
   }
 
+  // Vérification stricte des niveaux
+  if (user) {
+    if (isMsp1 && userLevel !== 'MSP1' && userLevel !== 'ALUMNI') {
+      const url = request.nextUrl.clone();
+      url.pathname = userLevel === 'MSP2' ? '/msp2' : '/auth';
+      return NextResponse.redirect(url);
+    }
+    if (isMsp2 && userLevel !== 'MSP2' && userLevel !== 'ALUMNI') {
+      const url = request.nextUrl.clone();
+      url.pathname = userLevel === 'MSP1' ? '/msp1' : '/auth';
+      return NextResponse.redirect(url);
+    }
+    // Si VIP, on pourrait restreindre, mais on laisse ouvert aux ALUMNI ou VIP si nécessaire. Pour l'instant, on exige au moins d'être connecté.
+  }
+
   // Si l'utilisateur est déjà connecté et va sur /auth, on l'oriente intelligemment
   if (user && pathname === '/auth') {
     const url = request.nextUrl.clone();
-    const userLevel = user.user_metadata?.level;
     if (userLevel === 'MSP2') {
       url.pathname = '/msp2';
     } else {

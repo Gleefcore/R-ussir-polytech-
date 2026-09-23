@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { GraduationCap } from 'lucide-react';
 import { SubjectCard } from '@/components/academic/SubjectCard';
 import { getSubjectsByLevelAndSemester } from '@/data/curriculum';
+import { StudentMarquee } from '@/components/academic/StudentMarquee';
 
 export default function MSP2Page() {
   const [semester, setSemester] = useState<1 | 2>(1);
@@ -88,6 +89,8 @@ export default function MSP2Page() {
         <p className="text-slate-400 dark:text-white/20 text-xs mt-8 text-center font-medium">
           {subjects.length} matières — Semestre {semester} — MSP2
         </p>
+
+        <StudentMarquee level="MSP2" />
       </div>
     </div>
   );

@@ -67,7 +67,7 @@ export function HeroSection() {
 
               {/* Description claire et sincère pour les étudiants */}
               <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed mb-6 font-medium">
-                La plateforme d&apos;entraide et de documentation officielle des élèves-ingénieurs. Retrouvez en libre accès tous les polycopiés de cours certifiés, les annales d&apos;examens et de contrôles continus (Takou, Bouetou, Remaoun) et les fiches de travaux dirigés pour réussir vos filières <strong>MSP1</strong> et <strong>MSP2</strong>.
+                La plateforme d&apos;entraide et de documentation officielle des élèves-ingénieurs. <strong className="text-[#D4AF37]">Créez un compte</strong> pour retrouver en libre accès tous les polycopiés de cours certifiés, les annales d&apos;examens et de contrôles continus (Takou, Bouetou, Remaoun) et les fiches de travaux dirigés pour réussir vos filières <strong>MSP1</strong> et <strong>MSP2</strong>.
               </p>
 
               {/* BARRE DE RECHERCHE INTUITIVE */}
@@ -137,6 +137,17 @@ export function HeroSection() {
                     <span className="text-sm sm:text-base">Espace VIP</span>
                   </div>
                   <Star className="w-4 h-4 text-amber-300" />
+                </Link>
+              </div>
+
+              {/* Inscription CTA explicite */}
+              <div className="mt-4">
+                <Link
+                  href="/auth"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm hover:scale-105 transition-transform"
+                >
+                  <Users className="w-4 h-4" />
+                  <span>S'inscrire / Se connecter</span>
                 </Link>
               </div>
 

@@ -120,7 +120,7 @@ export function AuthForm() {
     }
   };
 
-  const persistActiveSession = (data: { name: string; matricule: string; level: string; email?: string; phone?: string }) => {
+  const persistActiveSession = (data: { name: string; matricule: string; level: string; email?: string; phone?: string; avatar_url?: string | null }) => {
     try {
       localStorage.setItem('polytech_user_session', JSON.stringify(data));
     } catch {
@@ -176,6 +176,7 @@ export function AuthForm() {
         matricule: data.matricule,
         level: data.level,
         email: data.email,
+        avatar_url: data.session?.user?.user_metadata?.avatar_url || null,
       });
 
       const dest = data.level === 'MSP2' ? '/msp2' : '/msp1';
@@ -231,7 +232,16 @@ export function AuthForm() {
       if (data.user?.id && reg.avatar) {
         const fileExt = reg.avatar.name.split('.').pop() || 'jpg';
         const avatarPath = `${data.user.id}.${fileExt}`;
-        await supabase.storage.from('avatars').upload(avatarPath, reg.avatar, { upsert: true });
+        const { data: uploadData, error: uploadError } = await supabase.storage.from('avatars').upload(avatarPath, reg.avatar, { upsert: true });
+        
+        if (!uploadError && uploadData) {
+           const { data: pubUrl } = supabase.storage.from('avatars').getPublicUrl(avatarPath);
+           if (pubUrl?.publicUrl) {
+              // Update user metadata with avatar_url
+              await supabase.auth.updateUser({ data: { avatar_url: pubUrl.publicUrl } });
+              data.session.user.user_metadata.avatar_url = pubUrl.publicUrl;
+           }
+        }
       }
 
       // Synchroniser la session dans le client Supabase
@@ -250,6 +260,7 @@ export function AuthForm() {
         level: data.level,
         email: data.email,
         phone: reg.phone.trim(),
+        avatar_url: data.session?.user?.user_metadata?.avatar_url || null,
       });
 
       const dest = data.level === 'MSP2' ? '/msp2' : '/msp1';

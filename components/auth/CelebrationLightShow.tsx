@@ -122,12 +122,11 @@ export function CelebrationLightShow({
         </div>
 
         <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 font-heading">
-          Félicitations, <span className="text-gold-gradient">{studentName || 'Futur Ingénieur'}</span> !
+          Bienvenue sur <span className="text-gold-gradient">Réussir Polytech</span> !
         </h3>
 
         <p className="text-slate-300 text-sm font-medium leading-relaxed mb-6">
-          Bienvenue au sanctuaire de l&apos;excellence polytechnicienne. Vos cours, annales et sujets pour le niveau{' '}
-          <strong className="text-[#D4AF37] font-bold">{levelLabel}</strong> sont prêts et accessibles.
+          Félicitations pour ton admission <strong className="text-[#D4AF37] font-bold">{studentName}</strong>, et bienvenue dans le sanctuaire de l'excellence polytechnicienne. Tes cours, annales et sujets pour le niveau <strong className="text-[#D4AF37] font-bold">{levelLabel}</strong> sont prêts.
         </p>
 
         <div className="space-y-3">
