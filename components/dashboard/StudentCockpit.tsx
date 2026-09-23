@@ -37,19 +37,58 @@ export function StudentCockpit({ level, title, subtitle }: StudentCockpitProps) 
     avatarUrl?: string | null;
   }>({});
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [simulatedActive, setSimulatedActive] = useState(32);
+  const [simulatedActive, setSimulatedActive] = useState(31);
+  const [joinedCount, setJoinedCount] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [recentNotification, setRecentNotification] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    // 1. Simulation du nombre de camarades connectés
-    const now = new Date();
-    const hour = now.getHours();
-    const base = (hour >= 18 || hour <= 2) ? 34 : 29;
-    const randomOffset = Math.floor(Math.sin(now.getMinutes()) * 4);
-    setSimulatedActive(Math.max(25, base + randomOffset));
+    // 1. Initialiser ou récupérer l'affluence de la session
+    const savedActive = sessionStorage.getItem(`rp_active_${level}`);
+    const initialBase = savedActive ? parseInt(savedActive, 10) : 31;
+    setSimulatedActive(initialBase);
 
+    // 2. Timer d'écoulement du temps (chaque seconde)
+    const elapsedInterval = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
+
+    // 3. Plus le temps passe, plus le nombre de camarades connectés AUGMENTE !
+    // Toutes les 15 à 30 secondes, un nouveau camarade se connecte
+    const activities = [
+      'vient d\'ouvrir le cours d\'Algèbre Linéaire',
+      'vient de télécharger l\'épreuve de Physique CC',
+      'vient de lancer la révision d\'Analyse',
+      'vient de rejoindre la salle d\'étude',
+      'est en train de s\'entraîner sur les annales de Takou',
+      'consulte la fiche de TD n°2',
+      'vient de commencer un marathon de révision',
+    ];
+
+    const comradesInterval = setInterval(() => {
+      setSimulatedActive((prev) => {
+        const next = prev + 1;
+        sessionStorage.setItem(`rp_active_${level}`, next.toString());
+        return next;
+      });
+      setJoinedCount((prev) => prev + 1);
+
+      // Notification discrète d'activité
+      const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+      setRecentNotification(`+1 camarade ${randomActivity} !`);
+      setTimeout(() => setRecentNotification(null), 4000);
+    }, 22000); // Toutes les 22 secondes
+
+    return () => {
+      clearInterval(elapsedInterval);
+      clearInterval(comradesInterval);
+    };
+  }, [level]);
+
+  useEffect(() => {
     // 2. Récupérer la session locale
     try {
       const saved = localStorage.getItem('polytech_user_session');
@@ -250,24 +289,50 @@ export function StudentCockpit({ level, title, subtitle }: StudentCockpitProps) 
         </div>
 
         {/* 2. BANNIÈRE SOCIALE & MOTIVATION ("L'application cause avec l'étudiant") */}
-        <div className="mt-6 pt-5 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-gradient-to-r from-amber-500/10 via-sky-500/10 to-transparent p-4 rounded-2xl border border-amber-500/20">
+        <div className="mt-6 pt-5 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-sky-500/10 p-4 sm:p-5 rounded-2xl border border-amber-500/30 relative">
           <div className="flex items-start gap-3.5">
-            <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 flex-shrink-0 animate-bounce">
-              <Flame className="w-5 h-5 text-amber-400" />
+            <div className="p-3 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex-shrink-0 relative">
+              <Flame className="w-6 h-6 text-amber-400 animate-pulse" />
+              {joinedCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.2 rounded-full bg-emerald-500 text-slate-950 font-black text-[9px] animate-bounce">
+                  +{joinedCount}
+                </span>
+              )}
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
                 <span className="text-xs font-black uppercase tracking-wider text-amber-300 font-mono">
-                  En Direct — Salle d'Étude Polytech
+                  En Direct — Salle d'Étude {level}
+                </span>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-slate-200 border border-white/15">
+                  ⏱️ Connecté depuis {Math.floor(elapsedSeconds / 60)} min {elapsedSeconds % 60} s
                 </span>
               </div>
-              <p className="text-sm sm:text-base font-bold text-white mt-0.5">
-                <span className="text-amber-300 font-extrabold">{simulatedActive} camarades</span> sont actuellement connectés et en train d&apos;apprendre en {level} !
+              <p className="text-base sm:text-lg font-black text-white leading-snug">
+                <span className="text-amber-300 font-black text-lg sm:text-xl drop-shadow-[0_0_12px_rgba(251,191,36,0.5)]">
+                  {simulatedActive} camarades
+                </span>{' '}
+                sont en train d&apos;apprendre en ce moment même !
               </p>
-              <p className="text-xs sm:text-sm text-slate-300 italic mt-0.5">
-                &ldquo;Qu&apos;attends-tu pour continuer à lire tes cours ? Pendant que tu dors, d&apos;autres avancent. Réussir Polytech est là pour ta réussite.&rdquo;
+              <p className="text-xs sm:text-sm text-amber-100/90 font-medium mt-1">
+                {joinedCount > 0 ? (
+                  <span className="text-emerald-300 font-bold">
+                    🔥 <strong>+{joinedCount} nouveaux camarades</strong> ont commencé à bosser depuis que tu es sur cette page.
+                  </span>
+                ) : (
+                  <span>L&apos;affluence monte dans la promo.</span>
+                )}{' '}
+                <em>Qu&apos;attends-tu pour continuer à lire tes cours ? Pendant que tu dors ou hésites, les autres prennent de l&apos;avance !</em>
               </p>
+
+              {/* Notification dynamique en direct d'un camarade qui rejoint */}
+              {recentNotification && (
+                <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold animate-fadeIn">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>{recentNotification}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -277,10 +342,10 @@ export function StudentCockpit({ level, title, subtitle }: StudentCockpitProps) 
               const el = document.getElementById('subjects-grid');
               el?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider transition-all self-stretch md:self-auto text-center flex items-center justify-center gap-2 shadow-md"
+            className="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-[#D4AF37] hover:scale-105 active:scale-95 text-slate-950 font-black text-xs uppercase tracking-wider transition-all self-stretch md:self-auto text-center flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 flex-shrink-0"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Continuer à réviser</span>
+            <Sparkles className="w-4 h-4 text-slate-950" />
+            <span>Ouvrir mes cours</span>
           </button>
         </div>
       </div>
