@@ -111,6 +111,7 @@ Placez ces fichiers dans `/public/assets/` :
 
 - `hero-engineers.jpg` — Photo héro ingénieurs avec casques
 - `team/eugene-gwet.jpg` — Photo Eugène Samuel GWET
+- `team/nkembe-roosevelt.jpg` — Photo Roosevelt Nkembé
 - `team/stevia-matho.jpg` — Photo Stevia Matho Re
 - `team/alex-ngoua.jpg` — Photo Alex Ngoua Edou
 - `team/christian-khouya.jpg` — Photo Khouya Christian Landry

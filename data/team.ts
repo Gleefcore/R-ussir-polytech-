@@ -21,13 +21,23 @@ export const team: TeamMember[] = [
     isFounder: true,
   },
   {
+    id: 'nkembe-roosevelt',
+    name: 'NKEMBÉ ROOSEVELT',
+    title: 'Cofondateur & Vice-Président Exécutif',
+    role: 'Vice-Président',
+    description: 'Pilier stratégique de la direction générale. Supervise le rayonnement académique, la gestion des projets d\'ingénierie et l\'excellence opérationnelle.',
+    photo: '/assets/team/nkembe-roosevelt.jpg',
+    order: 2,
+    isFounder: true,
+  },
+  {
     id: 'stevia-matho',
     name: 'MATHO KOUGOUE RE STEVA',
     title: 'Cofondatrice & Présidente-Directrice Générale',
     role: 'PDG',
     description: 'Pilote exécutive de la plateforme. Garant de l\'excellence opérationnelle et du développement académique de la communauté.',
     photo: '/assets/team/stevia-matho.jpg',
-    order: 2,
+    order: 3,
     isFounder: true,
   },
   {
@@ -37,7 +47,7 @@ export const team: TeamMember[] = [
     role: 'SG',
     description: 'Proche collaborateur du PCA. Coordonne les activités administratives et veille à la mise en œuvre des décisions stratégiques.',
     photo: '/assets/team/alex-ngoua.jpg',
-    order: 3,
+    order: 4,
   },
   {
     id: 'christian-khouya',
@@ -46,7 +56,7 @@ export const team: TeamMember[] = [
     role: 'Trésorier',
     description: 'Gardien des ressources financières de l\'organisation. Assure la transparence et la rigueur dans la gestion des fonds.',
     photo: '/assets/team/christian-khouya.jpg',
-    order: 4,
+    order: 5,
     isFounder: true,
   },
   {
@@ -56,7 +66,7 @@ export const team: TeamMember[] = [
     role: 'DIO',
     description: 'Mentor VIP des modules techniques. Architecte des systèmes informatiques et formateur certifié en outils métiers d\'ingénieur.',
     photo: '/assets/team/bikey-yannick.jpg',
-    order: 5,
+    order: 6,
   },
   {
     id: 'sarah-ondoua',
@@ -65,7 +75,7 @@ export const team: TeamMember[] = [
     role: 'Fondatrice',
     description: 'Pilier de la fondation de Réussir Polytech. Contribue activement à l\'épanouissement de la communauté étudiante.',
     photo: '/assets/team/sarah-ondoua.jpg',
-    order: 6,
+    order: 7,
     isFounder: true,
   },
   {
@@ -75,7 +85,7 @@ export const team: TeamMember[] = [
     role: 'Coordinatrice',
     description: 'Orchestratrice de la dynamique collective. Planifie et anime les sessions académiques pour maximiser la productivité du groupe.',
     photo: '/assets/team/loice-tadontsa.jpg',
-    order: 7,
+    order: 8,
   },
   {
     id: 'rose-mbog',
@@ -84,7 +94,7 @@ export const team: TeamMember[] = [
     role: 'DIA & Responsable Matériel',
     description: 'Responsable du matériel technique. Assure la continuité des infrastructures numériques et le support opérationnel.',
     photo: '/assets/team/rose-mbog.jpg',
-    order: 8,
+    order: 9,
   },
   {
     id: 'owona-amara',
@@ -93,7 +103,7 @@ export const team: TeamMember[] = [
     role: 'SGA',
     description: 'Pilier administratif et relationnel. Assure la fluidité organisationnelle et la coordination institutionnelle.',
     photo: '/assets/team/owona-amara.jpg',
-    order: 9,
+    order: 10,
   },
   {
     id: 'emmanuella-amour',
@@ -102,7 +112,7 @@ export const team: TeamMember[] = [
     role: 'Ambassadrice',
     description: 'Première représentante de la marque Réussir Polytech. Porte les valeurs de la communauté auprès du plus grand nombre.',
     photo: '/assets/team/emmanuella-amour.jpg',
-    order: 10,
+    order: 11,
   },
   {
     id: 'atyame-yolande',
@@ -111,7 +121,7 @@ export const team: TeamMember[] = [
     role: 'Ambassadrice',
     description: 'Deuxième représentante officielle. Renforce le rayonnement de Réussir Polytech au sein de l\'École Polytechnique.',
     photo: '/assets/team/atyame-yolande.jpg',
-    order: 11,
+    order: 12,
   },
   {
     id: 'franck',
@@ -120,7 +130,7 @@ export const team: TeamMember[] = [
     role: 'Communication',
     description: 'Voix et image de la communauté. Gère les canaux de communication et assiste le Secrétaire Général dans ses missions.',
     photo: '/assets/team/franck.jpg',
-    order: 12,
+    order: 13,
   },
   {
     id: 'pacha',
@@ -129,6 +139,6 @@ export const team: TeamMember[] = [
     role: 'Leader Cadets',
     description: 'Guide et mentor des étudiants MSP1 en filière généraliste. Catalyseur de cohésion et d\'excellence pour les nouvelles recrues.',
     photo: '/assets/team/pacha.jpg',
-    order: 13,
+    order: 14,
   },
 ];

@@ -17,6 +17,7 @@ export function TeamCard({ member, index }: TeamCardProps) {
   // Active l'affichage des photos officielles disponibles (fallback initiales si absence ou erreur)
   const MEMBERS_WITH_OFFICIAL_PHOTO = new Set([
     'eugene-gwet',
+    'nkembe-roosevelt',
     'stevia-matho',
     'alex-ngoua',
     'christian-khouya',
@@ -46,7 +47,7 @@ export function TeamCard({ member, index }: TeamCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.07 }}
       whileHover={{ y: -8, transition: { duration: 0.2 } }}
-      className="glass-card p-6 border border-slate-200 dark:border-white/10 hover:border-poly-gold/50 transition-all group relative overflow-hidden holographic shadow-md dark:shadow-none flex flex-col justify-between"
+      className="glass-card p-6 border border-slate-200 dark:border-white/10 hover:border-poly-gold/50 transition-all group relative overflow-hidden holographic shadow-md dark:shadow-none flex flex-col justify-between rounded-3xl"
     >
       {/* Background glow */}
       <div className="absolute inset-0 bg-gradient-to-br from-poly-gold/10 via-transparent to-poly-cyan/10 dark:from-poly-gold/5 dark:to-poly-cyan/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -61,34 +62,36 @@ export function TeamCard({ member, index }: TeamCardProps) {
         </div>
       )}
 
-      {/* Photo Container Format 4*4 Officiel */}
-      <div className="relative w-44 h-44 sm:w-48 sm:h-48 aspect-square mx-auto mb-4 mt-2">
-        <div className="w-full h-full rounded-2xl border-2 border-poly-gold/50 overflow-hidden bg-slate-100 dark:bg-poly-night shadow-xl relative group-hover:border-poly-gold transition-colors duration-300">
-          {hasOfficialPhoto && !hasError ? (
-            <Image
-              src={member.photo}
-              alt={member.name}
-              fill
-              className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-              onError={() => setHasError(true)}
-              priority={member.order <= 3}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-poly-gold/25 via-poly-night/60 to-poly-cyan/25 text-slate-800 dark:text-white font-black text-3xl tracking-wider select-none">
-              {initials}
-            </div>
-          )}
+      {/* Photo Container en Rondade Parfaite & Cadrage 4x4 Centré */}
+      <div className="relative w-36 h-36 sm:w-40 sm:h-40 mx-auto mb-4 mt-2">
+        {/* Anneau doré prestigieux avec halo doux */}
+        <div className="w-full h-full rounded-full p-1 bg-gradient-to-tr from-[#D4AF37] via-[#F3E5AB] to-[#0284C7] shadow-xl group-hover:shadow-2xl group-hover:shadow-[#D4AF37]/25 transition-all duration-300">
+          <div className="w-full h-full rounded-full overflow-hidden bg-slate-100 dark:bg-[#070E1B] border-2 border-white dark:border-[#070E1B] relative flex items-center justify-center">
+            {hasOfficialPhoto && !hasError ? (
+              <Image
+                src={member.photo}
+                alt={member.name}
+                fill
+                className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                onError={() => setHasError(true)}
+                priority={member.order <= 3}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-poly-gold/25 via-poly-night/60 to-poly-cyan/25 text-slate-800 dark:text-white font-black text-2xl tracking-wider select-none">
+                {initials}
+              </div>
+            )}
+          </div>
         </div>
-        {/* Order badge */}
-        <div className="absolute -bottom-2 -right-2 px-2.5 py-1 rounded-xl bg-white/95 dark:bg-[#070E1B]/95 border-2 border-poly-gold flex items-center gap-1 shadow-lg z-10 backdrop-blur-md">
-          <span className="text-[10px] font-mono text-poly-gold font-bold">N°</span>
-          <span className="text-poly-gold text-xs font-black">{member.order}</span>
+        {/* Badge N° officiel en rondade dorée */}
+        <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-white dark:bg-[#070E1B] border-2 border-[#D4AF37] flex items-center justify-center shadow-lg z-10">
+          <span className="text-[#D4AF37] text-xs font-black font-mono">{member.order}</span>
         </div>
       </div>
 
       {/* Content */}
       <div className="text-center relative z-10">
-        <h3 className="text-slate-900 dark:text-white font-bold text-base mb-1 group-hover:text-poly-gold transition-colors">
+        <h3 className="text-slate-900 dark:text-white font-black text-sm sm:text-base mb-1.5 uppercase tracking-wide group-hover:text-[#D4AF37] transition-colors leading-snug">
           {member.name}
         </h3>
         <div className="flex items-center justify-center gap-1.5 mb-3">
