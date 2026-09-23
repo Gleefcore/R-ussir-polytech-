@@ -25,13 +25,29 @@ export async function GET(req: NextRequest) {
       throw error;
     }
 
+    // Récupérer la liste des fichiers dans le bucket avatars pour corriger ceux qui n'ont pas d'URL dans les métadonnées
+    const { data: avatarFiles } = await supabase.storage.from('avatars').list();
+
     const students = (userList?.users || [])
       .filter((u) => u.user_metadata?.level === level)
-      .map((u) => ({
-        id: u.id,
-        fullName: u.user_metadata?.full_name || 'Élève',
-        avatarUrl: u.user_metadata?.avatar_url || null,
-      }));
+      .map((u) => {
+        let avatarUrl = u.user_metadata?.avatar_url || null;
+
+        // Si l'utilisateur n'a pas d'URL dans ses métadonnées, on vérifie s'il a un fichier dans le bucket
+        if (!avatarUrl && avatarFiles) {
+          const userFile = avatarFiles.find((f) => f.name.startsWith(u.id));
+          if (userFile) {
+            const { data: pubUrl } = supabase.storage.from('avatars').getPublicUrl(userFile.name);
+            avatarUrl = pubUrl.publicUrl;
+          }
+        }
+
+        return {
+          id: u.id,
+          fullName: u.user_metadata?.full_name || 'Élève',
+          avatarUrl,
+        };
+      });
 
     return NextResponse.json({
       success: true,
