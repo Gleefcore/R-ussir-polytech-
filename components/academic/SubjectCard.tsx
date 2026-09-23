@@ -425,7 +425,7 @@ function CorrectionModal({ subject, onClose }: CorrectionModalProps) {
             <div className="flex items-center gap-2.5 text-left">
               <MessageCircle className="w-5 h-5 text-white" />
               <div>
-                <p className="text-xs font-black leading-tight">Payer auprès de Yannick BIKEY</p>
+                <p className="text-xs font-black leading-tight">Payer auprès de Yannick BIKEI</p>
                 <p className="text-[10px] opacity-75 font-semibold">Direction Informatique et Opérations</p>
               </div>
             </div>

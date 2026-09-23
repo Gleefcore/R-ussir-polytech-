@@ -189,7 +189,7 @@ function VipApplicationModal({ program, onClose }: VipApplicationModalProps) {
             <div className="flex items-center gap-2.5 text-left">
               <Sparkles className="w-5 h-5 text-sky-200" />
               <div>
-                <p className="text-sm leading-tight">Régler avec Yannick BIKEY</p>
+                <p className="text-sm leading-tight">Régler avec Yannick BIKEI</p>
                 <p className="text-[11px] opacity-75 font-semibold">Directeur Informatique et Opérationnel</p>
               </div>
             </div>

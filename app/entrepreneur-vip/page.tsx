@@ -342,18 +342,18 @@ export default function EntrepreneurVipPage() {
                     Volet Technique & Outils Métiers
                   </h2>
                   <p className="text-sky-600 dark:text-poly-cyan text-xs sm:text-sm font-mono font-bold mt-1">
-                    Mentor : Bikey Yannick — Directeur Informatique et Opérationnel
+                    Mentor : Bikei Yannick — Directeur Informatique et Opérationnel
                   </p>
                 </div>
               </div>
 
               <a
-                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_TECH || '237695957287'}?text=${encodeURIComponent("Bonjour M. Bikey Yannick (Directeur Informatique de Réussir Polytech), je souhaite échanger avec vous sur les formations du Volet Technique.")}`}
+                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_TECH || '237695957287'}?text=${encodeURIComponent("Bonjour M. Bikei Yannick (Directeur Informatique de Réussir Polytech), je souhaite échanger avec vous sur les formations du Volet Technique.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all self-start md:self-auto shadow-md shadow-sky-500/25"
               >
-                Contacter Yannick Bikey →
+                Contacter Yannick Bikei →
               </a>
             </div>
 

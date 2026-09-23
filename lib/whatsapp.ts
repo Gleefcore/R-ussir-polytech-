@@ -37,7 +37,7 @@ export const sendWhatsAppNotification = (
     case 'VIP_YANNICK':
     case 'TECH':
       targetNumber = YANNICK_NUMBER;
-      text = `Bonjour M. Yannick BIKEY (Directeur Informatique Réussir Polytech),\n\nJe suis ${payload.studentName}, matricule *${payload.matricule}* (${payload.level}).\nJe souhaite régler et débloquer mon accès au module technique VIP : *${payload.itemTitle}*.\n\nTéléphone : ${payload.phone}\nObjectif : ${payload.objective || 'Perfectionnement technique d\'ingénieur'}\n\nMerci de m'indiquer la procédure de paiement pour l'activation.`;
+      text = `Bonjour M. Yannick BIKEI (Directeur Informatique Réussir Polytech),\n\nJe suis ${payload.studentName}, matricule *${payload.matricule}* (${payload.level}).\nJe souhaite régler et débloquer mon accès au module technique VIP : *${payload.itemTitle}*.\n\nTéléphone : ${payload.phone}\nObjectif : ${payload.objective || 'Perfectionnement technique d\'ingénieur'}\n\nMerci de m'indiquer la procédure de paiement pour l'activation.`;
       break;
 
     case 'CORRECTION_EUGENE':
@@ -48,7 +48,7 @@ export const sendWhatsAppNotification = (
 
     case 'CORRECTION_YANNICK':
       targetNumber = YANNICK_NUMBER;
-      text = `Bonjour M. Yannick BIKEY (Direction Réussir Polytech),\n\nJe suis ${payload.studentName}, matricule *${payload.matricule}* (${payload.level}).\nJe souhaite débloquer et payer la correction officielle certifiée de : *${payload.itemTitle}* (${payload.subject || ''}).\n\nTéléphone : ${payload.phone}\nMerci de m'envoyer le numéro Orange Money / Mobile Money pour le règlement.`;
+      text = `Bonjour M. Yannick BIKEI (Direction Réussir Polytech),\n\nJe suis ${payload.studentName}, matricule *${payload.matricule}* (${payload.level}).\nJe souhaite débloquer et payer la correction officielle certifiée de : *${payload.itemTitle}* (${payload.subject || ''}).\n\nTéléphone : ${payload.phone}\nMerci de m'envoyer le numéro Orange Money / Mobile Money pour le règlement.`;
       break;
 
     default:

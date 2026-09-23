@@ -12,14 +12,14 @@ export interface VipProgram {
 }
 
 export const vipPrograms: VipProgram[] = [
-  // Volet Technique — Bikey Yannick
+  // Volet Technique — Bikei Yannick
   {
     id: 'bureautique',
     title: 'Bureautique Haute Précision',
     summary: 'Word & Excel Avancé : mise en page de thèses et mémoires d\'ingénieurs, calculs matriciels, modélisation de données, macros VBA.',
     badges: ['Microsoft Word', 'Microsoft Excel', 'VBA Macros', 'LaTeX'],
     duration: '4 semaines',
-    mentor: 'Bikey Yannick',
+    mentor: 'Bikei Yannick',
     mentorTitle: 'Directeur Informatique et Opérationnel',
     mentorWhatsapp: '237695957287',
     channel: 'TECH',
@@ -31,7 +31,7 @@ export const vipPrograms: VipProgram[] = [
     summary: 'Maîtrise d\'Adobe Photoshop, Illustrator, InDesign, CorelDRAW et Suite Affinity pour affiches de recherche et chartes industrielles.',
     badges: ['Photoshop', 'Illustrator', 'InDesign', 'CorelDRAW', 'Affinity'],
     duration: '6 semaines',
-    mentor: 'Bikey Yannick',
+    mentor: 'Bikei Yannick',
     mentorTitle: 'Directeur Informatique et Opérationnel',
     mentorWhatsapp: '237695957287',
     channel: 'TECH',
@@ -43,7 +43,7 @@ export const vipPrograms: VipProgram[] = [
     summary: 'Camtasia et outils de montage pour vidéos techniques, vulgarisation scientifique et démonstrations logicielles professionnelles.',
     badges: ['Camtasia', 'Premiere Pro', 'After Effects', 'OBS Studio'],
     duration: '4 semaines',
-    mentor: 'Bikey Yannick',
+    mentor: 'Bikei Yannick',
     mentorTitle: 'Directeur Informatique et Opérationnel',
     mentorWhatsapp: '237695957287',
     channel: 'TECH',
@@ -55,7 +55,7 @@ export const vipPrograms: VipProgram[] = [
     summary: 'Python pour l\'ingénierie, bases de données SQL, architecture Supabase et scripts d\'automatisation. Initiation au Machine Learning.',
     badges: ['Python', 'SQL', 'Supabase', 'TensorFlow', 'Pandas'],
     duration: '8 semaines',
-    mentor: 'Bikey Yannick',
+    mentor: 'Bikei Yannick',
     mentorTitle: 'Directeur Informatique et Opérationnel',
     mentorWhatsapp: '237695957287',
     channel: 'TECH',
@@ -67,7 +67,7 @@ export const vipPrograms: VipProgram[] = [
     summary: 'Scrum, versioning Git/GitHub, cahier des charges d\'ingénieur, diagrammes de Gantt et conduite de projets pluridisciplinaires.',
     badges: ['Scrum', 'Git', 'GitHub', 'Jira', 'Gantt'],
     duration: '5 semaines',
-    mentor: 'Bikey Yannick',
+    mentor: 'Bikei Yannick',
     mentorTitle: 'Directeur Informatique et Opérationnel',
     mentorWhatsapp: '237695957287',
     channel: 'TECH',

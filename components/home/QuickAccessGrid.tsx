@@ -28,7 +28,7 @@ const portals = [
   {
     title: 'L\'Ingénieur Entrepreneur (VIP)',
     subtitle: 'Leadership & Compétences Pratiques',
-    desc: 'Showroom d\'excellence combinant outils techniques (bureautique avancée, CAO 3D, Python) et vision stratégique (leadership, montage de projets) animés par Bikey Yannick et Eugène Gwet.',
+    desc: 'Showroom d\'excellence combinant outils techniques (bureautique avancée, CAO 3D, Python) et vision stratégique (leadership, montage de projets) animés par Bikei Yannick et Eugène Gwet.',
     badge: 'Espace VIP Exclusif',
     link: '/entrepreneur-vip',
     color: 'border-purple-500/30 text-purple-500 bg-purple-500/10',
