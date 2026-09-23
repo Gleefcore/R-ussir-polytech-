@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { GraduationCap, Star, BookOpen, User } from 'lucide-react';
 import { SignOutButton } from '@/components/auth/SignOutButton';
+import { StudentMarquee } from '@/components/academic/StudentMarquee';
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -151,6 +152,11 @@ export default async function DashboardPage() {
               Aucune demande de correction pour le moment. Visitez vos matières pour débloquer une correction officielle.
             </p>
           )}
+        </div>
+
+        {/* Marquee en bas du compte */}
+        <div className="mt-12">
+          <StudentMarquee level={level as 'MSP1' | 'MSP2'} />
         </div>
       </div>
     </div>

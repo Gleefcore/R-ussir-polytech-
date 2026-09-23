@@ -173,7 +173,7 @@ export function Navbar() {
                   {activeSession?.avatar_url || user?.user_metadata?.avatar_url ? (
                     <div className="relative w-6 h-6 rounded-full overflow-hidden border border-slate-300 dark:border-white/20">
                       <Image
-                        src={activeSession?.avatar_url || user?.user_metadata?.avatar_url}
+                        src={(activeSession?.avatar_url || user?.user_metadata?.avatar_url) as string}
                         alt={activeSession?.name || user?.user_metadata?.full_name || 'Profil'}
                         fill
                         className="object-cover"
@@ -259,7 +259,7 @@ export function Navbar() {
                   {activeSession?.avatar_url || user?.user_metadata?.avatar_url ? (
                     <div className="relative w-6 h-6 rounded-full overflow-hidden border border-slate-300 dark:border-white/20">
                       <Image
-                        src={activeSession?.avatar_url || user?.user_metadata?.avatar_url}
+                        src={(activeSession?.avatar_url || user?.user_metadata?.avatar_url) as string}
                         alt={activeSession?.name || user?.user_metadata?.full_name || 'Profil'}
                         fill
                         className="object-cover"
