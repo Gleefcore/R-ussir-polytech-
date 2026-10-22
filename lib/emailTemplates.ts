@@ -580,5 +580,3 @@ ${unsubscribeUrl}`;
 
   return { html, text, subject };
 }
-
-export type { WeeklyResource };
