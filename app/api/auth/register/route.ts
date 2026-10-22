@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { sendWelcomeEmail } from '@/lib/emailService';
 
 // Assurer la résilience réseau en environnement local ou proxy
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -89,6 +90,19 @@ export async function POST(req: NextRequest) {
       email: cleanEmail,
       password: password,
     });
+
+    // 5. Déclenchement automatique non-bloquant de l'email de bienvenue
+    if (cleanEmail && !cleanEmail.endsWith('@polytech.rp')) {
+      sendWelcomeEmail({
+        userId: newUser.id,
+        email: cleanEmail,
+        name: fullName.trim(),
+        level: level || 'MSP1',
+        matricule: cleanMatricule,
+      }).catch((emailErr) => {
+        console.warn('Notification bienvenue non-bloquante:', emailErr);
+      });
+    }
 
     if (signInError) {
       return NextResponse.json({

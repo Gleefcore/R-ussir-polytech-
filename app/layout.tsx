@@ -1,8 +1,16 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { PwaProvider } from '@/components/pwa/PwaProvider';
+
+export const viewport: Viewport = {
+  themeColor: '#0A1628',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: 'Réussir Polytech — L\'excellence est notre seul standard',
@@ -10,6 +18,16 @@ export const metadata: Metadata = {
     'Plateforme SaaS d\'excellence pour élèves ingénieurs de l\'École Polytechnique. Ressources académiques, corrections, formations VIP et communauté d\'élite.',
   keywords: ['polytechnique', 'ingénieur', 'réussir', 'académique', 'Cameroun', 'MSP1', 'MSP2'],
   authors: [{ name: 'Réussir Polytech' }],
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: '/icons/icon-192x192.png',
+    apple: '/icons/apple-touch-icon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Réussir Polytech',
+  },
   openGraph: {
     title: 'Réussir Polytech',
     description: 'L\'excellence est notre seul standard',
@@ -31,9 +49,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans antialiased bg-[#F8FAFC] text-[#0F172A] dark:bg-[#050B14] dark:text-[#F1F5F9] selection:bg-[#D4AF37]/20 selection:text-[#D4AF37] transition-colors duration-300">
         <ThemeProvider>
-          <Navbar />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
+          <PwaProvider>
+            <Navbar />
+            <main className="min-h-screen">{children}</main>
+            <Footer />
+          </PwaProvider>
         </ThemeProvider>
       </body>
     </html>

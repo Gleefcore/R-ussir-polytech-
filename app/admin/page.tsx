@@ -44,10 +44,12 @@ import {
   Compass,
   MapPin,
   Calendar,
+  Mail,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { GalleryItem, GalleryCategory, GALLERY_CATEGORIES } from '@/data/gallery';
+import { AdminCommunicationsTab } from '@/components/admin/AdminCommunicationsTab';
 
 interface Student {
   id: string;
@@ -141,7 +143,7 @@ const AVAILABLE_SUBJECTS = [
   { code: 'lng222', name: 'Langue 4', level: 'MSP2', semester: 2 },
 
   // VIP
-  { code: 'vip_tech', name: 'VIP : Volet Technique (Bikey Yannick)', level: 'VIP', semester: 1 },
+  { code: 'vip_tech', name: 'VIP : Volet Technique (Bikei Yannick)', level: 'VIP', semester: 1 },
   { code: 'vip_strat', name: 'VIP : Volet Stratégie (Eugène Gwet)', level: 'VIP', semester: 1 },
   { code: 'vip_projets', name: 'VIP : Projets & Bureau G-INNOVA', level: 'VIP', semester: 2 },
 ];
@@ -155,7 +157,7 @@ export default function AdminCockpitPage() {
   const [showPassKey, setShowPassKey] = useState(false);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'subjects' | 'documents' | 'students' | 'publish' | 'gallery'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'subjects' | 'documents' | 'students' | 'publish' | 'gallery' | 'communications'>('dashboard');
 
   // Data State
   const [loading, setLoading] = useState(false);
@@ -836,6 +838,23 @@ export default function AdminCockpitPage() {
               </div>
               <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-purple-500/20 text-purple-600 dark:text-purple-400">
                 {galleryItems.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('communications')}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
+                activeTab === 'communications'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] shadow-md shadow-[#D4AF37]/20 font-black'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Mail className="w-4 h-4 text-sky-500" />
+                <span>Communications &amp; Emails</span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-sky-500/20 text-sky-600 dark:text-sky-400">
+                Gmail API
               </span>
             </button>
           </nav>
@@ -2243,6 +2262,17 @@ export default function AdminCockpitPage() {
               ))}
             </div>
           </div>
+        )}
+
+        {/* ONGLET 4 : COMMUNICATIONS & EMAILS AUTOMATIQUES (GMAIL API) */}
+        {activeTab === 'communications' && (
+          <AdminCommunicationsTab
+            accessKey={
+              (accessCode && accessCode.trim().length > 0 ? accessCode.trim() : null) ||
+              (typeof window !== 'undefined' ? sessionStorage.getItem('rp_admin_master_key') : null) ||
+              'RP-ADMIN-EXCELLENCE-2026'
+            }
+          />
         )}
 
         {/* MODALE DE CONFIRMATION DE SUPPRESSION */}

@@ -72,7 +72,7 @@ const SUBJECTS_CATALOG: Record<
   lng222: { id: '06b6f73c-fc3e-4414-9b25-b79e070f6b76', code: 'LNG222', name: 'Langue (Anglais/Français)', level: 'MSP2', semester: 2 },
 
   // VIP
-  vip_tech: { id: 'vip-tech-program', code: 'VIP-TECH', name: 'VIP : Volet Technique (Bikey Yannick)', level: 'VIP', semester: 1 },
+  vip_tech: { id: 'vip-tech-program', code: 'VIP-TECH', name: 'VIP : Volet Technique (Bikei Yannick)', level: 'VIP', semester: 1 },
   vip_strat: { id: 'vip-strat-program', code: 'VIP-STRAT', name: 'VIP : Volet Stratégie (Eugène Gwet)', level: 'VIP', semester: 1 },
   vip_projets: { id: 'vip-projets-program', code: 'VIP-PROJ', name: 'VIP : Projets & Bureau G-INNOVA', level: 'VIP', semester: 2 },
 };
