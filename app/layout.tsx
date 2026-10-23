@@ -6,10 +6,14 @@ import { Footer } from '@/components/layout/Footer';
 import { PwaProvider } from '@/components/pwa/PwaProvider';
 
 export const viewport: Viewport = {
-  themeColor: '#0A1628',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#F8FAFC' },
+    { media: '(prefers-color-scheme: dark)', color: '#050B14' },
+  ],
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: 'cover',
 };
 
 export const metadata: Metadata = {

@@ -293,14 +293,14 @@ export function HeroSection() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="relative w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] lg:w-[440px] lg:h-[440px] flex items-center justify-center"
+              className="relative w-[270px] h-[270px] xs:w-[320px] xs:h-[320px] sm:w-[380px] sm:h-[380px] lg:w-[440px] lg:h-[440px] max-w-[90vw] flex items-center justify-center"
             >
               {/* Halos doux sous le globe */}
               <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-[#0284C7]/15 via-[#D4AF37]/15 to-transparent blur-3xl animate-pulse" />
               
               {/* Anneaux orbitaux fins */}
               <div className="absolute inset-0 rounded-full border border-[#D4AF37]/30 animate-spin-slow pointer-events-none" />
-              <div className="absolute inset-[-12px] rounded-full border border-sky-500/20 pointer-events-none" />
+              <div className="absolute inset-[-10px] sm:inset-[-12px] rounded-full border border-sky-500/20 pointer-events-none" />
 
               {/* Globe détouré transparent */}
               <div className="relative w-full h-full rounded-full overflow-hidden drop-shadow-[0_20px_40px_rgba(2,132,199,0.2)]">
@@ -318,14 +318,14 @@ export function HeroSection() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="absolute -left-4 sm:-left-6 top-10 px-3.5 py-2 rounded-2xl bg-white/95 border border-[#D4AF37]/50 backdrop-blur-md shadow-xl flex items-center gap-2"
+                className="absolute -left-1 sm:-left-6 top-6 sm:top-10 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-white/95 border border-[#D4AF37]/50 backdrop-blur-md shadow-xl flex items-center gap-2 max-w-[145px] sm:max-w-none"
               >
-                <div className="w-7 h-7 rounded-lg bg-[#D4AF37]/20 text-[#B8860B] flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#D4AF37]/20 text-[#B8860B] flex items-center justify-center flex-shrink-0">
                   <Smartphone className="w-3.5 h-3.5" />
                 </div>
                 <div className="text-left">
-                  <p className="text-[11px] font-black text-slate-900 leading-tight">Accès Hors-Ligne</p>
-                  <p className="text-[9px] font-mono text-slate-500 font-semibold">PWA 100% Mobile</p>
+                  <p className="text-[10px] sm:text-[11px] font-black text-slate-900 leading-tight">Accès Hors-Ligne</p>
+                  <p className="text-[8px] sm:text-[9px] font-mono text-slate-500 font-semibold">PWA 100% Mobile</p>
                 </div>
               </motion.div>
 
@@ -334,14 +334,14 @@ export function HeroSection() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="absolute -right-4 sm:-right-6 bottom-10 px-3.5 py-2 rounded-2xl bg-white/95 border border-sky-500/40 backdrop-blur-md shadow-xl flex items-center gap-2"
+                className="absolute -right-1 sm:-right-6 bottom-6 sm:bottom-10 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-white/95 border border-sky-500/40 backdrop-blur-md shadow-xl flex items-center gap-2 max-w-[145px] sm:max-w-none"
               >
-                <div className="w-7 h-7 rounded-lg bg-sky-500/15 text-sky-600 flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-sky-500/15 text-sky-600 flex items-center justify-center flex-shrink-0">
                   <Award className="w-3.5 h-3.5" />
                 </div>
                 <div className="text-left">
-                  <p className="text-[11px] font-black text-slate-900 leading-tight">+350 Épreuves</p>
-                  <p className="text-[9px] font-mono text-slate-500 font-semibold">Annales Certifiées</p>
+                  <p className="text-[10px] sm:text-[11px] font-black text-slate-900 leading-tight">+350 Épreuves</p>
+                  <p className="text-[8px] sm:text-[9px] font-mono text-slate-500 font-semibold">Annales Certifiées</p>
                 </div>
               </motion.div>
 
