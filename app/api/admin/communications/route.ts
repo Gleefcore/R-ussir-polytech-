@@ -39,9 +39,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Accès non autorisé.' }, { status: 401 });
     }
 
-    const [store, gmailStatus, usersRes, resourcesRes] = await Promise.all([
-      loadEmailStore(),
-      Promise.resolve(getGmailStatus()),
+    const store = await loadEmailStore();
+    const [gmailStatus, usersRes, resourcesRes] = await Promise.all([
+      Promise.resolve(getGmailStatus(store.settings.gmailAppPassword)),
       supabase.auth.admin.listUsers({ perPage: 1000 }),
       supabase.from('resources').select('*').order('created_at', { ascending: false }).limit(6),
     ]);
@@ -71,10 +71,20 @@ export async function GET(req: NextRequest) {
       url: r.file_url || 'https://reussirpolytech.vercel.app/msp2',
     }));
 
+    const safeSettings = {
+      ...store.settings,
+      hasGmailAppPassword: Boolean(
+        store.settings.gmailAppPassword || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASSWORD
+      ),
+      gmailAppPasswordMasked: store.settings.gmailAppPassword
+        ? `${store.settings.gmailAppPassword.slice(0, 4)} •••• •••• ${store.settings.gmailAppPassword.slice(-4)}`
+        : '',
+    };
+
     return NextResponse.json({
       success: true,
       gmailStatus,
-      settings: store.settings,
+      settings: safeSettings,
       metrics,
       logs: store.logs.slice(0, 50),
       unsubscribedEmails: store.unsubscribedEmails,
@@ -112,9 +122,24 @@ export async function POST(req: NextRequest) {
       if (typeof body.maxDailySends === 'number' && body.maxDailySends > 0) {
         store.settings.maxDailySends = body.maxDailySends;
       }
+      if (typeof body.gmailAppPassword === 'string') {
+        store.settings.gmailAppPassword = body.gmailAppPassword.trim();
+      }
 
       await saveEmailStore(store);
-      return NextResponse.json({ success: true, settings: store.settings });
+      return NextResponse.json({
+        success: true,
+        settings: {
+          ...store.settings,
+          hasGmailAppPassword: Boolean(
+            store.settings.gmailAppPassword || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASSWORD
+          ),
+          gmailAppPasswordMasked: store.settings.gmailAppPassword
+            ? `${store.settings.gmailAppPassword.slice(0, 4)} •••• •••• ${store.settings.gmailAppPassword.slice(-4)}`
+            : '',
+        },
+        gmailStatus: getGmailStatus(store.settings.gmailAppPassword),
+      });
     }
 
     if (action === 'send_weekly_campaign') {

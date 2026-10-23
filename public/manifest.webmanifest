@@ -2,12 +2,13 @@
   "name": "Réussir Polytech",
   "short_name": "Polytech",
   "description": "Plateforme académique d'excellence pour élèves-ingénieurs polytechniciens",
-  "start_url": "/",
-  "id": "/",
+  "start_url": "/?source=pwa",
+  "id": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#050B14",
-  "theme_color": "#0A1628",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0284C7",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",

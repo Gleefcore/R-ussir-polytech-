@@ -7,6 +7,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
 import {
   BRAND_CONFIG,
@@ -43,6 +44,7 @@ export interface EmailSettings {
   weeklyEmailActive: boolean;
   maxDailySends: number;
   lastWeeklyCampaign?: string;
+  gmailAppPassword?: string;
 }
 
 export interface EmailStoreData {
@@ -124,13 +126,28 @@ export interface GmailStatus {
   canSendLive: boolean;
 }
 
-export function getGmailStatus(): GmailStatus {
+export function getGmailStatus(appPasswordOverride?: string): GmailStatus {
+  const envPassword = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASSWORD;
+  const rawPassword = appPasswordOverride || envPassword || '';
+  const effectiveAppPassword = rawPassword.replace(/\s+/g, '');
+
   const hasOAuth = Boolean(
     process.env.GMAIL_CLIENT_ID &&
     process.env.GMAIL_CLIENT_SECRET &&
     process.env.GMAIL_REFRESH_TOKEN
   );
-  const hasAppPassword = Boolean(process.env.GMAIL_APP_PASSWORD);
+  const hasAppPassword = Boolean(effectiveAppPassword);
+
+  if (hasAppPassword) {
+    return {
+      isConfigured: true,
+      mode: 'app_password',
+      senderAddress: BRAND_CONFIG.senderEmail,
+      senderName: BRAND_CONFIG.senderName,
+      diagnosticMessage: 'Connecté en direct via SMTP Gmail (gwetsamuel49@gmail.com). Les emails réels sont envoyés en boîte de réception.',
+      canSendLive: true,
+    };
+  }
 
   if (hasOAuth) {
     return {
@@ -143,24 +160,13 @@ export function getGmailStatus(): GmailStatus {
     };
   }
 
-  if (hasAppPassword) {
-    return {
-      isConfigured: true,
-      mode: 'app_password',
-      senderAddress: BRAND_CONFIG.senderEmail,
-      senderName: BRAND_CONFIG.senderName,
-      diagnosticMessage: 'Connecté via Mot de passe d\'application Gmail sécurisé.',
-      canSendLive: true,
-    };
-  }
-
   return {
     isConfigured: false,
     mode: 'unconfigured',
     senderAddress: BRAND_CONFIG.senderEmail,
     senderName: BRAND_CONFIG.senderName,
     diagnosticMessage:
-      'Mode Diagnostic Actif : Les emails sont simulés et tracés dans le journal. Pour activer l\'envoi réel, configurez GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET et GMAIL_REFRESH_TOKEN (ou GMAIL_APP_PASSWORD) dans Vercel.',
+      'Action requise : Renseignez votre Mot de passe d\'application Google (16 lettres créées sur myaccount.google.com/apppasswords) pour activer l\'envoi réel.',
     canSendLive: false,
   };
 }
@@ -239,17 +245,55 @@ function createRfc2822RawMessage(params: {
     .replace(/=+$/, '');
 }
 
-// 5. Expédition d'un Email avec gestion de repli
+// 5. Expédition d'un Email avec gestion de repli (SMTP Gmail -> OAuth2 -> Simulation)
 async function dispatchEmail(params: {
   toEmail: string;
   toName: string;
   subject: string;
   html: string;
   text: string;
+  storeSettings?: EmailSettings;
 }): Promise<{ success: boolean; mode: 'gmail_oauth' | 'gmail_app_password' | 'simulation'; error?: string }> {
-  const status = getGmailStatus();
+  const envPassword = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASSWORD;
+  const rawPassword = params.storeSettings?.gmailAppPassword || envPassword || '';
+  const effectiveAppPassword = rawPassword.replace(/\s+/g, '');
 
-  // Mode OAuth 2.0 Officiel
+  // 1. Expédition Réelle Prioritaire : SMTP Gmail Direct avec Mot de passe d'Application
+  if (effectiveAppPassword) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: BRAND_CONFIG.senderEmail,
+          pass: effectiveAppPassword,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: `"${BRAND_CONFIG.senderName}" <${BRAND_CONFIG.senderEmail}>`,
+        to: params.toEmail,
+        replyTo: BRAND_CONFIG.senderEmail,
+        subject: params.subject,
+        html: params.html,
+        text: params.text,
+      });
+
+      console.log(`[EmailService] Email réel expédié vers ${params.toEmail} — Message ID: ${info.messageId}`);
+      return { success: true, mode: 'gmail_app_password' };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erreur SMTP Gmail';
+      console.error('[EmailService] Échec expédition SMTP Gmail vers', params.toEmail, ':', msg);
+      return { success: false, mode: 'gmail_app_password', error: msg };
+    }
+  }
+
+  // 2. Mode OAuth 2.0 Officiel Google Cloud
+  const status = getGmailStatus();
   if (status.mode === 'oauth2') {
     try {
       const accessToken = await getGoogleAccessToken();
@@ -287,7 +331,7 @@ async function dispatchEmail(params: {
     }
   }
 
-  // Mode Simulation / Diagnostic sécurisé
+  // 3. Mode Simulation / Diagnostic sécurisé si aucun identifiant réel n'est fourni
   return {
     success: true,
     mode: 'simulation',
@@ -334,6 +378,7 @@ export async function sendWelcomeEmail(params: {
     subject,
     html,
     text,
+    storeSettings: store.settings,
   });
 
   const logEntry: EmailLogEntry = {
@@ -361,6 +406,7 @@ export async function sendTestEmail(params: {
   toEmail: string;
   templateType: 'welcome' | 'weekly';
 }): Promise<{ success: boolean; mode: string; error?: string }> {
+  const store = await loadEmailStore();
   let rendered;
   if (params.templateType === 'welcome') {
     rendered = renderWelcomeEmail({
@@ -388,9 +434,9 @@ export async function sendTestEmail(params: {
     subject: `[TEST ADMIN] ${rendered.subject}`,
     html: rendered.html,
     text: rendered.text,
+    storeSettings: store.settings,
   });
 
-  const store = await loadEmailStore();
   store.logs.unshift({
     id: `log_test_${Date.now()}`,
     type: 'test',
@@ -470,6 +516,7 @@ export async function sendWeeklyCampaign(params: {
       subject: rendered.subject,
       html: rendered.html,
       text: rendered.text,
+      storeSettings: store.settings,
     });
 
     if (res.success) {
@@ -596,6 +643,7 @@ export async function sendTargetedOrBatchEmails(params: SendTargetedBatchParams)
       subject: rendered.subject,
       html: rendered.html,
       text: rendered.text,
+      storeSettings: store.settings,
     });
 
     if (sendRes.success) {

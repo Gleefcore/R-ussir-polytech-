@@ -40,7 +40,7 @@ export function HeroSection() {
       const ua = navigator.userAgent.toLowerCase();
       const isIosDevice = /iphone|ipad|ipod/.test(ua);
       const isAndroidDevice = /android/.test(ua);
-      const isWa = /whatsapp|fbav|fban|instagram/.test(ua);
+      const isWa = /whatsapp|fbav|fban|instagram|messenger/.test(ua);
 
       setIsWhatsAppBrowser(isWa);
       if (isIosDevice) setPlatform('ios');
@@ -51,20 +51,52 @@ export function HeroSection() {
         window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as unknown as { standalone?: boolean }).standalone === true;
       setIsInstalled(Boolean(isStandaloneMode));
+
+      // 1. Récupération immédiate du prompt stocké par le <script> précoce du <head>
+      const globalPrompt = (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent }).__rp_deferred_prompt;
+      if (globalPrompt) {
+        setDeferredPrompt(globalPrompt);
+      }
+
+      // 2. Écouter les événements personnalisés globaux
+      const onPromptAvailable = () => {
+        const p = (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent }).__rp_deferred_prompt;
+        if (p) setDeferredPrompt(p);
+      };
+
+      const onAppInstalled = () => {
+        setIsInstalled(true);
+        setDeferredPrompt(null);
+      };
+
+      window.addEventListener('rp-pwa-prompt-available', onPromptAvailable);
+      window.addEventListener('rp-pwa-installed', onAppInstalled);
+
+      const handleBeforeInstall = (e: Event) => {
+        e.preventDefault();
+        (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent }).__rp_deferred_prompt = e as BeforeInstallPromptEvent;
+        setDeferredPrompt(e as BeforeInstallPromptEvent);
+      };
+
+      window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+      return () => {
+        window.removeEventListener('rp-pwa-prompt-available', onPromptAvailable);
+        window.removeEventListener('rp-pwa-installed', onAppInstalled);
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      };
     }
-
-    const handleBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
   }, []);
 
   const handleDownloadClick = async () => {
     if (isInstalled) {
-      alert('L\'application Réussir Polytech est déjà installée sur votre appareil !');
+      alert('L\'application Réussir Polytech est déjà installée sur votre appareil ! Retrouvez son icône sur votre écran d\'accueil.');
+      return;
+    }
+
+    // Dans la WebView interne de WhatsApp / Facebook / Instagram
+    if (isWhatsAppBrowser) {
+      setShowAndroidGuide(true);
       return;
     }
 
@@ -74,15 +106,20 @@ export function HeroSection() {
       return;
     }
 
-    // Si le prompt natif est disponible sur Android / Chrome
-    if (deferredPrompt) {
+    // Récupérer le prompt disponible (local ou global sur window)
+    const promptEvent = deferredPrompt || (typeof window !== 'undefined' ? (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent }).__rp_deferred_prompt : null);
+
+    if (promptEvent) {
       try {
-        await deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice;
+        await promptEvent.prompt();
+        const choice = await promptEvent.userChoice;
         if (choice.outcome === 'accepted') {
           setIsInstalled(true);
         }
         setDeferredPrompt(null);
+        if (typeof window !== 'undefined') {
+          (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent | null }).__rp_deferred_prompt = null;
+        }
       } catch (err) {
         console.warn('Erreur prompt installation:', err);
         setShowAndroidGuide(true);
@@ -395,44 +432,75 @@ export function HeroSection() {
                 </button>
               </div>
 
-              <div className="space-y-3 mb-5 text-xs">
-                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="w-6 h-6 rounded-full bg-[#D4AF37] text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0">
-                    1
-                  </span>
-                  <p className="text-slate-700 leading-snug">
-                    Appuyez sur les <strong>trois petits points (⋮)</strong> en haut à droite de votre navigateur (Chrome / Samsung / Edge).
+              {isWhatsAppBrowser ? (
+                <div className="p-4 mb-5 rounded-2xl bg-amber-500/10 border border-[#D4AF37] text-slate-800 text-xs">
+                  <p className="font-bold text-[#B8860B] text-sm mb-1.5 flex items-center gap-1.5">
+                    <span>📱 Navigateur WhatsApp détecté</span>
                   </p>
+                  <p className="leading-relaxed mb-3 text-slate-600">
+                    WhatsApp bloque l&apos;installation directe des applications web. Pour installer l&apos;application sur votre écran d&apos;accueil :
+                  </p>
+                  <div className="space-y-2 font-medium text-slate-700">
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white border border-slate-200">
+                      <span className="w-5 h-5 rounded-full bg-[#D4AF37] text-slate-950 font-black text-[11px] flex items-center justify-center flex-shrink-0">1</span>
+                      <span>Touchez les <strong>3 points (⋮)</strong> tout en haut à droite.</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white border border-slate-200">
+                      <span className="w-5 h-5 rounded-full bg-[#D4AF37] text-slate-950 font-black text-[11px] flex items-center justify-center flex-shrink-0">2</span>
+                      <span>Choisissez <strong>« Ouvrir dans Chrome »</strong> (ou Safari).</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white border border-slate-200">
+                      <span className="w-5 h-5 rounded-full bg-[#D4AF37] text-slate-950 font-black text-[11px] flex items-center justify-center flex-shrink-0">3</span>
+                      <span>Depuis Chrome, touchez <strong>« Télécharger l&apos;Application »</strong> pour l&apos;ajouter en 1 clic !</span>
+                    </div>
+                  </div>
                 </div>
+              ) : (
+                <div className="space-y-3 mb-5 text-xs">
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="w-6 h-6 rounded-full bg-[#D4AF37] text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0">
+                      1
+                    </span>
+                    <p className="text-slate-700 leading-snug">
+                      Dans votre navigateur (Chrome / Samsung / Edge), appuyez sur les <strong>trois petits points (⋮)</strong> en haut à droite.
+                    </p>
+                  </div>
 
-                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="w-6 h-6 rounded-full bg-[#D4AF37] text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0">
-                    2
-                  </span>
-                  <p className="text-slate-700 leading-snug">
-                    Sélectionnez <strong>« Installer l&apos;application »</strong> ou <strong>« Ajouter à l&apos;écran d&apos;accueil »</strong>.
-                  </p>
-                </div>
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="w-6 h-6 rounded-full bg-[#D4AF37] text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0">
+                      2
+                    </span>
+                    <p className="text-slate-700 leading-snug">
+                      Sélectionnez <strong>« Installer l&apos;application »</strong> ou <strong>« Ajouter à l&apos;écran d&apos;accueil »</strong>.
+                    </p>
+                  </div>
 
-                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="w-6 h-6 rounded-full bg-[#D4AF37] text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0">
-                    3
-                  </span>
-                  <p className="text-slate-700 leading-snug">
-                    Confirmez l&apos;installation. L&apos;application est immédiatement disponible hors-ligne avec son icône ronde !
-                  </p>
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="w-6 h-6 rounded-full bg-[#D4AF37] text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0">
+                      3
+                    </span>
+                    <p className="text-slate-700 leading-snug">
+                      Confirmez l&apos;installation. L&apos;application est immédiatement disponible hors-ligne avec son icône ronde !
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="space-y-2">
-                {deferredPrompt && (
+                {(deferredPrompt || (typeof window !== 'undefined' && (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent }).__rp_deferred_prompt)) && (
                   <button
                     onClick={async () => {
+                      const p = deferredPrompt || (typeof window !== 'undefined' ? (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent }).__rp_deferred_prompt : null);
                       setShowAndroidGuide(false);
-                      await deferredPrompt.prompt();
-                      const choice = await deferredPrompt.userChoice;
-                      if (choice.outcome === 'accepted') setIsInstalled(true);
-                      setDeferredPrompt(null);
+                      if (p) {
+                        await p.prompt();
+                        const choice = await p.userChoice;
+                        if (choice.outcome === 'accepted') setIsInstalled(true);
+                        setDeferredPrompt(null);
+                        if (typeof window !== 'undefined') {
+                          (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent | null }).__rp_deferred_prompt = null;
+                        }
+                      }
                     }}
                     className="w-full py-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-transform"
                   >

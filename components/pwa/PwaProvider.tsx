@@ -49,9 +49,28 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
         });
     }
 
-    // 3. Capture de l'événement d'installation Android/Chrome
+    // 3. Capture de l'événement d'installation Android/Chrome & Synchronisation globale
+    const globalPrompt = (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent }).__rp_deferred_prompt;
+    if (globalPrompt) {
+      setDeferredPrompt(globalPrompt);
+      const dismissed = localStorage.getItem('rp_pwa_install_dismissed');
+      if (!dismissed) setShowInstallBanner(true);
+    }
+
+    const onPromptAvailable = () => {
+      const p = (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent }).__rp_deferred_prompt;
+      if (p) {
+        setDeferredPrompt(p);
+        const dismissed = localStorage.getItem('rp_pwa_install_dismissed');
+        if (!dismissed) setShowInstallBanner(true);
+      }
+    };
+
+    window.addEventListener('rp-pwa-prompt-available', onPromptAvailable);
+
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
+      (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent }).__rp_deferred_prompt = e as BeforeInstallPromptEvent;
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       const dismissed = localStorage.getItem('rp_pwa_install_dismissed');
       if (!dismissed) {
@@ -69,18 +88,24 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
     }
 
     return () => {
+      window.removeEventListener('rp-pwa-prompt-available', onPromptAvailable);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
     };
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
+    const promptEvent = deferredPrompt || (typeof window !== 'undefined' ? (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent }).__rp_deferred_prompt : null);
+    if (!promptEvent) return;
+    await promptEvent.prompt();
+    const choice = await promptEvent.userChoice;
     if (choice.outcome === 'accepted') {
       setShowInstallBanner(false);
+      setIsStandalone(true);
     }
     setDeferredPrompt(null);
+    if (typeof window !== 'undefined') {
+      (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent | null }).__rp_deferred_prompt = null;
+    }
   };
 
   const handleDismissInstall = () => {

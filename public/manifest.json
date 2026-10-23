@@ -2,12 +2,13 @@
   "name": "Réussir Polytech",
   "short_name": "Polytech",
   "description": "Plateforme académique d'excellence pour élèves-ingénieurs polytechniciens",
-  "start_url": "/",
-  "id": "/",
+  "start_url": "/?source=pwa",
+  "id": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#050B14",
-  "theme_color": "#0A1628",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0284C7",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
@@ -28,5 +29,25 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["education", "productivity"]
+  "categories": ["education", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Filière MSP 1",
+      "short_name": "MSP1",
+      "url": "/msp1",
+      "description": "Accès aux cours et épreuves de 1ère année"
+    },
+    {
+      "name": "Filière MSP 2",
+      "short_name": "MSP2",
+      "url": "/msp2",
+      "description": "Accès aux cours et épreuves de 2ème année"
+    },
+    {
+      "name": "L'Ingénieur Entrepreneur",
+      "short_name": "VIP",
+      "url": "/entrepreneur-vip",
+      "description": "Formations pratiques et initiatives technologiques"
+    }
+  ]
 }
