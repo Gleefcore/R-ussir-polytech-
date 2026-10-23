@@ -277,6 +277,18 @@ async function dispatchEmail(params: {
         },
       });
 
+      // Logo officiel Polytech en pièce jointe CID (chargement instantané sur mobile et desktop sans blocage d'images)
+      const logoPath = path.join(process.cwd(), 'public', 'icons', 'icon-192x192.png');
+      const attachments = fs.existsSync(logoPath)
+        ? [
+            {
+              filename: 'logo-polytech.png',
+              path: logoPath,
+              cid: 'polytech-logo',
+            },
+          ]
+        : [];
+
       const info = await transporter.sendMail({
         from: `"${BRAND_CONFIG.senderName}" <${BRAND_CONFIG.senderEmail}>`,
         to: params.toEmail,
@@ -284,6 +296,11 @@ async function dispatchEmail(params: {
         subject: params.subject,
         html: params.html,
         text: params.text,
+        attachments,
+        headers: {
+          'X-Entity-Ref-ID': `rp-msg-${Date.now()}`,
+          'List-Unsubscribe': `<mailto:${BRAND_CONFIG.senderEmail}?subject=Unsubscribe>`,
+        },
       });
 
       console.log(`[EmailService] Email réel expédié vers ${params.toEmail} — Message ID: ${info.messageId}`);
