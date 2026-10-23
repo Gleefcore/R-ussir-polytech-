@@ -15,6 +15,7 @@ import {
   renderWeeklyEmail,
   renderPromotionFormationEmail,
   renderOfficialAdminEmail,
+  renderAppAnnouncementEmail,
   type WeeklyResource,
 } from './emailTemplates';
 import { vipPrograms } from '@/data/vipPrograms';
@@ -916,6 +917,182 @@ export async function sendOfficialAdminEmail(params: SendOfficialAdminEmailParam
   return {
     success: true,
     totalTarget: params.students.length,
+    sentCount,
+    simulatedCount,
+    failedCount,
+    detailedResults,
+  };
+}
+
+/* ========================================================================= */
+/* CAMPAGNE OFFICIELLE : DISPONIBILITÉ DE L'APPLICATION MOBILE SMARTPHONE    */
+/* ========================================================================= */
+export async function sendAppAnnouncementEmail(params: {
+  name: string;
+  email: string;
+  level?: string;
+  userId?: string;
+}): Promise<{ success: boolean; mode: string; error?: string }> {
+  const store = await loadEmailStore();
+  const cleanEmail = params.email.trim().toLowerCase();
+
+  if (store.unsubscribedEmails.map((e) => e.toLowerCase()).includes(cleanEmail)) {
+    return { success: false, mode: 'simulation', error: 'Utilisateur désabonné' };
+  }
+
+  const rendered = renderAppAnnouncementEmail({
+    name: params.name,
+    email: cleanEmail,
+    level: params.level,
+  });
+
+  const sendRes = await dispatchEmail({
+    toEmail: cleanEmail,
+    toName: params.name,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+    storeSettings: store.settings,
+  });
+
+  store.logs.unshift({
+    id: `log_app_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    type: 'targeted',
+    toEmail: cleanEmail,
+    toName: params.name,
+    subject: rendered.subject,
+    status: sendRes.success ? (sendRes.mode === 'simulation' ? 'simulated' : 'sent') : 'failed',
+    mode: sendRes.mode,
+    error: sendRes.error,
+    timestamp: new Date().toISOString(),
+    campaignId: 'app_launch_campaign',
+    userId: params.userId,
+  });
+
+  if (store.logs.length > 500) store.logs = store.logs.slice(0, 500);
+  await saveEmailStore(store);
+
+  return sendRes;
+}
+
+export async function sendBulkAppAnnouncementCampaign(params?: {
+  students?: Array<{ id: string; fullName: string; email: string; level: string }>;
+}) {
+  const store = await loadEmailStore();
+  const unsubscribedSet = new Set(store.unsubscribedEmails.map((e) => e.toLowerCase()));
+
+  let targetStudents = params?.students;
+
+  if (!targetStudents || targetStudents.length === 0) {
+    const { data: userList } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+    const allUsers = userList?.users || [];
+
+    targetStudents = allUsers
+      .filter((u) => u.email && !u.email.endsWith('@polytech.rp'))
+      .map((u) => ({
+        id: u.id,
+        fullName: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || 'Élève-Ingénieur',
+        email: u.email!,
+        level: u.user_metadata?.level || 'MSP2',
+      }));
+  }
+
+  const batchId = `app_campaign_${Date.now()}`;
+  let sentCount = 0;
+  let simulatedCount = 0;
+  let failedCount = 0;
+  const detailedResults: Array<{
+    email: string;
+    fullName: string;
+    level: string;
+    status: 'sent' | 'simulated' | 'failed' | 'skipped';
+    message: string;
+  }> = [];
+
+  for (const student of targetStudents) {
+    const cleanEmail = student.email.trim().toLowerCase();
+
+    if (unsubscribedSet.has(cleanEmail)) {
+      detailedResults.push({
+        email: cleanEmail,
+        fullName: student.fullName,
+        level: student.level,
+        status: 'skipped',
+        message: 'Utilisateur désabonné',
+      });
+      continue;
+    }
+
+    const rendered = renderAppAnnouncementEmail({
+      name: student.fullName,
+      email: cleanEmail,
+      level: student.level,
+    });
+
+    const sendRes = await dispatchEmail({
+      toEmail: cleanEmail,
+      toName: student.fullName,
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+      storeSettings: store.settings,
+    });
+
+    if (sendRes.success) {
+      if (sendRes.mode === 'simulation') {
+        simulatedCount++;
+        detailedResults.push({
+          email: cleanEmail,
+          fullName: student.fullName,
+          level: student.level,
+          status: 'simulated',
+          message: 'Envoi simulé avec succès',
+        });
+      } else {
+        sentCount++;
+        detailedResults.push({
+          email: cleanEmail,
+          fullName: student.fullName,
+          level: student.level,
+          status: 'sent',
+          message: 'Envoyé avec succès via Gmail SMTP',
+        });
+      }
+    } else {
+      failedCount++;
+      detailedResults.push({
+        email: cleanEmail,
+        fullName: student.fullName,
+        level: student.level,
+        status: 'failed',
+        message: sendRes.error || 'Erreur lors de l\'envoi',
+      });
+    }
+
+    store.logs.unshift({
+      id: `log_app_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      type: 'targeted',
+      toEmail: cleanEmail,
+      toName: student.fullName,
+      subject: rendered.subject,
+      status: sendRes.success ? (sendRes.mode === 'simulation' ? 'simulated' : 'sent') : 'failed',
+      mode: sendRes.mode,
+      error: sendRes.error,
+      timestamp: new Date().toISOString(),
+      campaignId: batchId,
+      userId: student.id,
+    });
+
+    // Pause de 200ms pour fluidité SMTP Gmail
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  if (store.logs.length > 500) store.logs = store.logs.slice(0, 500);
+  await saveEmailStore(store);
+
+  return {
+    success: true,
+    totalTarget: targetStudents.length,
     sentCount,
     simulatedCount,
     failedCount,

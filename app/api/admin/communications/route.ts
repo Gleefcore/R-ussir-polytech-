@@ -7,6 +7,7 @@ import {
   sendWeeklyCampaign,
   sendTargetedOrBatchEmails,
   sendOfficialAdminEmail,
+  sendBulkAppAnnouncementCampaign,
   sendTestEmail,
   WeeklyResource,
 } from '@/lib/emailService';
@@ -242,6 +243,15 @@ export async function POST(req: NextRequest) {
         ctaText,
         ctaUrl,
         targetLevel,
+      });
+
+      return NextResponse.json({ success: true, result });
+    }
+
+    if (action === 'send_app_announcement') {
+      const { students } = body;
+      const result = await sendBulkAppAnnouncementCampaign({
+        students: Array.isArray(students) && students.length > 0 ? students : undefined,
       });
 
       return NextResponse.json({ success: true, result });

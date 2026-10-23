@@ -33,6 +33,7 @@ import {
   renderWelcomeEmail,
   renderPromotionFormationEmail,
   renderOfficialAdminEmail,
+  renderAppAnnouncementEmail,
   renderWeeklyEmail,
   WeeklyResource,
 } from '@/lib/emailTemplates';
@@ -126,6 +127,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
   const [officialCtaUrl, setOfficialCtaUrl] = useState('https://reussirpolytech.vercel.app');
   const [officialTargetLevel, setOfficialTargetLevel] = useState<'ALL' | 'MSP1' | 'MSP2'>('ALL');
   const [sendingOfficial, setSendingOfficial] = useState(false);
+  const [sendingAppLaunch, setSendingAppLaunch] = useState(false);
 
   // Recherche & Sélection d'Étudiants
   const [searchQuery, setSearchQuery] = useState('');
@@ -134,10 +136,10 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
 
   // Email Test & Prévisualisation
   const [testEmailAddress, setTestEmailAddress] = useState('gwetsamuel49@gmail.com');
-  const [testTemplate, setTestTemplate] = useState<'welcome' | 'promotion' | 'weekly'>('welcome');
+  const [testTemplate, setTestTemplate] = useState<'welcome' | 'promotion' | 'weekly' | 'app_announcement'>('welcome');
   const [testSending, setTestSending] = useState(false);
 
-  const [previewTemplate, setPreviewTemplate] = useState<'welcome' | 'promotion' | 'official' | 'weekly'>('welcome');
+  const [previewTemplate, setPreviewTemplate] = useState<'welcome' | 'promotion' | 'official' | 'weekly' | 'app_announcement'>('welcome');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
@@ -336,8 +338,41 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
     }
   };
 
-  // 3. Envoi individuel direct
-  const handleSendSingleEmail = async (student: StudentItem, templateType: 'welcome' | 'promotion') => {
+  // 3. Envoi de la campagne Annonce Application Mobile
+  const handleSendAppLaunchCampaign = async () => {
+    if (!confirm(`Confirmez-vous l'envoi de l'email officiel d'annonce de l'Application Mobile à l'ensemble des élèves (${realEmailStudents.length} élèves) ?`)) {
+      return;
+    }
+    setSendingAppLaunch(true);
+    setFeedback(null);
+    try {
+      const res = await fetch('/api/admin/communications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': accessKey },
+        body: JSON.stringify({
+          action: 'send_app_announcement',
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        const { sentCount, simulatedCount, failedCount } = json.result;
+        setFeedback({
+          type: 'success',
+          text: `Campagne Application Mobile expédiée : ${sentCount} envoyé(s), ${simulatedCount} simulé(s), ${failedCount} échec(s).`,
+        });
+        fetchCommunications();
+      } else {
+        setFeedback({ type: 'error', text: json.error || 'Erreur lors de la diffusion.' });
+      }
+    } catch {
+      setFeedback({ type: 'error', text: 'Erreur réseau.' });
+    } finally {
+      setSendingAppLaunch(false);
+    }
+  };
+
+  // 4. Envoi individuel direct
+  const handleSendSingleEmail = async (student: StudentItem, templateType: 'welcome' | 'promotion' | 'app_announcement') => {
     if (student.isInternalPlaceholder || !student.email.includes('@')) {
       setFeedback({ type: 'error', text: `L'étudiant ${student.fullName} n'a pas encore renseigné une adresse email réelle.` });
       return;
@@ -489,6 +524,12 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
         mentorWhatsapp: activeProgram.mentorWhatsapp,
         duration: activeProgram.duration,
         modules: activeProgram.badges.map((b) => `Module spécialisé : Maîtrise de ${b}`),
+      }).html
+    : previewTemplate === 'app_announcement'
+    ? renderAppAnnouncementEmail({
+        name: 'Alexandre NGOUA',
+        email: 'alexandre.ngoua@polytech.rp',
+        level: 'MSP2',
       }).html
     : renderWeeklyEmail({
         name: 'Alexandre NGOUA',
@@ -834,6 +875,54 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
               <Eye className="w-3.5 h-3.5" />
               <span>Aperçu de ce communiqué</span>
             </button>
+          </div>
+
+          {/* BANNIÈRE CAMPAGNE APPLICATION MOBILE */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sky-500/10 via-blue-500/10 to-emerald-500/10 border border-sky-200 dark:border-sky-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#0284C7] flex items-center justify-center text-white flex-shrink-0 shadow-md">
+                <Smartphone className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  Campagne Spéciale : Annonce Application Mobile (iPhone &amp; Android)
+                </p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                  Félicite chaque étudiant pour sa connexion et détaille l&apos;installation directe sur <strong>iPhone</strong> (Safari) et <strong>Android</strong> (.APK de 3,6 Mo &amp; Chrome).
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setPreviewTemplate('app_announcement');
+                  setShowPreviewModal(true);
+                }}
+                className="py-2.5 px-3.5 rounded-xl border border-sky-300 dark:border-sky-700 bg-white dark:bg-slate-800 text-xs font-bold text-sky-700 dark:text-sky-300 hover:bg-sky-50 flex items-center gap-1.5"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Aperçu Mobile</span>
+              </button>
+              <button
+                type="button"
+                disabled={sendingAppLaunch}
+                onClick={handleSendAppLaunchCampaign}
+                className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-black shadow-md hover:opacity-95 active:scale-98 disabled:opacity-50 flex items-center gap-2"
+              >
+                {sendingAppLaunch ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Diffusion...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>Diffuser à tous ({realEmailStudents.length})</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1335,6 +1424,14 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                       }`}
                     >
                       Hebdo
+                    </button>
+                    <button
+                      onClick={() => setPreviewTemplate('app_announcement')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        previewTemplate === 'app_announcement' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'
+                      }`}
+                    >
+                      📱 App Mobile
                     </button>
                   </div>
 
