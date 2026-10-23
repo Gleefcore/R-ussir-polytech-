@@ -81,13 +81,25 @@ function buildEmailHtml(name, email, level) {
   const preheader = `Félicitations pour votre connexion ! Vous pouvez désormais installer l'application officielle Réussir Polytech directement sur votre iPhone ou Android.`;
 
   const html = `<!doctype html>
-<html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
   <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
   <title>${escapeHtml(subject)}</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
   <style>
     body {
       margin: 0 !important;
@@ -95,46 +107,59 @@ function buildEmailHtml(name, email, level) {
       background-color: #F8FAFC !important;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
       -webkit-font-smoothing: antialiased !important;
+      -webkit-text-size-adjust: 100% !important;
+      -ms-text-size-adjust: 100% !important;
     }
-    table { border-collapse: collapse !important; }
-    img { border: 0 !important; outline: none !important; text-decoration: none !important; }
+    table { border-collapse: collapse !important; mso-table-lspace: 0pt !important; mso-table-rspace: 0pt !important; }
+    img { border: 0 !important; outline: none !important; text-decoration: none !important; -ms-interpolation-mode: bicubic !important; }
     a { text-decoration: none !important; }
-    @media only screen and (max-width: 620px) {
-      .container { width: 100% !important; border-radius: 0 !important; }
-      .mobile-padding { padding: 24px 18px !important; }
-      .btn-responsive { width: 100% !important; display: block !important; text-align: center !important; }
+    @media only screen and (max-width: 600px) {
+      .wrapper-table { padding: 12px 6px !important; }
+      .container { width: 100% !important; max-width: 100% !important; border-radius: 12px !important; }
+      .mobile-padding { padding: 20px 16px !important; }
+      .mobile-header { padding: 18px 16px 16px !important; }
+      .mobile-hide { display: none !important; }
+      .mobile-header-title { font-size: 16px !important; line-height: 20px !important; }
+      .mobile-header-slogan { font-size: 11px !important; line-height: 15px !important; }
+      .mobile-title { font-size: 19px !important; line-height: 25px !important; }
+      .btn-responsive { width: 100% !important; display: block !important; text-align: center !important; box-sizing: border-box !important; }
+      .mobile-card { padding: 14px 12px !important; }
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background-color:#F8FAFC;">
+<body style="margin:0;padding:0;background-color:#F8FAFC;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
   <!-- Pré-en-tête discret -->
-  <div style="display:none;font-size:1px;line-height:1px;color:#F8FAFC;max-height:0;max-width:0;opacity:0;overflow:hidden;">
-    ${preheader}
+  <div style="display:none;font-size:1px;line-height:1px;color:#F8FAFC;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">
+    ${escapeHtml(preheader)}
   </div>
 
-  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#F8FAFC;padding:32px 12px;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="wrapper-table" style="background-color:#F8FAFC;padding:32px 12px;width:100%;table-layout:fixed;">
     <tr>
       <td align="center">
-        <!-- CARTE PRINCIPALE -->
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="container" style="max-width:600px;background-color:#FFFFFF;border-radius:18px;border:1px solid #E2E8F0;box-shadow:0 8px 30px rgba(15,23,42,0.06);overflow:hidden;">
+        <!--[if (gte mso 9)|(IE)]>
+        <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
+        <tr>
+        <td align="center" valign="top" width="600">
+        <![endif]-->
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="container" style="max-width:600px;background-color:#FFFFFF;border-radius:18px;border:1px solid #E2E8F0;box-shadow:0 8px 30px rgba(15,23,42,0.06);overflow:hidden;margin:0 auto;">
           
           <!-- EN-TÊTE DÉGRADÉ BLEU CLAIR DU LOGO AVEC ACCENTS OR -->
           <tr>
-            <td style="background:linear-gradient(135deg, #0A4368 0%, #0284C7 45%, #0EA5E9 75%, #38BDF8 100%);padding:26px 32px 22px;">
+            <td class="mobile-header" style="background:linear-gradient(135deg, #0A4368 0%, #0284C7 45%, #0EA5E9 75%, #38BDF8 100%);padding:26px 32px 22px;">
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
-                  <td width="52" style="vertical-align:middle;padding-right:16px;">
+                  <td width="52" style="vertical-align:middle;padding-right:14px;">
                     <img src="cid:polytech-logo" width="48" height="48" alt="Logo Réussir Polytech" style="display:block;width:48px;height:48px;border-radius:50%;border:2px solid #D4AF37;box-shadow:0 2px 8px rgba(0,0,0,0.2);" onerror="this.src='https://reussirpolytech.vercel.app/icons/icon-192x192.png';" />
                   </td>
                   <td style="vertical-align:middle;">
-                    <div style="font-size:19px;line-height:22px;font-weight:900;color:#FFFFFF;letter-spacing:-0.2px;">
+                    <div class="mobile-header-title" style="font-size:19px;line-height:22px;font-weight:900;color:#FFFFFF;letter-spacing:-0.2px;">
                       RÉUSSIR POLYTECH
                     </div>
-                    <div style="font-size:12px;line-height:16px;color:#FDE68A;font-weight:700;margin-top:3px;font-style:italic;">
+                    <div class="mobile-header-slogan" style="font-size:12px;line-height:16px;color:#FDE68A;font-weight:700;margin-top:3px;font-style:italic;">
                       « ${SLOGAN} »
                     </div>
                   </td>
-                  <td align="right" style="vertical-align:middle;">
+                  <td align="right" class="mobile-hide" style="vertical-align:middle;">
                     <span style="display:inline-block;padding:5px 12px;background:rgba(255,255,255,0.18);border:1px solid #D4AF37;border-radius:20px;font-size:10px;font-weight:800;color:#FFFFFF;letter-spacing:0.5px;white-space:nowrap;">
                       PROMOTION 2026
                     </span>
@@ -161,7 +186,7 @@ function buildEmailHtml(name, email, level) {
               </div>
 
               <!-- Titre d'Accueil Chaleureux -->
-              <h1 style="margin:0 0 16px;font-size:23px;line-height:30px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;">
+              <h1 class="mobile-title" style="margin:0 0 16px;font-size:23px;line-height:30px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;">
                 Félicitations ${safeName} ! L'application est disponible sur votre téléphone.
               </h1>
 
@@ -175,7 +200,7 @@ function buildEmailHtml(name, email, level) {
               </p>
 
               <!-- CARTE 1 : TÉLÉCHARGEMENT ANDROID (.APK & CHROME) -->
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#F0FDF4;border:1px solid #BBF7D0;border-left:4px solid #16A34A;border-radius:12px;margin-bottom:22px;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="mobile-card" style="background-color:#F0FDF4;border:1px solid #BBF7D0;border-left:4px solid #16A34A;border-radius:12px;margin-bottom:22px;">
                 <tr>
                   <td style="padding:20px;">
                     <div style="font-size:14px;font-weight:900;color:#166534;margin-bottom:6px;">
@@ -186,10 +211,10 @@ function buildEmailHtml(name, email, level) {
                     </div>
 
                     <!-- Bouton Télécharger APK -->
-                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:16px;">
                       <tr>
                         <td>
-                          <a href="${APK_URL}" target="_blank" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg, #16A34A 0%, #15803D 100%);color:#FFFFFF;font-size:13px;font-weight:900;border-radius:10px;text-decoration:none;box-shadow:0 3px 10px rgba(22,163,74,0.3);">
+                          <a href="${APK_URL}" target="_blank" class="btn-responsive" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg, #16A34A 0%, #15803D 100%);color:#FFFFFF;font-size:13px;font-weight:900;border-radius:10px;text-decoration:none;box-shadow:0 3px 10px rgba(22,163,74,0.3);text-align:center;">
                             📥 Télécharger l&apos;Application (.APK) (3,6 Mo) &rarr;
                           </a>
                         </td>
@@ -208,7 +233,7 @@ function buildEmailHtml(name, email, level) {
               </table>
 
               <!-- CARTE 2 : INSTALLATION IPHONE & IPAD (SAFARI) -->
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#F0F9FF;border:1px solid #BAE6FD;border-left:4px solid #0284C7;border-radius:12px;margin-bottom:26px;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="mobile-card" style="background-color:#F0F9FF;border:1px solid #BAE6FD;border-left:4px solid #0284C7;border-radius:12px;margin-bottom:26px;">
                 <tr>
                   <td style="padding:20px;">
                     <div style="font-size:14px;font-weight:900;color:#075985;margin-bottom:6px;">
@@ -219,10 +244,10 @@ function buildEmailHtml(name, email, level) {
                     </div>
 
                     <!-- Bouton Ouvrir sur Safari -->
-                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:16px;">
                       <tr>
                         <td>
-                          <a href="${SITE_URL}" target="_blank" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg, #0284C7 0%, #0369A1 100%);color:#FFFFFF;font-size:13px;font-weight:900;border-radius:10px;text-decoration:none;box-shadow:0 3px 10px rgba(2,132,199,0.3);">
+                          <a href="${SITE_URL}" target="_blank" class="btn-responsive" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg, #0284C7 0%, #0369A1 100%);color:#FFFFFF;font-size:13px;font-weight:900;border-radius:10px;text-decoration:none;box-shadow:0 3px 10px rgba(2,132,199,0.3);text-align:center;">
                             🍏 Ouvrir sur iPhone (Safari) &rarr;
                           </a>
                         </td>
@@ -313,6 +338,11 @@ function buildEmailHtml(name, email, level) {
           </tr>
 
         </table>
+        <!--[if (gte mso 9)|(IE)]>
+        </td>
+        </tr>
+        </table>
+        <![endif]-->
       </td>
     </tr>
   </table>
