@@ -14,6 +14,7 @@ import {
   renderWelcomeEmail,
   renderWeeklyEmail,
   renderPromotionFormationEmail,
+  renderOfficialAdminEmail,
   type WeeklyResource,
 } from './emailTemplates';
 import { vipPrograms } from '@/data/vipPrograms';
@@ -760,6 +761,140 @@ export async function sendTargetedOrBatchEmails(params: SendTargetedBatchParams)
     store.logs.unshift({
       id: `log_tgt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       type: params.templateType === 'promotion' ? 'promotion' : 'targeted',
+      toEmail: cleanEmail,
+      toName: student.fullName,
+      subject: rendered.subject,
+      status: sendRes.success ? (sendRes.mode === 'simulation' ? 'simulated' : 'sent') : 'failed',
+      mode: sendRes.mode,
+      error: sendRes.error,
+      timestamp: new Date().toISOString(),
+      campaignId: batchId,
+      userId: student.id,
+    });
+
+    // Pause de courtoisie entre envois séquentiels
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+
+  if (store.logs.length > 500) store.logs = store.logs.slice(0, 500);
+  await saveEmailStore(store);
+
+  return {
+    success: true,
+    totalTarget: params.students.length,
+    sentCount,
+    simulatedCount,
+    failedCount,
+    detailedResults,
+  };
+}
+
+// 10. Envoi d'un Mail Officiel de l'Administration
+export interface SendOfficialAdminEmailParams {
+  students: TargetedEmailStudent[];
+  subject: string;
+  headline?: string;
+  senderTitle?: string;
+  senderSignature?: string;
+  messageContent: string;
+  ctaText?: string;
+  ctaUrl?: string;
+  targetLevel?: string;
+}
+
+export async function sendOfficialAdminEmail(params: SendOfficialAdminEmailParams) {
+  const store = await loadEmailStore();
+  const unsubscribedSet = new Set(store.unsubscribedEmails.map((e) => e.toLowerCase()));
+  const batchId = `official_${Date.now()}`;
+
+  let sentCount = 0;
+  let simulatedCount = 0;
+  let failedCount = 0;
+  const detailedResults: Array<{
+    email: string;
+    fullName: string;
+    status: 'sent' | 'simulated' | 'failed' | 'unsubscribed';
+    message?: string;
+  }> = [];
+
+  for (const student of params.students) {
+    const cleanEmail = student.email?.trim().toLowerCase();
+    if (!cleanEmail || cleanEmail.endsWith('@polytech.rp')) {
+      detailedResults.push({
+        email: student.email || 'N/A',
+        fullName: student.fullName,
+        status: 'failed',
+        message: 'Adresse email non valide ou interne',
+      });
+      failedCount++;
+      continue;
+    }
+
+    if (unsubscribedSet.has(cleanEmail)) {
+      detailedResults.push({
+        email: cleanEmail,
+        fullName: student.fullName,
+        status: 'unsubscribed',
+        message: 'Étudiant désabonné',
+      });
+      continue;
+    }
+
+    const personalizedMessage = params.messageContent.replace(/\{nom\}/gi, student.fullName);
+
+    const rendered = renderOfficialAdminEmail({
+      recipientName: student.fullName,
+      recipientEmail: cleanEmail,
+      subject: params.subject,
+      headline: params.headline,
+      senderTitle: params.senderTitle,
+      senderSignature: params.senderSignature,
+      messageContent: personalizedMessage,
+      ctaText: params.ctaText,
+      ctaUrl: params.ctaUrl,
+      targetLevel: params.targetLevel || student.level,
+    });
+
+    const sendRes = await dispatchEmail({
+      toEmail: cleanEmail,
+      toName: student.fullName,
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+      storeSettings: store.settings,
+    });
+
+    if (sendRes.success) {
+      if (sendRes.mode === 'simulation') {
+        simulatedCount++;
+        detailedResults.push({
+          email: cleanEmail,
+          fullName: student.fullName,
+          status: 'simulated',
+          message: 'Envoi simulé avec succès (Mode Diagnostic)',
+        });
+      } else {
+        sentCount++;
+        detailedResults.push({
+          email: cleanEmail,
+          fullName: student.fullName,
+          status: 'sent',
+          message: 'Envoyé avec succès via Gmail API',
+        });
+      }
+    } else {
+      failedCount++;
+      detailedResults.push({
+        email: cleanEmail,
+        fullName: student.fullName,
+        status: 'failed',
+        message: sendRes.error || 'Erreur lors de l\'envoi',
+      });
+    }
+
+    store.logs.unshift({
+      id: `log_off_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      type: 'targeted',
       toEmail: cleanEmail,
       toName: student.fullName,
       subject: rendered.subject,

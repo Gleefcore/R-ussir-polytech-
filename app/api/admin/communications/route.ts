@@ -6,6 +6,7 @@ import {
   getGmailStatus,
   sendWeeklyCampaign,
   sendTargetedOrBatchEmails,
+  sendOfficialAdminEmail,
   sendTestEmail,
   WeeklyResource,
 } from '@/lib/emailService';
@@ -205,6 +206,42 @@ export async function POST(req: NextRequest) {
         modules,
         ctaUrl,
         ctaText,
+      });
+
+      return NextResponse.json({ success: true, result });
+    }
+
+    if (action === 'send_official_email') {
+      const {
+        students,
+        subject,
+        headline,
+        senderTitle,
+        senderSignature,
+        messageContent,
+        ctaText,
+        ctaUrl,
+        targetLevel,
+      } = body;
+
+      if (!Array.isArray(students) || students.length === 0) {
+        return NextResponse.json({ error: 'Aucun étudiant sélectionné pour cet envoi.' }, { status: 400 });
+      }
+
+      if (!messageContent || !messageContent.trim()) {
+        return NextResponse.json({ error: 'Le contenu du message officiel est requis.' }, { status: 400 });
+      }
+
+      const result = await sendOfficialAdminEmail({
+        students,
+        subject: subject || 'Communiqué Officiel — Réussir Polytech',
+        headline,
+        senderTitle,
+        senderSignature,
+        messageContent,
+        ctaText,
+        ctaUrl,
+        targetLevel,
       });
 
       return NextResponse.json({ success: true, result });

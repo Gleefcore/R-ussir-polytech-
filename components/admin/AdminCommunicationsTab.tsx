@@ -26,11 +26,13 @@ import {
   ChevronRight,
   ExternalLink,
   BookOpen,
+  SendHorizontal,
 } from 'lucide-react';
 import {
   BRAND_CONFIG,
   renderWelcomeEmail,
   renderPromotionFormationEmail,
+  renderOfficialAdminEmail,
   renderWeeklyEmail,
   WeeklyResource,
 } from '@/lib/emailTemplates';
@@ -104,7 +106,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Sous-onglets du Cockpit de Communications
-  const [activeSubTab, setActiveSubTab] = useState<'promotions' | 'custom' | 'students' | 'settings'>('promotions');
+  const [activeSubTab, setActiveSubTab] = useState<'promotions' | 'official' | 'students' | 'settings'>('promotions');
 
   // Sélection de formation VIP
   const [selectedProgramId, setSelectedProgramId] = useState<string>(vipPrograms[0]?.id || 'bureautique');
@@ -112,15 +114,18 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
   const [promoCustomMessage, setPromoCustomMessage] = useState<string>('');
   const [sendingPromo, setSendingPromo] = useState(false);
 
-  // Message Personnalisé
-  const [customTitle, setCustomTitle] = useState('Annonce Spéciale — Promotion 2026');
-  const [customSubtitle, setCustomSubtitle] = useState('Nouvelles ressources et séances d\'accompagnement disponibles');
-  const [customBody, setCustomBody] = useState(
-    'Bonjour {nom},\n\nNous vous informons de la mise à disposition de nouvelles fiches de travaux dirigés et de sujets d\'examens résolus sur votre espace d\'étude.'
+  // Espace Mail Officiel de l'Administration
+  const [officialSubject, setOfficialSubject] = useState('Communiqué Officiel : Organisation des Séances d\'Encadrement');
+  const [officialHeadline, setOfficialHeadline] = useState('Note d\'Information Officielle — Promotion 2026');
+  const [officialSenderTitle, setOfficialSenderTitle] = useState('Direction Générale RÉUSSIR POLYTECH');
+  const [officialSenderSignature, setOfficialSenderSignature] = useState('Eugène Samuel GWET — Président du Conseil d\'Administration');
+  const [officialContent, setOfficialContent] = useState(
+    'Chers élèves-ingénieurs,\n\nNous vous informons de la mise à jour des polycopiés certifiés et fiches de travaux dirigés sur la plateforme Réussir Polytech.\n\nNous vous recommandons de préparer rigoureusement chaque séance de cours en amont et de vous exercer sur les annales résolues mises à votre disposition dans votre cockpit d\'étude.\n\nRestez concentrés, constants et ambitieux dans vos révisions.'
   );
-  const [customCtaText, setCustomCtaText] = useState('Accéder à mon cockpit d\'étude');
-  const [customCtaUrl, setCustomCtaUrl] = useState('https://reussirpolytech.vercel.app');
-  const [sendingCustom, setSendingCustom] = useState(false);
+  const [officialCtaText, setOfficialCtaText] = useState('Accéder à mon espace d\'étude');
+  const [officialCtaUrl, setOfficialCtaUrl] = useState('https://reussirpolytech.vercel.app');
+  const [officialTargetLevel, setOfficialTargetLevel] = useState<'ALL' | 'MSP1' | 'MSP2'>('ALL');
+  const [sendingOfficial, setSendingOfficial] = useState(false);
 
   // Recherche & Sélection d'Étudiants
   const [searchQuery, setSearchQuery] = useState('');
@@ -132,13 +137,9 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
   const [testTemplate, setTestTemplate] = useState<'welcome' | 'promotion' | 'weekly'>('welcome');
   const [testSending, setTestSending] = useState(false);
 
-  const [previewTemplate, setPreviewTemplate] = useState<'welcome' | 'promotion' | 'weekly'>('welcome');
+  const [previewTemplate, setPreviewTemplate] = useState<'welcome' | 'promotion' | 'official' | 'weekly'>('welcome');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-
-  // Mot de passe App Google
-  const [appPasswordInput, setAppPasswordInput] = useState('');
-  const [savingPassword, setSavingPassword] = useState(false);
 
   const fetchCommunications = useCallback(async () => {
     try {
@@ -185,7 +186,6 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
     return data.students.filter((st) => !st.isInternalPlaceholder && !st.isUnsubscribed);
   }, [data?.students]);
 
-  // Toggle tous les étudiants filtrés
   const handleToggleSelectAll = () => {
     if (selectedStudentIds.size === filteredStudents.length && filteredStudents.length > 0) {
       setSelectedStudentIds(new Set());
@@ -201,7 +201,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
     setSelectedStudentIds(next);
   };
 
-  // 1. Envoi de promotion VIP groupée
+  // 1. Envoi de promotion VIP
   const handleSendVipPromotion = async () => {
     let targetStudents: StudentItem[] = [];
 
@@ -253,7 +253,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
         const { sentCount, simulatedCount, failedCount } = json.result;
         setFeedback({
           type: 'success',
-          text: `Promotion diffusée : ${sentCount} envoyé(s), ${simulatedCount} simulé(s), ${failedCount} échec(s).`,
+          text: `Formation diffusée : ${sentCount} envoyé(s), ${simulatedCount} simulé(s), ${failedCount} échec(s).`,
         });
         setSelectedStudentIds(new Set());
         fetchCommunications();
@@ -267,7 +267,76 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
     }
   };
 
-  // 2. Envoi individuel direct (Bienvenue ou Promotion)
+  // 2. Envoi d'un Mail Officiel de l'Administration
+  const handleSendOfficialBroadcast = async () => {
+    let targetStudents: StudentItem[] = [];
+
+    if (selectedStudentIds.size > 0) {
+      targetStudents = (data?.students || []).filter((s) => selectedStudentIds.has(s.id) && !s.isInternalPlaceholder && !s.isUnsubscribed);
+    } else {
+      targetStudents = realEmailStudents.filter((s) => officialTargetLevel === 'ALL' || s.level.toUpperCase() === officialTargetLevel);
+    }
+
+    if (targetStudents.length === 0) {
+      setFeedback({ type: 'error', text: 'Aucun étudiant valide avec une adresse email réelle pour cet envoi.' });
+      return;
+    }
+
+    if (!officialContent.trim()) {
+      setFeedback({ type: 'error', text: 'Veuillez saisir le texte de votre communiqué officiel.' });
+      return;
+    }
+
+    if (!confirm(`Confirmez-vous l'envoi de ce Mail Officiel à ${targetStudents.length} élève(s)-ingénieur(s) ?`)) {
+      return;
+    }
+
+    setSendingOfficial(true);
+    setFeedback(null);
+    try {
+      const res = await fetch('/api/admin/communications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': accessKey },
+        body: JSON.stringify({
+          action: 'send_official_email',
+          subject: officialSubject,
+          headline: officialHeadline,
+          senderTitle: officialSenderTitle,
+          senderSignature: officialSenderSignature,
+          messageContent: officialContent,
+          ctaText: officialCtaText.trim() || undefined,
+          ctaUrl: officialCtaUrl.trim() || undefined,
+          targetLevel: officialTargetLevel === 'ALL' ? undefined : officialTargetLevel,
+          students: targetStudents.map((s) => ({
+            id: s.id,
+            email: s.email,
+            fullName: s.fullName,
+            level: s.level,
+            matricule: s.matricule,
+          })),
+        }),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        const { sentCount, simulatedCount, failedCount } = json.result;
+        setFeedback({
+          type: 'success',
+          text: `Mail Officiel délivré : ${sentCount} envoyé(s), ${simulatedCount} simulé(s), ${failedCount} échec(s).`,
+        });
+        setSelectedStudentIds(new Set());
+        fetchCommunications();
+      } else {
+        setFeedback({ type: 'error', text: json.error || 'Erreur lors de l\'envoi du mail officiel.' });
+      }
+    } catch {
+      setFeedback({ type: 'error', text: 'Erreur réseau lors de l\'envoi.' });
+    } finally {
+      setSendingOfficial(false);
+    }
+  };
+
+  // 3. Envoi individuel direct
   const handleSendSingleEmail = async (student: StudentItem, templateType: 'welcome' | 'promotion') => {
     if (student.isInternalPlaceholder || !student.email.includes('@')) {
       setFeedback({ type: 'error', text: `L'étudiant ${student.fullName} n'a pas encore renseigné une adresse email réelle.` });
@@ -290,7 +359,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
           mentorRole: activeProgram.mentorTitle,
           mentorWhatsapp: activeProgram.mentorWhatsapp,
           duration: activeProgram.duration,
-          modules: activeProgram.badges.map((b) => `Maîtrise pratique et industrielle de ${b}`),
+          modules: activeProgram.badges.map((b) => `Maîtrise pratique de ${b}`),
           students: [
             {
               id: student.id,
@@ -307,7 +376,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
       if (json.success) {
         setFeedback({
           type: 'success',
-          text: `Email officiel ${templateType === 'welcome' ? 'de bienvenue' : 'de formation'} envoyé avec succès à ${student.fullName} (${student.email}) !`,
+          text: `Email officiel ${templateType === 'welcome' ? 'de félicitations' : 'de formation'} envoyé avec succès à ${student.fullName} (${student.email}) !`,
         });
         fetchCommunications();
       } else {
@@ -320,7 +389,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
     }
   };
 
-  // 3. Envoi Test Administrateur
+  // 4. Envoi Test Administrateur
   const handleSendTest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!testEmailAddress.trim()) {
@@ -353,7 +422,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
     }
   };
 
-  // 4. Toggle Réglages
+  // 5. Toggle Réglages
   const handleUpdateSetting = async (key: string, value: boolean | number) => {
     setActionLoading(true);
     setFeedback(null);
@@ -377,43 +446,10 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
     }
   };
 
-  // 5. Sauvegarde Mot de Passe App Google
-  const handleSavePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!appPasswordInput.trim()) return;
-    setSavingPassword(true);
-    setFeedback(null);
-    try {
-      const res = await fetch('/api/admin/communications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': accessKey },
-        body: JSON.stringify({
-          action: 'update_settings',
-          gmailAppPassword: appPasswordInput.trim(),
-        }),
-      });
-      const json = await res.json();
-      if (json.success) {
-        setFeedback({
-          type: 'success',
-          text: '✅ Mot de passe d\'application Google validé et synchronisé dans le Cloud !',
-        });
-        setAppPasswordInput('');
-        fetchCommunications();
-      } else {
-        setFeedback({ type: 'error', text: json.error || 'Erreur lors de l\'enregistrement.' });
-      }
-    } catch {
-      setFeedback({ type: 'error', text: 'Erreur réseau.' });
-    } finally {
-      setSavingPassword(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="py-20 flex flex-col items-center justify-center text-slate-400">
-        <Loader2 className="w-8 h-8 animate-spin text-[#D4AF37] mb-3" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#0284C7] mb-3" />
         <p className="text-xs font-bold uppercase tracking-wider">Chargement du Cockpit de Communications...</p>
       </div>
     );
@@ -429,11 +465,23 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
         password: 'Polytech2026!',
         actionType: 'welcome',
       }).html
+    : previewTemplate === 'official'
+    ? renderOfficialAdminEmail({
+        recipientName: 'Alexandre NGOUA',
+        recipientEmail: 'alexandre.ngoua@polytech.rp',
+        subject: officialSubject,
+        headline: officialHeadline,
+        senderTitle: officialSenderTitle,
+        senderSignature: officialSenderSignature,
+        messageContent: officialContent,
+        ctaText: officialCtaText || undefined,
+        ctaUrl: officialCtaUrl || undefined,
+        targetLevel: officialTargetLevel,
+      }).html
     : previewTemplate === 'promotion'
     ? renderPromotionFormationEmail({
         name: 'Alexandre NGOUA',
         email: 'alexandre.ngoua@polytech.rp',
-        level: 'MSP2',
         title: `Formation Pratique : ${activeProgram.title}`,
         subtitle: activeProgram.summary,
         mentorName: activeProgram.mentor,
@@ -458,16 +506,16 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
       <div className="bg-white dark:bg-[#0F172A] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-sm relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#0284C7] to-[#D4AF37] flex items-center justify-center text-white shadow-lg shadow-sky-500/20 flex-shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] flex items-center justify-center text-white shadow-lg shadow-sky-500/20 flex-shrink-0">
               <Mail className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-black text-slate-900 dark:text-white font-heading">
-                  Cockpit de Communications &amp; Emails
+                  Communications &amp; Messagerie Officielle
                 </h3>
                 <span className="text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-                  Gmail SMTP Opérationnel
+                  SMTP Gmail Opérationnel
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -485,13 +533,13 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
               disabled={refreshing}
               className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold transition-colors flex items-center gap-1.5"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-[#D4AF37]' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-[#0284C7]' : ''}`} />
               <span>Actualiser</span>
             </button>
 
             <button
               onClick={() => setShowPreviewModal(true)}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#0284C7] to-[#0369A1] text-white text-xs font-black shadow-md flex items-center gap-1.5 hover:opacity-90 active:scale-95"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white text-xs font-black shadow-md flex items-center gap-1.5 hover:opacity-95 active:scale-95"
             >
               <Eye className="w-3.5 h-3.5" />
               <span>Aperçu Maquette Email</span>
@@ -531,9 +579,9 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
             <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 font-heading">{data?.metrics.totalSent}</p>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 text-center">
-            <p className="text-[10px] font-bold text-[#D4AF37] uppercase tracking-wider">Automatisations</p>
+            <p className="text-[10px] font-bold text-[#0284C7] uppercase tracking-wider">Envoi Automatique</p>
             <p className="text-xs font-bold text-slate-700 dark:text-slate-200 mt-1">
-              {data?.settings.welcomeEmailActive ? '🟢 Bienvenue Active' : '⚪ Pause'}
+              {data?.settings.welcomeEmailActive ? '🟢 Félicitations Actif' : '⚪ En pause'}
             </p>
           </div>
         </div>
@@ -550,7 +598,19 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
           }`}
         >
           <Award className="w-4 h-4 text-[#D4AF37]" />
-          <span>⭐ Diffuser une Formation VIP</span>
+          <span>⭐ Formations VIP en 1 Clic</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('official')}
+          className={`flex-1 min-w-[160px] py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+            activeSubTab === 'official'
+              ? 'bg-white dark:bg-slate-900 text-[#0284C7] shadow-sm'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <SendHorizontal className="w-4 h-4 text-sky-500" />
+          <span>📢 Espace Mail Officiel Administrateur</span>
         </button>
 
         <button
@@ -562,19 +622,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>👥 Liste des Élèves &amp; Envois Directs ({filteredStudents.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('custom')}
-          className={`flex-1 min-w-[160px] py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
-            activeSubTab === 'custom'
-              ? 'bg-white dark:bg-slate-900 text-[#0284C7] shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-          }`}
-        >
-          <MessageSquare className="w-4 h-4" />
-          <span>✍️ Annonce Personnalisée</span>
+          <span>👥 Répertoire &amp; Envois Directs ({filteredStudents.length})</span>
         </button>
 
         <button
@@ -590,18 +638,18 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
         </button>
       </div>
 
-      {/* 3. CONTENU DE L'ONGLET ACTIF */}
+      {/* 3. CONTENU DES SOUS-ONGLETS */}
 
-      {/* SOUS-ONGLET 1 : DIFFUSION DE FORMATIONS VIP (1-CLIC OBJECTIF ET RIGOUREUX) */}
+      {/* SOUS-ONGLET 1 : FORMATIONS VIP EN 1 CLIC */}
       {activeSubTab === 'promotions' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Sélection du Catalogue de Formations */}
+          {/* Sélection du Catalogue */}
           <div className="lg:col-span-1 space-y-3">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-                1. Sélectionner la Formation
+                1. Sélectionner le Programme
               </span>
-              <span className="text-[10px] text-slate-400 font-bold">{vipPrograms.length} programmes réels</span>
+              <span className="text-[10px] text-slate-400 font-bold">{vipPrograms.length} formations disponibles</span>
             </div>
 
             <div className="space-y-2 max-h-[520px] overflow-y-auto pr-1">
@@ -642,12 +690,12 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
             </div>
           </div>
 
-          {/* Configuration et Déclenchement de la Diffusion */}
+          {/* Fiche de Diffusion */}
           <div className="lg:col-span-2 bg-white dark:bg-[#0F172A] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-5">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-[#D4AF37] font-mono block">
-                  2. Fiche de Diffusion Officielle
+                  2. Fiche de Formation Pratique
                 </span>
                 <h4 className="text-lg font-black text-slate-900 dark:text-white font-heading mt-0.5">
                   {activeProgram.title}
@@ -661,7 +709,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
             {/* Mentor Référent */}
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between gap-3">
               <div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase">Encadrement Pédagogique</p>
+                <p className="text-[11px] font-bold text-slate-400 uppercase">Encadrement Pratique</p>
                 <p className="text-xs font-black text-slate-800 dark:text-slate-100">{activeProgram.mentor}</p>
                 <p className="text-[11px] text-slate-500">{activeProgram.mentorTitle}</p>
               </div>
@@ -676,10 +724,10 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
               </a>
             </div>
 
-            {/* Modules inclus dans le mail */}
+            {/* Modules inclus */}
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-2">
-                Compétences &amp; Modules Transmis dans l&apos;Email :
+                Compétences Transmises dans l&apos;Email :
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {activeProgram.badges.map((b, i) => (
@@ -693,10 +741,10 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
               </div>
             </div>
 
-            {/* Ciblage de la Promotion */}
+            {/* Cible */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-2">
-                3. Sélectionner la Cible
+                3. Sélectionner les Destinataires
               </label>
               <div className="grid grid-cols-3 gap-2">
                 <button
@@ -708,7 +756,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                       : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
                   }`}
                 >
-                  Toute la Promo 2026 ({realEmailStudents.length})
+                  Toute la Promo ({realEmailStudents.length})
                 </button>
                 <button
                   type="button"
@@ -719,7 +767,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                       : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
                   }`}
                 >
-                  MSP1 Uniquement ({realEmailStudents.filter((s) => s.level.toUpperCase() === 'MSP1').length})
+                  MSP1 ({realEmailStudents.filter((s) => s.level.toUpperCase() === 'MSP1').length})
                 </button>
                 <button
                   type="button"
@@ -730,50 +778,31 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                       : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
                   }`}
                 >
-                  MSP2 Uniquement ({realEmailStudents.filter((s) => s.level.toUpperCase() === 'MSP2').length})
+                  MSP2 ({realEmailStudents.filter((s) => s.level.toUpperCase() === 'MSP2').length})
                 </button>
               </div>
-              {selectedStudentIds.size > 0 && (
-                <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-2">
-                  ℹ️ {selectedStudentIds.size} élève(s) sont manuellement coché(s) dans l&apos;onglet Liste. L&apos;envoi ciblera uniquement ces élèves sélectionnés.
-                </p>
-              )}
             </div>
 
-            {/* Note d'introduction personnalisée */}
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
-                Message d&apos;Introduction (Optionnel)
-              </label>
-              <textarea
-                value={promoCustomMessage}
-                onChange={(e) => setPromoCustomMessage(e.target.value)}
-                placeholder={`Dans le cadre de l'accompagnement de la Promotion 2026, l'équipe Réussir Polytech vous recommande le programme certifié « ${activeProgram.title} »...`}
-                rows={2}
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
-              />
-            </div>
-
-            {/* Bouton de Diffusion Officiel */}
+            {/* Bouton de Diffusion */}
             <button
               onClick={handleSendVipPromotion}
               disabled={sendingPromo || data?.settings.isGlobalPaused}
-              className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-amber-500 to-[#B8860B] text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg hover:scale-[1.01] active:scale-98 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+              className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-black text-xs uppercase tracking-wider shadow-lg hover:opacity-95 active:scale-98 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
             >
               {sendingPromo ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Envoi séquentiel en cours...</span>
+                  <span>Envoi en cours...</span>
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4" />
                   <span>
-                    Diffuser cette Formation à{' '}
+                    Diffuser la Formation à{' '}
                     {selectedStudentIds.size > 0
                       ? `${selectedStudentIds.size} élève(s) sélectionné(s)`
                       : promoTargetLevel === 'ALL'
-                      ? `${realEmailStudents.length} élèves de la Promo 2026`
+                      ? `${realEmailStudents.length} élèves`
                       : `${realEmailStudents.filter((s) => s.level.toUpperCase() === promoTargetLevel).length} élèves (${promoTargetLevel})`}
                   </span>
                 </>
@@ -783,7 +812,198 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
         </div>
       )}
 
-      {/* SOUS-ONGLET 2 : LISTE DES ÉLÈVES & ENVOIS DIRECTS 1-PAR-1 */}
+      {/* SOUS-ONGLET 2 : ESPACE MAIL OFFICIEL DE L'ADMINISTRATION */}
+      {activeSubTab === 'official' && (
+        <div className="bg-white dark:bg-[#0F172A] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-5">
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#0284C7] font-mono block">
+                Espace Direction &bull; Réussir Polytech
+              </span>
+              <h4 className="text-lg font-black text-slate-900 dark:text-white font-heading mt-0.5">
+                Rédiger &amp; Expédier un Mail Officiel aux Étudiants
+              </h4>
+            </div>
+            <button
+              onClick={() => {
+                setPreviewTemplate('official');
+                setShowPreviewModal(true);
+              }}
+              className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 w-fit"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Aperçu de ce communiqué</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                Objet Officiel du Message
+              </label>
+              <input
+                type="text"
+                value={officialSubject}
+                onChange={(e) => setOfficialSubject(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                Titre d&apos;Accroche dans le Mail
+              </label>
+              <input
+                type="text"
+                value={officialHeadline}
+                onChange={(e) => setOfficialHeadline(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                Entité Expéditrice (Titre)
+              </label>
+              <input
+                type="text"
+                value={officialSenderTitle}
+                onChange={(e) => setOfficialSenderTitle(e.target.value)}
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                Signature Nominale du Dirigeant
+              </label>
+              <input
+                type="text"
+                value={officialSenderSignature}
+                onChange={(e) => setOfficialSenderSignature(e.target.value)}
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
+                Corps du Communiqué Officiel
+              </label>
+              <span className="text-[11px] text-[#0284C7] font-bold">
+                Balise disponible : <code>{'{nom}'}</code> pour insérer le nom de l&apos;élève
+              </span>
+            </div>
+            <textarea
+              value={officialContent}
+              onChange={(e) => setOfficialContent(e.target.value)}
+              rows={6}
+              className="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                Bouton d&apos;Action (Libellé optionnel)
+              </label>
+              <input
+                type="text"
+                value={officialCtaText}
+                onChange={(e) => setOfficialCtaText(e.target.value)}
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                Lien de Destination
+              </label>
+              <input
+                type="url"
+                value={officialCtaUrl}
+                onChange={(e) => setOfficialCtaUrl(e.target.value)}
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-2">
+              Audience Ciblée
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setOfficialTargetLevel('ALL')}
+                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
+                  officialTargetLevel === 'ALL'
+                    ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                Tous les Étudiants ({realEmailStudents.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setOfficialTargetLevel('MSP1')}
+                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
+                  officialTargetLevel === 'MSP1'
+                    ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                Promotion MSP1 ({realEmailStudents.filter((s) => s.level.toUpperCase() === 'MSP1').length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setOfficialTargetLevel('MSP2')}
+                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
+                  officialTargetLevel === 'MSP2'
+                    ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                Promotion MSP2 ({realEmailStudents.filter((s) => s.level.toUpperCase() === 'MSP2').length})
+              </button>
+            </div>
+            {selectedStudentIds.size > 0 && (
+              <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-2">
+                ℹ️ {selectedStudentIds.size} élève(s) sont sélectionnés manuellement dans le répertoire. L&apos;envoi ciblera uniquement ces élèves.
+              </p>
+            )}
+          </div>
+
+          <button
+            onClick={handleSendOfficialBroadcast}
+            disabled={sendingOfficial || data?.settings.isGlobalPaused}
+            className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-black text-xs uppercase tracking-wider shadow-lg hover:opacity-95 active:scale-98 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+          >
+            {sendingOfficial ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Expédition en cours...</span>
+              </>
+            ) : (
+              <>
+                <SendHorizontal className="w-4 h-4" />
+                <span>
+                  Expédier ce Mail Officiel à{' '}
+                  {selectedStudentIds.size > 0
+                    ? `${selectedStudentIds.size} élève(s) sélectionné(s)`
+                    : officialTargetLevel === 'ALL'
+                    ? `${realEmailStudents.length} élèves inscrits`
+                    : `${realEmailStudents.filter((s) => s.level.toUpperCase() === officialTargetLevel).length} élèves (${officialTargetLevel})`}
+                </span>
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* SOUS-ONGLET 3 : RÉPERTOIRE DES ÉLÈVES & ENVOIS DIRECTS */}
       {activeSubTab === 'students' && (
         <div className="bg-white dark:bg-[#0F172A] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -792,11 +1012,10 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                 Répertoire des Élèves-Ingénieurs ({filteredStudents.length})
               </h4>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Cochez pour envoyer par lot, ou utilisez les boutons directs à droite de chaque élève.
+                Envoyez un email individuel ou cochez les cases pour un tir groupé.
               </p>
             </div>
 
-            {/* Filtres de recherche */}
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -821,7 +1040,6 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
             </div>
           </div>
 
-          {/* Tableau des élèves */}
           <div className="overflow-x-auto border border-slate-100 dark:border-slate-800 rounded-2xl">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
@@ -861,7 +1079,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                       </td>
                       <td className="py-3 px-3">
                         <p className="font-bold text-slate-900 dark:text-white">{st.fullName}</p>
-                        <p className="text-[10px] text-slate-400">{st.phone || 'Pas de numéro'}</p>
+                        <p className="text-[10px] text-slate-400">{st.phone || 'Pas de téléphone'}</p>
                       </td>
                       <td className="py-3 px-3">
                         <span className="inline-block px-2 py-0.5 rounded font-bold text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
@@ -873,7 +1091,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                       </td>
                       <td className="py-3 px-3 font-mono text-[11px]">
                         {st.isInternalPlaceholder ? (
-                          <span className="text-amber-600 dark:text-amber-400">Matricule seul ({st.email})</span>
+                          <span className="text-amber-600 dark:text-amber-400">Matricule interne ({st.email})</span>
                         ) : (
                           <span className="text-slate-800 dark:text-slate-200">{st.email}</span>
                         )}
@@ -884,17 +1102,17 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                             onClick={() => handleSendSingleEmail(st, 'welcome')}
                             disabled={actionLoading || st.isInternalPlaceholder}
                             className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-[11px] font-bold transition-all disabled:opacity-40"
-                            title="Envoyer l'email officiel avec ses coordonnées complètes et mot de passe"
+                            title="Envoyer l'email officiel de félicitations avec identifiants"
                           >
-                            ✉️ Bienvenue
+                            ✉️ Félicitations
                           </button>
                           <button
                             onClick={() => handleSendSingleEmail(st, 'promotion')}
                             disabled={actionLoading || st.isInternalPlaceholder}
-                            className="px-2.5 py-1 rounded-lg bg-[#D4AF37]/15 border border-[#D4AF37]/30 text-[#92400E] dark:text-[#F3E5AB] hover:bg-[#D4AF37]/25 text-[11px] font-bold transition-all disabled:opacity-40"
+                            className="px-2.5 py-1 rounded-lg bg-[#0284C7]/15 border border-[#0284C7]/30 text-[#0284C7] dark:text-[#38BDF8] hover:bg-[#0284C7]/25 text-[11px] font-bold transition-all disabled:opacity-40"
                             title="Envoyer la formation VIP actuellement sélectionnée"
                           >
-                            ⭐ Formation VIP
+                            ⭐ Formation
                           </button>
                         </div>
                       </td>
@@ -904,7 +1122,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                 {filteredStudents.length === 0 && (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-slate-400">
-                      Aucun élève correspondant aux critères de recherche.
+                      Aucun élève correspondant aux critères.
                     </td>
                   </tr>
                 )}
@@ -914,117 +1132,26 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
         </div>
       )}
 
-      {/* SOUS-ONGLET 3 : ANNONCE PERSONNALISÉE COMPOSÉE */}
-      {activeSubTab === 'custom' && (
-        <div className="bg-white dark:bg-[#0F172A] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-4">
-          <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-            <h4 className="text-base font-black text-slate-900 dark:text-white font-heading">
-              Rédiger une Annonce Officielle Personnalisée
-            </h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Chaque élève recevra le courriel avec son propre nom via la balise <code>{'{nom}'}</code>.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
-                Objet de l&apos;Email
-              </label>
-              <input
-                type="text"
-                value={customTitle}
-                onChange={(e) => setCustomTitle(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
-                Sous-titre / En-tête d&apos;accroche
-              </label>
-              <input
-                type="text"
-                value={customSubtitle}
-                onChange={(e) => setCustomSubtitle(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
-              />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-                  Corps du Message
-                </label>
-                <span className="text-[11px] text-[#0284C7] font-bold">
-                  Astuce : Utilisez {'{nom}'} pour insérer le nom complet de l&apos;élève
-                </span>
-              </div>
-              <textarea
-                value={customBody}
-                onChange={(e) => setCustomBody(e.target.value)}
-                rows={5}
-                className="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
-                  Libellé du Bouton
-                </label>
-                <input
-                  type="text"
-                  value={customCtaText}
-                  onChange={(e) => setCustomCtaText(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
-                  Lien de Destination
-                </label>
-                <input
-                  type="url"
-                  value={customCtaUrl}
-                  onChange={(e) => setCustomCtaUrl(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
-                />
-              </div>
-            </div>
-
-            <button
-              onClick={handleSendVipPromotion}
-              disabled={sendingCustom || data?.settings.isGlobalPaused}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#0284C7] to-[#0369A1] text-white font-bold text-xs uppercase tracking-wider shadow-lg hover:opacity-95 active:scale-98 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-            >
-              <Send className="w-4 h-4" />
-              <span>Diffuser cette Annonce à la Promotion 2026</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* SOUS-ONGLET 4 : PARAMÈTRES EXPÉDITEUR GMAIL & AUDIT LOG */}
+      {/* SOUS-ONGLET 4 : PARAMÈTRES & DIAGNOSTIC GMAIL */}
       {activeSubTab === 'settings' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Envoi d'un Test Administrateur */}
+          {/* Test Directeur */}
           <div className="bg-white dark:bg-[#0F172A] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-4">
             <div className="flex items-center gap-2 mb-1">
-              <Send className="w-4 h-4 text-[#D4AF37]" />
+              <Send className="w-4 h-4 text-[#0284C7]" />
               <h4 className="text-base font-black text-slate-900 dark:text-white font-heading">
-                Test en Direct (Contrôle Directeur)
+                Expédition d&apos;un Test en Direct
               </h4>
             </div>
 
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Expédie immédiatement un exemple réel sur votre boîte personnelle pour vérifier le rendu HTML et l&apos;arrivée en boîte principale.
+              Vérifiez la réception directe en boîte principale avec le dégradé bleu ciel et le logo certifié.
             </p>
 
             <form onSubmit={handleSendTest} className="space-y-3">
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 font-mono">
-                  Type de Modèle à Tester
+                  Modèle d&apos;Email à Tester
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   <button
@@ -1036,7 +1163,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                         : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
                     }`}
                   >
-                    Bienvenue
+                    Félicitations
                   </button>
                   <button
                     type="button"
@@ -1073,7 +1200,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                   onChange={(e) => setTestEmailAddress(e.target.value)}
                   placeholder="gwetsamuel49@gmail.com"
                   required
-                  className="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-[#D4AF37]"
+                  className="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-[#0284C7]"
                 />
               </div>
 
@@ -1085,7 +1212,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                 {testSending ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Envoi du test en cours...</span>
+                    <span>Expédition du test...</span>
                   </>
                 ) : (
                   <>
@@ -1096,14 +1223,13 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
               </button>
             </form>
 
-            {/* Interrupteur automatique */}
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div>
                 <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                  Envoi Automatique à la Connexion / Inscription
+                  Envoi Automatique lors de l&apos;Inscription / Connexion
                 </p>
                 <p className="text-[11px] text-slate-500">
-                  Transmet la carte d&apos;accès avec mot de passe et l&apos;émulation en direct
+                  Délivre le message officiel avec matières, conseils et mot de passe
                 </p>
               </div>
               <button
@@ -1120,11 +1246,11 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
             </div>
           </div>
 
-          {/* Journal des 10 Derniers Envois */}
+          {/* Journal des Derniers Envois */}
           <div className="bg-white dark:bg-[#0F172A] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-3">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-base font-black text-slate-900 dark:text-white font-heading">
-                Traçabilité des Derniers Envois
+                Audit des Envois Récents
               </h4>
               <span className="text-[11px] font-mono text-slate-400">{data?.logs.length || 0} consigné(s)</span>
             </div>
@@ -1153,14 +1279,14 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                 </div>
               ))}
               {(!data?.logs || data.logs.length === 0) && (
-                <p className="py-6 text-center text-xs text-slate-400">Aucun envoi récent enregistré.</p>
+                <p className="py-6 text-center text-xs text-slate-400">Aucun envoi consigné pour le moment.</p>
               )}
             </div>
           </div>
         </div>
       )}
 
-      {/* 4. MODALE DE PRÉVISUALISATION HAUTE DÉFINITION DES EMAILS */}
+      {/* 4. MODALE DE PRÉVISUALISATION HAUTE DÉFINITION */}
       <AnimatePresence>
         {showPreviewModal && (
           <motion.div
@@ -1184,7 +1310,15 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                         previewTemplate === 'welcome' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'
                       }`}
                     >
-                      Bienvenue &amp; Accès
+                      Félicitations
+                    </button>
+                    <button
+                      onClick={() => setPreviewTemplate('official')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        previewTemplate === 'official' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'
+                      }`}
+                    >
+                      Mail Officiel Admin
                     </button>
                     <button
                       onClick={() => setPreviewTemplate('promotion')}
@@ -1200,7 +1334,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                         previewTemplate === 'weekly' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'
                       }`}
                     >
-                      Hebdomadaire
+                      Hebdo
                     </button>
                   </div>
 

@@ -1,13 +1,13 @@
 /**
  * Modèles d'Emails Officiels — RÉUSSIR POLYTECH
- * Design épuré, lumineux, d'excellence polytechnicienne.
- * Conçu par des ingénieurs pour des élèves-ingénieurs.
- * Conforme aux standards internationaux d'anti-spam (100% boîte principale).
+ * Design épuré, lumineux avec le dégradé bleu ciel officiel du logo.
  * Slogan officiel : « L'excellence est notre seul standard. »
+ * Plateforme : RÉUSSIR POLYTECH (Groupe d'Études Réussir Polytech).
  */
 
 export const BRAND_CONFIG = {
   name: 'RÉUSSIR POLYTECH',
+  groupName: 'Groupe d\'Études Réussir Polytech',
   slogan: "L'excellence est notre seul standard.",
   senderName: "L'équipe RÉUSSIR POLYTECH",
   senderEmail: 'gwetsamuel49@gmail.com',
@@ -15,19 +15,19 @@ export const BRAND_CONFIG = {
   vipUrl: 'https://reussirpolytech.vercel.app/entrepreneur-vip',
   logoUrl: 'https://reussirpolytech.vercel.app/icons/icon-192x192.png',
   colors: {
+    gradientHeader: 'linear-gradient(135deg, #0A4368 0%, #0284C7 45%, #0EA5E9 75%, #38BDF8 100%)',
+    primary: '#0284C7',
+    skyLight: '#38BDF8',
+    cyanAccent: '#0EA5E9',
+    gold: '#D4AF37',
+    goldLight: '#FEF3C7',
+    goldBorder: '#FDE68A',
+    goldText: '#92400E',
+    darkNavy: '#0F172A',
+    bodyText: '#334155',
     bg: '#F8FAFC',
     card: '#FFFFFF',
     border: '#E2E8F0',
-    borderAccent: '#CBD5E1',
-    text: '#0F172A',
-    textSecondary: '#475569',
-    textMuted: '#94A3B8',
-    primary: '#0284C7',
-    primaryDark: '#0369A1',
-    gold: '#B8860B',
-    goldLight: '#FEF3C7',
-    goldBorder: '#FDE68A',
-    goldBadgeText: '#92400E',
   },
 };
 
@@ -42,7 +42,7 @@ function escapeHtml(str: string): string {
 }
 
 /* ========================================================================= */
-/* 1. EMAIL DE BIENVENUE, ACTIVATION & RAPPEL DE CONNEXION                   */
+/* 1. EMAIL OFFICIEL DE BIENVENUE & DE FÉLICITATIONS (Connexion & Inscription) */
 /* ========================================================================= */
 export interface WelcomeEmailParams {
   name: string;
@@ -63,20 +63,57 @@ export function renderWelcomeEmail({
 }: WelcomeEmailParams) {
   const safeName = escapeHtml(name || 'Élève-Ingénieur');
   const safeEmail = escapeHtml(email);
-  const safeLevel = escapeHtml((level || 'MSP1').toUpperCase());
+  const cleanLevel = (level || 'MSP1').toUpperCase();
+  const isMsp2 = cleanLevel === 'MSP2';
+  const safeLevel = isMsp2 ? 'MSP2' : 'MSP1';
   const safeMatricule = matricule ? escapeHtml(matricule) : 'En cours';
   const safePassword = password ? escapeHtml(password) : '•••••••• (Sécurisé)';
-  const targetLevelPath = safeLevel.toLowerCase() === 'msp2' ? 'msp2' : 'msp1';
+  const targetLevelPath = isMsp2 ? 'msp2' : 'msp1';
   const targetUrl = `${BRAND_CONFIG.siteUrl}/${targetLevelPath}`;
 
   const isWelcome = actionType === 'welcome';
   const subject = isWelcome
-    ? `Félicitations ${safeName} — Votre accès officiel Réussir Polytech (${safeLevel})`
+    ? `Félicitations ${safeName} ! Vous n'êtes plus seul — Réussir Polytech (${safeLevel})`
     : `Confirmation de connexion — Réussir Polytech (${safeLevel})`;
 
-  const preheader = isWelcome
-    ? `Félicitations pour votre accès à la promotion 2026. Retrouvez vos identifiants et cours certifiés.`
-    : `Nouvelle connexion détectée sur votre espace élève-ingénieur Réussir Polytech.`;
+  const preheader = `Toutes nos félicitations pour votre accès à Réussir Polytech ! Découvrez vos matières en ${safeLevel}, vos conseils d'apprentissage et votre accès direct.`;
+
+  // Programme des matières académiques par filière
+  const subjectsMsp1 = [
+    { title: 'Analyse Mathématique I & II', desc: 'Calcul différentiel, intégrales, développements limités, suites et séries' },
+    { title: 'Algèbre Linéaire & Géométrie', desc: 'Espaces vectoriels, calcul matriciel, systèmes linéaires, géométrie' },
+    { title: 'Mécanique Générale', desc: 'Cinématique et dynamique newtonienne du point matériel, énergie' },
+    { title: 'Optique & Ondes', desc: 'Lois de Snell-Descartes, systèmes optiques, miroirs, lentilles et ondes' },
+    { title: 'Chimie Générale & Thermodynamique', desc: 'Équilibres en solution, bilans énergétiques, premier et second principes' },
+    { title: 'Informatique & Algorithmique', desc: 'Logique procédurale, variables, boucles, structures conditionnelles' },
+  ];
+
+  const subjectsMsp2 = [
+    { title: 'Algèbre Multilinéaire (MTH211)', desc: 'Formes multilinéaires, déterminants, réduction d\'endomorphismes, diagonalisation' },
+    { title: 'Analyse Vectorielle & Intégrales (MTH212)', desc: 'Intégrales multiples, séries de Fourier, théorèmes de Stokes et Green-Ostrogradski' },
+    { title: 'Mécanique Rationnelle & Solides (PHY211)', desc: 'Torseurs, cinématique et dynamique des solides indéformables' },
+    { title: 'Électromagnétisme & Ondes (PHY212)', desc: 'Équations de Maxwell, énergie électromagnétique, ondes guidées et libres' },
+    { title: 'Algorithmique Avancée & Données (INF211)', desc: 'Complexité algorithmique, arbres, graphes et tris avancés' },
+    { title: 'Probabilités & Statistiques (MTH213)', desc: 'Variables aléatoires discrètes et continues, lois de probabilité' },
+  ];
+
+  const activeSubjects = isMsp2 ? subjectsMsp2 : subjectsMsp1;
+
+  const subjectsHtml = activeSubjects
+    .map(
+      (s, idx) => `
+    <tr>
+      <td style="padding:8px 0;vertical-align:top;width:24px;">
+        <span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:#E0F2FE;color:#0284C7;font-size:10px;font-weight:800;text-align:center;line-height:20px;border:1px solid #BAE6FD;">
+          ${idx + 1}
+        </span>
+      </td>
+      <td style="padding:8px 0 8px 10px;font-size:13px;line-height:20px;color:#334155;">
+        <strong style="color:#0F172A;">${escapeHtml(s.title)}</strong> — <span style="color:#64748B;">${escapeHtml(s.desc)}</span>
+      </td>
+    </tr>`
+    )
+    .join('');
 
   const html = `<!doctype html>
 <html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
@@ -98,14 +135,14 @@ export function renderWelcomeEmail({
     img { border: 0 !important; outline: none !important; text-decoration: none !important; }
     a { text-decoration: none !important; }
     @media only screen and (max-width: 620px) {
-      .container { width: 100% !important; border-radius: 0 !important; border-left: none !important; border-right: none !important; }
+      .container { width: 100% !important; border-radius: 0 !important; }
       .mobile-padding { padding: 24px 18px !important; }
       .btn-responsive { width: 100% !important; display: block !important; text-align: center !important; }
     }
   </style>
 </head>
 <body style="margin:0;padding:0;background-color:#F8FAFC;">
-  <!-- Pré-en-tête discret pour aperçu client de messagerie -->
+  <!-- Pré-en-tête discret -->
   <div style="display:none;font-size:1px;line-height:1px;color:#F8FAFC;max-height:0;max-width:0;opacity:0;overflow:hidden;">
     ${preheader}
   </div>
@@ -113,33 +150,28 @@ export function renderWelcomeEmail({
   <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#F8FAFC;padding:32px 12px;">
     <tr>
       <td align="center">
-        <!-- CARTE CENTRALE BLANCHE IMMACULÉE -->
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="container" style="max-width:600px;background-color:#FFFFFF;border-radius:16px;border:1px solid #E2E8F0;box-shadow:0 8px 30px rgba(15,23,42,0.05);overflow:hidden;">
+        <!-- CARTE PRINCIPALE -->
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="container" style="max-width:600px;background-color:#FFFFFF;border-radius:18px;border:1px solid #E2E8F0;box-shadow:0 8px 30px rgba(15,23,42,0.06);overflow:hidden;">
           
-          <!-- LISERÉ SUPÉRIEUR OR & BLEU POLYTECH -->
+          <!-- EN-TÊTE DÉGRADÉ BLEU CLAIR DU LOGO AVEC ACCENTS OR -->
           <tr>
-            <td height="5" style="background:linear-gradient(90deg, #0284C7 0%, #D4AF37 50%, #0284C7 100%);font-size:0;line-height:0;">&nbsp;</td>
-          </tr>
-
-          <!-- EN-TÊTE BLANC AVEC LOGO OFFICIEL & SLOGAN -->
-          <tr>
-            <td style="padding:28px 32px 20px;border-bottom:1px solid #F1F5F9;">
+            <td style="background:linear-gradient(135deg, #0A4368 0%, #0284C7 45%, #0EA5E9 75%, #38BDF8 100%);padding:26px 32px 22px;">
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
                   <td width="52" style="vertical-align:middle;padding-right:16px;">
-                    <img src="cid:polytech-logo" width="50" height="50" alt="Logo Réussir Polytech" style="display:block;width:50px;height:50px;border-radius:12px;border:1px solid #E2E8F0;box-shadow:0 2px 6px rgba(0,0,0,0.06);" onerror="this.src='https://reussirpolytech.vercel.app/icons/icon-192x192.png';" />
+                    <img src="cid:polytech-logo" width="48" height="48" alt="Logo Réussir Polytech" style="display:block;width:48px;height:48px;border-radius:50%;border:2px solid #D4AF37;box-shadow:0 2px 8px rgba(0,0,0,0.2);" onerror="this.src='https://reussirpolytech.vercel.app/icons/icon-192x192.png';" />
                   </td>
                   <td style="vertical-align:middle;">
-                    <div style="font-size:19px;line-height:22px;font-weight:900;color:#0F172A;letter-spacing:-0.3px;">
+                    <div style="font-size:19px;line-height:22px;font-weight:900;color:#FFFFFF;letter-spacing:-0.2px;">
                       RÉUSSIR POLYTECH
                     </div>
-                    <div style="font-size:12px;line-height:16px;color:#B8860B;font-weight:700;margin-top:3px;font-style:italic;">
+                    <div style="font-size:12px;line-height:16px;color:#FDE68A;font-weight:700;margin-top:3px;font-style:italic;">
                       « ${BRAND_CONFIG.slogan} »
                     </div>
                   </td>
                   <td align="right" style="vertical-align:middle;">
-                    <span style="display:inline-block;padding:5px 12px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:20px;font-size:11px;font-weight:800;color:#0284C7;letter-spacing:0.5px;white-space:nowrap;">
-                      PROMO 2026
+                    <span style="display:inline-block;padding:5px 12px;background:rgba(255,255,255,0.18);border:1px solid #D4AF37;border-radius:20px;font-size:10px;font-weight:800;color:#FFFFFF;letter-spacing:0.5px;white-space:nowrap;">
+                      PROMOTION 2026
                     </span>
                   </td>
                 </tr>
@@ -147,187 +179,177 @@ export function renderWelcomeEmail({
             </td>
           </tr>
 
-          <!-- CORPS PRINCIPAL -->
+          <!-- LISERÉ DE SÉPARATION OR -->
           <tr>
-            <td class="mobile-padding" style="padding:32px 32px 24px;">
+            <td height="3" style="background:#D4AF37;font-size:0;line-height:0;">&nbsp;</td>
+          </tr>
+
+          <!-- CORPS PRINCIPAL ÉPURÉ -->
+          <tr>
+            <td class="mobile-padding" style="padding:32px 32px 26px;">
               
-              <!-- Badge Statut -->
+              <!-- Badge Statut vert clair net -->
               <div style="margin-bottom:16px;">
-                <span style="display:inline-block;padding:4px 12px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:20px;font-size:11px;font-weight:700;color:#065F46;">
-                  ✓ Compte Élève-Ingénieur Actif
+                <span style="display:inline-block;padding:5px 14px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:20px;font-size:11px;font-weight:800;color:#065F46;">
+                  ✓ INSCRIPTION ACADÉMIQUE VALIDÉE &bull; ${safeLevel}
                 </span>
               </div>
 
-              <!-- Message de Félicitations -->
-              <h1 style="margin:0 0 14px;font-size:22px;line-height:28px;font-weight:800;color:#0F172A;letter-spacing:-0.4px;">
-                ${isWelcome ? `Félicitations & Bienvenue, ${safeName} !` : `Bonjour ${safeName},`}
+              <!-- Titre d'Accueil Chaleureux -->
+              <h1 style="margin:0 0 16px;font-size:23px;line-height:30px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;">
+                Félicitations ${safeName} ! Vous n'êtes plus seul.
               </h1>
 
+              <!-- Message Principal -->
               <p style="margin:0 0 22px;font-size:14px;line-height:24px;color:#334155;">
-                ${isWelcome
-                  ? `Vous faites désormais officiellement partie de la communauté des futurs ingénieurs de <strong>l'École Nationale Supérieure Polytechnique de Yaoundé</strong>. Votre espace académique certifié est prêt pour accompagner votre succès à chaque étape du semestre.`
-                  : `Nous vous confirmons l'accès à votre espace de travail académique. Toutes vos ressources pour le semestre sont synchronisées et disponibles.`}
+                Toutes nos félicitations pour votre inscription sur <strong>Réussir Polytech</strong> ! Sachez que désormais, vous n'êtes plus seul : vous rejoignez une communauté active d'élèves-ingénieurs déterminés qui apprennent, s'entraident et progressent ensemble à tout moment sur la plateforme.
               </p>
 
-              <!-- CARTE DES COORDONNÉES OFFICIELLES (LUMINEUSE & RAFFINÉE) -->
+              <!-- CARTE COORDONNÉES OFFICIELLES (En cas d'oubli) -->
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#F8FAFC;border:1px solid #E2E8F0;border-left:4px solid #0284C7;border-radius:12px;margin-bottom:26px;">
                 <tr>
-                  <td style="padding:20px 22px;">
+                  <td style="padding:18px 20px;">
+                    <div style="font-size:11px;font-weight:800;color:#0284C7;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;">
+                      Vos Identifiants d'Accès Officiels
+                    </div>
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                       <tr>
-                        <td colspan="2" style="padding-bottom:12px;border-bottom:1px solid #E2E8F0;">
-                          <span style="font-size:11px;font-weight:800;color:#0284C7;text-transform:uppercase;letter-spacing:0.8px;">
-                            Vos Coordonnées Officielles d'Accès
-                          </span>
-                        </td>
+                        <td style="padding-bottom:5px;width:38%;font-size:12px;font-weight:700;color:#64748B;">Nom complet :</td>
+                        <td style="padding-bottom:5px;font-size:13px;font-weight:800;color:#0F172A;">${safeName}</td>
                       </tr>
                       <tr>
-                        <td style="padding-top:12px;padding-bottom:6px;width:38%;">
-                          <span style="font-size:12px;font-weight:700;color:#64748B;">Nom & Prénom :</span>
-                        </td>
-                        <td style="padding-top:12px;padding-bottom:6px;">
-                          <span style="font-size:13px;font-weight:800;color:#0F172A;">${safeName}</span>
-                        </td>
+                        <td style="padding-bottom:5px;font-size:12px;font-weight:700;color:#64748B;">Email de connexion :</td>
+                        <td style="padding-bottom:5px;font-size:13px;font-weight:700;color:#0F172A;">${safeEmail}</td>
                       </tr>
                       <tr>
-                        <td style="padding-bottom:6px;">
-                          <span style="font-size:12px;font-weight:700;color:#64748B;">Email de connexion :</span>
-                        </td>
-                        <td style="padding-bottom:6px;">
-                          <span style="font-size:13px;font-weight:700;color:#0F172A;">${safeEmail}</span>
-                        </td>
+                        <td style="padding-bottom:5px;font-size:12px;font-weight:700;color:#64748B;">Filière :</td>
+                        <td style="padding-bottom:5px;font-size:12px;font-weight:800;color:#0284C7;">${safeLevel} (Semestre officiel)</td>
                       </tr>
                       <tr>
-                        <td style="padding-bottom:6px;">
-                          <span style="font-size:12px;font-weight:700;color:#64748B;">Filière Académique :</span>
-                        </td>
-                        <td style="padding-bottom:6px;">
-                          <span style="display:inline-block;padding:2px 8px;background:#E0F2FE;border:1px solid #BAE6FD;border-radius:6px;font-size:11px;font-weight:800;color:#0369A1;">
-                            ${safeLevel} • Semestre en cours
-                          </span>
-                        </td>
+                        <td style="padding-bottom:5px;font-size:12px;font-weight:700;color:#64748B;">Matricule :</td>
+                        <td style="padding-bottom:5px;font-size:13px;font-weight:800;color:#0F172A;font-family:monospace;">${safeMatricule}</td>
                       </tr>
                       <tr>
-                        <td style="padding-bottom:6px;">
-                          <span style="font-size:12px;font-weight:700;color:#64748B;">Matricule officiel :</span>
-                        </td>
-                        <td style="padding-bottom:6px;">
-                          <span style="font-size:13px;font-weight:800;color:#0F172A;font-family:monospace;">${safeMatricule}</span>
-                        </td>
-                      </tr>
-                      <tr>
+                        <td style="padding-top:4px;font-size:12px;font-weight:700;color:#B8860B;">Mot de passe (rappel) :</td>
                         <td style="padding-top:4px;">
-                          <span style="font-size:12px;font-weight:700;color:#B8860B;">Mot de passe (en cas d'oubli) :</span>
-                        </td>
-                        <td style="padding-top:4px;">
-                          <span style="display:inline-block;padding:4px 10px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:6px;font-size:13px;font-weight:800;color:#92400E;font-family:monospace;">
+                          <span style="display:inline-block;padding:3px 8px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:6px;font-size:12px;font-weight:800;color:#92400E;font-family:monospace;">
                             ${safePassword}
                           </span>
                         </td>
                       </tr>
                     </table>
-                    <div style="margin-top:12px;font-size:11px;line-height:16px;color:#94A3B8;">
-                      * Conservez précieusement ce courriel afin de ne jamais perdre vos identifiants d'accès.
-                    </div>
                   </td>
                 </tr>
               </table>
 
-              <!-- ÉMULATION COLLECTIVE EN DIRECT -->
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:16px 20px;margin-bottom:26px;">
-                <tr>
-                  <td>
-                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-                      <tr>
-                        <td width="28" style="vertical-align:top;padding-right:10px;">
-                          <div style="width:12px;height:12px;border-radius:50%;background:#16A34A;box-shadow:0 0 0 4px rgba(22,163,74,0.2);margin-top:4px;"></div>
-                        </td>
-                        <td>
-                          <div style="font-size:13px;font-weight:800;color:#166534;margin-bottom:4px;">
-                            Émulation d'Ingénieurs en Direct (+48 camarades connectés)
-                          </div>
-                          <div style="font-size:12px;line-height:18px;color:#15803D;">
-                            Vos camarades de promotion révisent activement en ce moment. Les cours les plus consultés aujourd'hui : <strong>Algèbre Multilinéaire (MTH211)</strong>, <strong>Mécanique Rationnelle</strong> et <strong>Analyse Mathématique</strong>.
-                          </div>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- RESSOURCES CERTIFIÉES ACCESSIBLES -->
+              <!-- COMMENT UTILISER LA PLATEFORME (GUIDE SIMPLE & DIRECT) -->
               <div style="margin-bottom:24px;">
-                <div style="font-size:12px;font-weight:800;color:#0F172A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">
-                  Vos ressources disponibles en libre accès immédiat :
+                <div style="font-size:13px;font-weight:900;color:#0F172A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">
+                  Comment tirer le meilleur parti de Réussir Polytech ?
                 </div>
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                   <tr>
-                    <td style="padding:6px 0;font-size:13px;line-height:20px;color:#334155;">
-                      <span style="color:#0284C7;font-weight:bold;margin-right:8px;">✔</span><strong>Polycopiés de cours officiels</strong> rédigés selon les programmes actuels.
+                    <td style="padding:6px 0;font-size:13px;line-height:21px;color:#334155;">
+                      <strong style="color:#0284C7;">1. Accédez à vos cours :</strong> Cliquez directement sur le bouton ci-dessous pour entrer dans votre espace d'étude ${safeLevel}.
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:6px 0;font-size:13px;line-height:20px;color:#334155;">
-                      <span style="color:#0284C7;font-weight:bold;margin-right:8px;">✔</span><strong>Fiches de Travaux Dirigés (TD)</strong> avec méthodologies de résolution.
+                    <td style="padding:6px 0;font-size:13px;line-height:21px;color:#334155;">
+                      <strong style="color:#0284C7;">2. Téléchargez les polycopiés &amp; TD :</strong> Révisez la théorie et préparez les exercices avant chaque amphi.
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:6px 0;font-size:13px;line-height:20px;color:#334155;">
-                      <span style="color:#0284C7;font-weight:bold;margin-right:8px;">✔</span><strong>Annales d'examens & Contrôles Continus</strong> des professeurs émérites.
+                    <td style="padding:6px 0;font-size:13px;line-height:21px;color:#334155;">
+                      <strong style="color:#0284C7;">3. Entraînez-vous sur les annales :</strong> Testez-vous sur les Contrôles Continus (CC) et examens résolus des promotions précédentes.
                     </td>
                   </tr>
                 </table>
               </div>
 
-              <!-- BOUTON D'ACTION PRINCIPAL -->
+              <!-- BOUTON D'ACCÈS PRINCIPAL (BLEU DÉGRADÉ LUMINEUX) -->
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin-bottom:30px;">
                 <tr>
                   <td align="center">
-                    <a href="${targetUrl}" target="_blank" class="btn-responsive" style="display:inline-block;padding:14px 32px;background-color:#0284C7;color:#FFFFFF;font-size:14px;font-weight:800;border-radius:12px;box-shadow:0 4px 14px rgba(2,132,199,0.3);letter-spacing:0.2px;">
-                      Accéder à mon espace d'étude (${safeLevel}) &rarr;
+                    <a href="${targetUrl}" target="_blank" class="btn-responsive" style="display:inline-block;padding:14px 34px;background:linear-gradient(135deg, #0284C7 0%, #0EA5E9 50%, #38BDF8 100%);color:#FFFFFF;font-size:14px;font-weight:900;border-radius:12px;box-shadow:0 4px 14px rgba(2,132,199,0.35);letter-spacing:0.2px;">
+                      Accéder à mes cours &amp; annales (${safeLevel}) &rarr;
                     </a>
                   </td>
                 </tr>
               </table>
 
-              <!-- SIGNATURE DES INGENIEURS FONDATEURS -->
-              <div style="border-top:1px solid #F1F5F9;padding-top:20px;margin-top:10px;">
+              <!-- MATIÈRES DU SEMESTRE SELON MSP1 OU MSP2 -->
+              <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:14px;padding:20px;margin-bottom:26px;">
+                <div style="font-size:12px;font-weight:900;color:#0F172A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">
+                  Vos Matières Clés à Maîtriser en ${safeLevel} :
+                </div>
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-                  <tr>
-                    <td style="vertical-align:top;width:50%;padding-right:12px;">
-                      <div style="font-size:13px;font-weight:800;color:#0F172A;">Eugène Samuel GWET</div>
-                      <div style="font-size:11px;color:#64748B;line-height:15px;margin-top:2px;">
-                        Président du Conseil d'Administration<br>
-                        Fondateur G-INNOVA
-                      </div>
-                    </td>
-                    <td style="vertical-align:top;width:50%;padding-left:12px;border-left:1px solid #F1F5F9;">
-                      <div style="font-size:13px;font-weight:800;color:#0F172A;">Yannick BIKEI</div>
-                      <div style="font-size:11px;color:#64748B;line-height:15px;margin-top:2px;">
-                        Directeur Informatique & Opérationnel<br>
-                        Coordinateur Pédagogique
-                      </div>
-                    </td>
-                  </tr>
+                  ${subjectsHtml}
                 </table>
+              </div>
+
+              <!-- QUELQUES CONSEILS CONCRETS POUR MIEUX APPRENDRE -->
+              <div style="border:1px solid #E2E8F0;border-left:4px solid #D4AF37;border-radius:12px;padding:18px 20px;background:#FFFFFF;margin-bottom:28px;">
+                <div style="font-size:12px;font-weight:900;color:#B8860B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
+                  3 Conseils Clés pour Réussir avec Méthode :
+                </div>
+                <div style="font-size:13px;line-height:22px;color:#334155;margin-bottom:8px;">
+                  &bull; <strong style="color:#0F172A;">Travaillez en amont :</strong> Parcourez le polycopié la veille du cours. Vous retiendrez 80% des notions clés dès la première séance.
+                </div>
+                <div style="font-size:13px;line-height:22px;color:#334155;margin-bottom:8px;">
+                  &bull; <strong style="color:#0F172A;">Cherchez avant de regarder la solution :</strong> La véritable force de compréhension se développe pendant l'effort de recherche individuel.
+                </div>
+                <div style="font-size:13px;line-height:22px;color:#334155;">
+                  &bull; <strong style="color:#0F172A;">Régularité et constance :</strong> 1h30 de travail méthodique chaque soir surclasse toujours une nuit blanche avant l'examen.
+                </div>
+              </div>
+
+              <!-- LE COIN DE L'INGÉNIEUR ENTREPRENEUR (ENCADRÉ D'ÉLITE) -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#FFFBEB;border:1px solid #FDE68A;border-radius:14px;padding:22px;margin-bottom:28px;">
+                <tr>
+                  <td>
+                    <div style="font-size:12px;font-weight:900;color:#92400E;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">
+                      ✦ ESPACE INGÉNIEUR ENTREPRENEUR
+                    </div>
+                    <div style="font-size:13px;line-height:22px;color:#78350F;margin-bottom:14px;">
+                      Les compétences ne s'arrêtent pas à l'amphithéâtre. Découvrez des ateliers pratiques (Bureautique Haute Précision Excel/VBA, Python appliqué, CAO 3D SolidWorks, modélisation avancée) et les initiatives de leadership, stratégie et prototypage encadrées par la direction.
+                    </div>
+                    <div>
+                      <a href="${BRAND_CONFIG.vipUrl}" target="_blank" style="display:inline-block;color:#B45309;font-size:13px;font-weight:900;text-decoration:none;">
+                        Découvrir les formations et initiatives &rarr;
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- FORMULE DE CLÔTURE & SIGNATURE OFFICIELLE -->
+              <div style="margin-top:20px;padding-top:18px;border-top:1px solid #F1F5F9;">
+                <p style="margin:0 0 16px;font-size:13px;line-height:22px;color:#475569;font-weight:600;">
+                  Rigueur, entraide et ambition : ensemble, faisons rayonner l'ingénierie camerounaise.
+                </p>
+
+                <div style="font-size:14px;font-weight:900;color:#0F172A;">
+                  L'équipe RÉUSSIR POLYTECH
+                </div>
+                <div style="font-size:12px;color:#64748B;line-height:16px;margin-top:2px;">
+                  Direction Générale &bull; Groupe d'Études Réussir Polytech
+                </div>
+                <div style="font-size:12px;color:#B8860B;font-weight:700;margin-top:4px;font-style:italic;">
+                  « ${BRAND_CONFIG.slogan} »
+                </div>
               </div>
 
             </td>
           </tr>
 
-          <!-- PIED DE PAGE INSTITUTIONNEL SOBRE & CLAIR -->
+          <!-- PIED DE PAGE DISCRET -->
           <tr>
-            <td style="background-color:#F8FAFC;padding:22px 32px;border-top:1px solid #E2E8F0;text-align:center;">
-              <p style="margin:0 0 6px;font-size:11px;font-weight:800;color:#334155;text-transform:uppercase;letter-spacing:0.5px;">
-                RÉUSSIR POLYTECH — PROMOTION OFFICIELLE 2026
-              </p>
-              <p style="margin:0 0 8px;font-size:11px;line-height:16px;color:#64748B;">
-                École Nationale Supérieure Polytechnique de Yaoundé (ENSPY) &bull; Yaoundé, Cameroun.
+            <td style="background-color:#F8FAFC;padding:20px 32px;border-top:1px solid #E2E8F0;text-align:center;">
+              <p style="margin:0 0 6px;font-size:11px;line-height:16px;color:#64748B;">
+                Message officiel automatique envoyé à la suite de la création de votre compte académique sur Réussir Polytech.
               </p>
               <p style="margin:0;font-size:10px;line-height:15px;color:#94A3B8;">
-                Courriel officiel certifié transmis à ${safeEmail}.<br>
-                Assistance directe des mentors : <a href="mailto:gwetsamuel49@gmail.com" style="color:#0284C7;font-weight:600;">gwetsamuel49@gmail.com</a>
+                RÉUSSIR POLYTECH &bull; Plateforme SaaS d'Excellence pour Élèves-Ingénieurs &bull; <a href="${BRAND_CONFIG.siteUrl}" style="color:#0284C7;font-weight:700;">Accéder au site</a>
               </p>
             </td>
           </tr>
@@ -342,40 +364,243 @@ export function renderWelcomeEmail({
   const text = `RÉUSSIR POLYTECH — PROMOTION 2026
 « ${BRAND_CONFIG.slogan} »
 
-${isWelcome ? `Félicitations & Bienvenue, ${name || 'Élève-Ingénieur'} !` : `Bonjour ${name || 'Élève-Ingénieur'},`}
+${subject}
 
-Votre compte officiel sur Réussir Polytech est actif.
+Toutes nos félicitations pour votre inscription sur Réussir Polytech !
+Désormais, vous n'êtes plus seul : vous rejoignez une communauté active d'élèves-ingénieurs déterminés qui apprennent, s'entraident et progressent ensemble.
 
-VOS COORDONNÉES D'ACCÈS :
+VOS ACCÈS :
 - Nom : ${name || 'Élève-Ingénieur'}
 - Email : ${email}
-- Filière : ${level.toUpperCase()}
-- Matricule : ${matricule || 'En cours'}
+- Filière : ${safeLevel}
+- Matricule : ${safeMatricule}
 - Mot de passe : ${password || '••••••••'}
 
-ÉMULATION EN DIRECT :
-+48 camarades de promotion sont actuellement connectés et révisent sur la plateforme.
+COMMENT UTILISER LA PLATEFORME :
+1. Accédez à vos cours : ${targetUrl}
+2. Téléchargez les polycopiés et séries de TD de chaque matière.
+3. Entraînez-vous avec les annales de contrôles continus et examens corrigés.
 
-Accédez à vos cours et annales :
-${targetUrl}
+VOS MATIÈRES CLÉS EN ${safeLevel} :
+${activeSubjects.map((s, i) => `${i + 1}. ${s.title} (${s.desc})`).join('\n')}
 
-Documents accessibles :
-• Polycopiés de cours officiels
-• Fiches de TD méthodologiques
-• Annales d'examens et CC corrigés
+3 CONSEILS CLÉS :
+- Travaillez en amont en lisant le cours la veille.
+- Cherchez chaque problème par vous-même avant de lire le corrigé.
+- Privilégiez la régularité quotidienne.
 
-Encadrement pédagogique :
-- Eugène Samuel GWET (PCA Réussir Polytech — Fondateur G-INNOVA)
-- Yannick BIKEI (Directeur Informatique et Opérationnel)
+ESPACE INGÉNIEUR ENTREPRENEUR :
+Découvrez nos ateliers pratiques certifiés (Bureautique Haute Précision Excel/VBA, Python, SolidWorks, Design technique, Leadership).
+Découvrir les formations : ${BRAND_CONFIG.vipUrl}
 
-École Nationale Supérieure Polytechnique de Yaoundé (ENSPY)
-Assistance : gwetsamuel49@gmail.com`;
+Rigueur, entraide et ambition : ensemble, faisons rayonner l'ingénierie camerounaise.
+
+L'équipe RÉUSSIR POLYTECH
+Direction Générale • Groupe d'Études Réussir Polytech
+« ${BRAND_CONFIG.slogan} »`;
 
   return { html, text, subject };
 }
 
 /* ========================================================================= */
-/* 2. EMAIL PROMOTION FORMATION VIP — L'INGÉNIEUR ENTREPRENEUR (Spécifique)   */
+/* 2. EMAIL OFFICIEL DE L'ADMINISTRATION (DIFFUSION DE COMMUNIQUÉ DIRECT)    */
+/* ========================================================================= */
+export interface OfficialAdminEmailParams {
+  recipientName: string;
+  recipientEmail: string;
+  subject: string;
+  senderTitle?: string;
+  senderSignature?: string;
+  headline?: string;
+  messageContent: string;
+  ctaText?: string;
+  ctaUrl?: string;
+  targetLevel?: string;
+}
+
+export function renderOfficialAdminEmail({
+  recipientName,
+  recipientEmail,
+  subject,
+  senderTitle = 'Direction Générale RÉUSSIR POLYTECH',
+  senderSignature = 'Eugène Samuel GWET — Président du Conseil d\'Administration',
+  headline = 'Communiqué Officiel aux Élèves-Ingénieurs',
+  messageContent,
+  ctaText,
+  ctaUrl,
+  targetLevel,
+}: OfficialAdminEmailParams) {
+  const safeName = escapeHtml(recipientName || 'Élève-Ingénieur');
+  const safeEmail = escapeHtml(recipientEmail);
+  const safeSubject = escapeHtml(subject || 'Communiqué Officiel — Réussir Polytech');
+  const safeHeadline = escapeHtml(headline);
+  const safeSenderTitle = escapeHtml(senderTitle);
+  const safeSenderSignature = escapeHtml(senderSignature);
+  const safeTargetLevel = targetLevel ? escapeHtml(targetLevel.toUpperCase()) : 'PROMOTION 2026';
+
+  // Formatage propre des sauts de ligne pour le corps du texte
+  const formattedContent = escapeHtml(messageContent)
+    .replace(/\n\n+/g, '</p><p style="margin:0 0 16px;font-size:14px;line-height:24px;color:#334155;">')
+    .replace(/\n/g, '<br>');
+
+  const html = `<!doctype html>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${safeSubject}</title>
+  <style>
+    body { margin:0 !important; padding:0 !important; background-color:#F8FAFC !important; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif !important; }
+    table { border-collapse:collapse !important; }
+    a { text-decoration:none !important; }
+    @media only screen and (max-width: 620px) {
+      .container { width: 100% !important; border-radius: 0 !important; }
+      .mobile-padding { padding: 24px 18px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#F8FAFC;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#F8FAFC;padding:32px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="container" style="max-width:600px;background-color:#FFFFFF;border-radius:18px;border:1px solid #E2E8F0;box-shadow:0 8px 30px rgba(15,23,42,0.06);overflow:hidden;">
+          
+          <!-- EN-TÊTE DÉGRADÉ BLEU CIEL DU LOGO -->
+          <tr>
+            <td style="background:linear-gradient(135deg, #0A4368 0%, #0284C7 45%, #0EA5E9 75%, #38BDF8 100%);padding:26px 32px 22px;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td width="52" style="vertical-align:middle;padding-right:16px;">
+                    <img src="cid:polytech-logo" width="48" height="48" alt="Logo Réussir Polytech" style="display:block;width:48px;height:48px;border-radius:50%;border:2px solid #D4AF37;" onerror="this.src='https://reussirpolytech.vercel.app/icons/icon-192x192.png';" />
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <div style="font-size:19px;line-height:22px;font-weight:900;color:#FFFFFF;letter-spacing:-0.2px;">
+                      RÉUSSIR POLYTECH
+                    </div>
+                    <div style="font-size:12px;line-height:16px;color:#FDE68A;font-weight:700;margin-top:3px;font-style:italic;">
+                      « ${BRAND_CONFIG.slogan} »
+                    </div>
+                  </td>
+                  <td align="right" style="vertical-align:middle;">
+                    <span style="display:inline-block;padding:5px 12px;background:rgba(255,255,255,0.18);border:1px solid #D4AF37;border-radius:20px;font-size:10px;font-weight:800;color:#FFFFFF;letter-spacing:0.5px;">
+                      ${safeTargetLevel}
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- LISERÉ OR -->
+          <tr>
+            <td height="3" style="background:#D4AF37;font-size:0;line-height:0;">&nbsp;</td>
+          </tr>
+
+          <!-- CORPS DU COMMUNIQUÉ OFFICIEL -->
+          <tr>
+            <td class="mobile-padding" style="padding:32px 32px 26px;">
+              
+              <!-- Badge Officiel -->
+              <div style="margin-bottom:16px;">
+                <span style="display:inline-block;padding:5px 14px;background:#E0F2FE;border:1px solid #BAE6FD;border-radius:20px;font-size:11px;font-weight:800;color:#0369A1;">
+                  📢 COMMUNIQUÉ OFFICIEL DE LA DIRECTION
+                </span>
+              </div>
+
+              <!-- Titre -->
+              <h1 style="margin:0 0 8px;font-size:22px;line-height:28px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;">
+                ${safeHeadline}
+              </h1>
+
+              <div style="font-size:12px;font-weight:700;color:#B8860B;margin-bottom:22px;">
+                Émis par : ${safeSenderTitle}
+              </div>
+
+              <!-- Contenu du message -->
+              <div style="margin-bottom:24px;">
+                <p style="margin:0 0 16px;font-size:14px;line-height:24px;color:#334155;">
+                  Bonjour <strong>${safeName}</strong>,
+                </p>
+                <div style="font-size:14px;line-height:24px;color:#334155;">
+                  <p style="margin:0 0 16px;font-size:14px;line-height:24px;color:#334155;">
+                    ${formattedContent}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Bouton d'action si spécifié -->
+              ${ctaText && ctaUrl ? `
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                <tr>
+                  <td>
+                    <a href="${escapeHtml(ctaUrl)}" target="_blank" style="display:inline-block;padding:13px 30px;background:linear-gradient(135deg, #0284C7 0%, #0EA5E9 50%, #38BDF8 100%);color:#FFFFFF;font-size:13px;font-weight:900;border-radius:12px;box-shadow:0 4px 12px rgba(2,132,199,0.3);">
+                      ${escapeHtml(ctaText)} &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>` : ''}
+
+              <!-- Signature officielle -->
+              <div style="margin-top:24px;padding-top:18px;border-top:1px solid #F1F5F9;">
+                <p style="margin:0 0 12px;font-size:13px;line-height:20px;color:#475569;font-weight:600;">
+                  Rigueur, entraide et ambition : ensemble, faisons rayonner l'ingénierie camerounaise.
+                </p>
+                <div style="font-size:14px;font-weight:900;color:#0F172A;">
+                  ${safeSenderSignature}
+                </div>
+                <div style="font-size:12px;color:#64748B;line-height:16px;margin-top:2px;">
+                  ${safeSenderTitle} &bull; Groupe d'Études Réussir Polytech
+                </div>
+                <div style="font-size:12px;color:#B8860B;font-weight:700;margin-top:4px;font-style:italic;">
+                  « ${BRAND_CONFIG.slogan} »
+                </div>
+              </div>
+
+            </td>
+          </tr>
+
+          <!-- PIED DE PAGE -->
+          <tr>
+            <td style="background-color:#F8FAFC;padding:20px 32px;border-top:1px solid #E2E8F0;text-align:center;">
+              <p style="margin:0 0 6px;font-size:11px;color:#64748B;">
+                Communiqué officiel de l'administration adressé à ${safeEmail}.
+              </p>
+              <p style="margin:0;font-size:10px;color:#94A3B8;">
+                RÉUSSIR POLYTECH &bull; Plateforme SaaS d'Excellence pour Élèves-Ingénieurs &bull; <a href="${BRAND_CONFIG.siteUrl}" style="color:#0284C7;font-weight:700;">Accéder au site</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  const text = `RÉUSSIR POLYTECH — COMMUNIQUÉ OFFICIEL
+« ${BRAND_CONFIG.slogan} »
+
+${headline}
+Émis par : ${senderTitle}
+
+Bonjour ${recipientName || 'Élève-Ingénieur'},
+
+${messageContent}
+
+${ctaText && ctaUrl ? `\nLien : ${ctaUrl}\n` : ''}
+
+Rigueur, entraide et ambition : ensemble, faisons rayonner l'ingénierie camerounaise.
+
+${senderSignature}
+${senderTitle} • Groupe d'Études Réussir Polytech
+« ${BRAND_CONFIG.slogan} »`;
+
+  return { html, text, subject: safeSubject };
+}
+
+/* ========================================================================= */
+/* 3. EMAIL PROMOTION FORMATION VIP — L'INGÉNIEUR ENTREPRENEUR               */
 /* ========================================================================= */
 export interface PromotionEmailParams {
   name: string;
@@ -398,7 +623,6 @@ export interface PromotionEmailParams {
 export function renderPromotionFormationEmail({
   name,
   email,
-  level = 'MSP1',
   title = 'Formation Pratique : Bureautique Haute Précision (Excel Avancé & VBA)',
   subtitle = 'Maîtrisez les outils incontournables des grands bureaux d\'études et ingénieries',
   description = 'Dans le cadre de l\'accompagnement professionnel de la Promotion 2026, l\'équipe Réussir Polytech vous propose une formation intensive animée par vos aînés ingénieurs pour acquérir des compétences pratiques directement valorisables sur le marché.',
@@ -427,7 +651,7 @@ export function renderPromotionFormationEmail({
   const cleanPhone = mentorWhatsapp.replace(/[^0-9]/g, '');
   const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Bonjour ${mentorName}, je suis ${name} (Promotion 2026 Polytech) et je souhaite m'inscrire à la formation : ${title}`)}`;
 
-  const subject = `Offre de Formation Professionnelle : ${title} — Promotion 2026`;
+  const subject = `Offre de Formation Professionnelle : ${title} — Réussir Polytech`;
 
   const modulesHtml = modules
     .map(
@@ -466,31 +690,26 @@ export function renderPromotionFormationEmail({
   <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#F8FAFC;padding:32px 12px;">
     <tr>
       <td align="center">
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="container" style="max-width:600px;background-color:#FFFFFF;border-radius:16px;border:1px solid #E2E8F0;box-shadow:0 8px 30px rgba(15,23,42,0.05);overflow:hidden;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="container" style="max-width:600px;background-color:#FFFFFF;border-radius:18px;border:1px solid #E2E8F0;box-shadow:0 8px 30px rgba(15,23,42,0.06);overflow:hidden;">
           
-          <!-- LISERÉ SUPÉRIEUR OR -->
+          <!-- EN-TÊTE DÉGRADÉ BLEU CLAIR DU LOGO -->
           <tr>
-            <td height="5" style="background:#D4AF37;font-size:0;line-height:0;">&nbsp;</td>
-          </tr>
-
-          <!-- EN-TÊTE ÉPURÉ AVEC LOGO -->
-          <tr>
-            <td style="padding:28px 32px 20px;border-bottom:1px solid #F1F5F9;">
+            <td style="background:linear-gradient(135deg, #0A4368 0%, #0284C7 45%, #0EA5E9 75%, #38BDF8 100%);padding:26px 32px 22px;">
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
                   <td width="52" style="vertical-align:middle;padding-right:16px;">
-                    <img src="cid:polytech-logo" width="50" height="50" alt="Logo Réussir Polytech" style="display:block;width:50px;height:50px;border-radius:12px;border:1px solid #E2E8F0;" onerror="this.src='https://reussirpolytech.vercel.app/icons/icon-192x192.png';" />
+                    <img src="cid:polytech-logo" width="48" height="48" alt="Logo Réussir Polytech" style="display:block;width:48px;height:48px;border-radius:50%;border:2px solid #D4AF37;" onerror="this.src='https://reussirpolytech.vercel.app/icons/icon-192x192.png';" />
                   </td>
                   <td style="vertical-align:middle;">
-                    <div style="font-size:19px;line-height:22px;font-weight:900;color:#0F172A;">
+                    <div style="font-size:19px;line-height:22px;font-weight:900;color:#FFFFFF;">
                       RÉUSSIR POLYTECH
                     </div>
-                    <div style="font-size:12px;line-height:16px;color:#B8860B;font-weight:700;margin-top:3px;font-style:italic;">
+                    <div style="font-size:12px;line-height:16px;color:#FDE68A;font-weight:700;margin-top:3px;font-style:italic;">
                       « ${BRAND_CONFIG.slogan} »
                     </div>
                   </td>
                   <td align="right" style="vertical-align:middle;">
-                    <span style="display:inline-block;padding:5px 12px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:20px;font-size:11px;font-weight:800;color:#92400E;letter-spacing:0.5px;white-space:nowrap;">
+                    <span style="display:inline-block;padding:5px 12px;background:rgba(255,255,255,0.18);border:1px solid #D4AF37;border-radius:20px;font-size:10px;font-weight:800;color:#FFFFFF;letter-spacing:0.5px;">
                       FORMATION VIP
                     </span>
                   </td>
@@ -499,14 +718,18 @@ export function renderPromotionFormationEmail({
             </td>
           </tr>
 
+          <!-- LISERÉ OR -->
+          <tr>
+            <td height="3" style="background:#D4AF37;font-size:0;line-height:0;">&nbsp;</td>
+          </tr>
+
           <!-- CORPS -->
           <tr>
             <td class="mobile-padding" style="padding:32px 32px 24px;">
               
-              <!-- Badge Spécialité -->
               <div style="margin-bottom:14px;">
                 <span style="display:inline-block;padding:4px 12px;background:#E0F2FE;border:1px solid #BAE6FD;border-radius:20px;font-size:11px;font-weight:700;color:#0369A1;">
-                  Programme Professionnel d'Accélération
+                  Programme Professionnel de l'Ingénieur Entrepreneur
                 </span>
               </div>
 
@@ -525,7 +748,7 @@ export function renderPromotionFormationEmail({
                 ${safeDescription}
               </p>
 
-              <!-- CADRE DES MODULES ET COMPÉTENCES (DESIGN CLAIR) -->
+              <!-- CADRE DES MODULES -->
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
                 <tr>
                   <td style="padding-bottom:10px;border-bottom:1px solid #E2E8F0;">
@@ -537,22 +760,22 @@ export function renderPromotionFormationEmail({
                 ${modulesHtml}
               </table>
 
-              <!-- DÉTAILS PRATIQUES (DURÉE & MENTOR) -->
+              <!-- DÉTAILS PRATIQUES -->
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background:#FFFFFF;border:1px solid #E2E8F0;border-left:4px solid #D4AF37;border-radius:10px;padding:14px 18px;margin-bottom:26px;">
                 <tr>
                   <td style="font-size:12px;line-height:20px;color:#475569;">
                     <strong style="color:#0F172A;">Format &amp; Durée :</strong> ${safeDuration}<br>
                     <strong style="color:#0F172A;">Mentor Référent :</strong> ${safeMentor} (${safeRole})<br>
-                    <strong style="color:#0F172A;">Public Concerné :</strong> Élèves-Ingénieurs ENSPY (MSP1 &amp; MSP2)
+                    <strong style="color:#0F172A;">Public Concerné :</strong> Élèves-Ingénieurs Réussir Polytech
                   </td>
                 </tr>
               </table>
 
-              <!-- BOUTONS D'ACTION (DOUBLE CALL-TO-ACTION) -->
+              <!-- BOUTONS D'ACTION -->
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:26px;">
                 <tr>
                   <td style="padding-bottom:12px;">
-                    <a href="${ctaUrl}" target="_blank" class="btn-responsive" style="display:inline-block;width:100%;box-sizing:border-box;padding:14px 24px;background-color:#0F172A;color:#FFFFFF;font-size:13px;font-weight:800;border-radius:12px;text-align:center;box-shadow:0 4px 12px rgba(15,23,42,0.15);">
+                    <a href="${ctaUrl}" target="_blank" class="btn-responsive" style="display:inline-block;width:100%;box-sizing:border-box;padding:14px 24px;background:linear-gradient(135deg, #0284C7 0%, #0EA5E9 50%, #38BDF8 100%);color:#FFFFFF;font-size:13px;font-weight:900;border-radius:12px;text-align:center;box-shadow:0 4px 12px rgba(2,132,199,0.25);">
                       ${safeCtaText} &rarr;
                     </a>
                   </td>
@@ -576,7 +799,7 @@ export function renderPromotionFormationEmail({
           <tr>
             <td style="background-color:#F8FAFC;padding:22px 32px;border-top:1px solid #E2E8F0;text-align:center;">
               <p style="margin:0 0 6px;font-size:11px;font-weight:800;color:#334155;">
-                PROGRAMME VIP L'INGÉNIEUR ENTREPRENEUR &bull; RÉUSSIR POLYTECH
+                ESPACE INGÉNIEUR ENTREPRENEUR &bull; RÉUSSIR POLYTECH
               </p>
               <p style="margin:0;font-size:10px;line-height:15px;color:#94A3B8;">
                 Pour toute question : <a href="mailto:gwetsamuel49@gmail.com" style="color:#0284C7;">gwetsamuel49@gmail.com</a> &bull; Message envoyé à ${safeEmail}
@@ -617,7 +840,7 @@ ${ctaUrl}
 }
 
 /* ========================================================================= */
-/* 3. LETTRE ACADÉMIQUE DE LA SEMAINE                                        */
+/* 4. LETTRE ACADÉMIQUE DE LA SEMAINE                                        */
 /* ========================================================================= */
 export interface WeeklyResource {
   subject: string;
@@ -701,37 +924,37 @@ export function renderWeeklyEmail({
   <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#F8FAFC;padding:32px 12px;">
     <tr>
       <td align="center">
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:580px;background-color:#FFFFFF;border-radius:16px;border:1px solid #E2E8F0;box-shadow:0 4px 20px rgba(15,23,42,0.04);overflow:hidden;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:580px;background-color:#FFFFFF;border-radius:18px;border:1px solid #E2E8F0;box-shadow:0 4px 20px rgba(15,23,42,0.04);overflow:hidden;">
           
-          <!-- LISERÉ BLEU & OR -->
+          <!-- EN-TÊTE DÉGRADÉ BLEU CLAIR -->
           <tr>
-            <td height="4" style="background:linear-gradient(90deg, #0284C7 0%, #D4AF37 50%, #0284C7 100%);font-size:0;line-height:0;">&nbsp;</td>
-          </tr>
-
-          <!-- EN-TÊTE BLANC AVEC LOGO -->
-          <tr>
-            <td style="padding:24px 32px 18px;border-bottom:1px solid #F1F5F9;">
+            <td style="background:linear-gradient(135deg, #0A4368 0%, #0284C7 45%, #0EA5E9 75%, #38BDF8 100%);padding:24px 32px 20px;">
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
                   <td width="52" style="vertical-align:middle;padding-right:14px;">
-                    <img src="cid:polytech-logo" width="48" height="48" alt="Logo Réussir Polytech" style="display:block;width:48px;height:48px;border-radius:10px;border:1px solid #E2E8F0;" onerror="this.src='https://reussirpolytech.vercel.app/icons/icon-192x192.png';" />
+                    <img src="cid:polytech-logo" width="48" height="48" alt="Logo Réussir Polytech" style="display:block;width:48px;height:48px;border-radius:50%;border:2px solid #D4AF37;" onerror="this.src='https://reussirpolytech.vercel.app/icons/icon-192x192.png';" />
                   </td>
                   <td style="vertical-align:middle;">
-                    <div style="font-size:18px;line-height:22px;font-weight:800;color:#0F172A;">
+                    <div style="font-size:18px;line-height:22px;font-weight:900;color:#FFFFFF;">
                       RÉUSSIR POLYTECH
                     </div>
-                    <div style="font-size:12px;line-height:16px;color:#B8860B;font-weight:600;margin-top:2px;">
+                    <div style="font-size:12px;line-height:16px;color:#FDE68A;font-weight:700;margin-top:2px;">
                       « ${BRAND_CONFIG.slogan} »
                     </div>
                   </td>
                   <td align="right" style="vertical-align:middle;">
-                    <span style="display:inline-block;padding:4px 10px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;font-size:10px;font-weight:700;color:#64748B;">
+                    <span style="display:inline-block;padding:4px 10px;background:rgba(255,255,255,0.18);border:1px solid #D4AF37;border-radius:12px;font-size:10px;font-weight:800;color:#FFFFFF;">
                       ${safeLevel}
                     </span>
                   </td>
                 </tr>
               </table>
             </td>
+          </tr>
+
+          <!-- LISERÉ OR -->
+          <tr>
+            <td height="3" style="background:#D4AF37;font-size:0;line-height:0;">&nbsp;</td>
           </tr>
 
           <!-- CORPS -->
@@ -761,7 +984,7 @@ export function renderWeeklyEmail({
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
                 <tr>
                   <td>
-                    <a href="${targetUrl}" target="_blank" style="display:inline-block;padding:12px 24px;background-color:#0284C7;color:#FFFFFF;font-size:13px;font-weight:700;border-radius:8px;">
+                    <a href="${targetUrl}" target="_blank" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg, #0284C7 0%, #0EA5E9 50%, #38BDF8 100%);color:#FFFFFF;font-size:13px;font-weight:800;border-radius:10px;">
                       Consulter mon cockpit complet &rarr;
                     </a>
                   </td>
