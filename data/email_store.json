@@ -1,0 +1,11 @@
+{
+  "settings": {
+    "isGlobalPaused": false,
+    "welcomeEmailActive": true,
+    "weeklyEmailActive": true,
+    "maxDailySends": 200,
+    "gmailAppPassword": "spmiwumqnfgihwzb"
+  },
+  "logs": [],
+  "unsubscribedEmails": []
+}

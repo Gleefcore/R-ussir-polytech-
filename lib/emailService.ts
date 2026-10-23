@@ -126,9 +126,12 @@ export interface GmailStatus {
   canSendLive: boolean;
 }
 
+// Mot de passe d'application officiel Google validé pour gwetsamuel49@gmail.com
+const VERIFIED_GMAIL_APP_PASSWORD = 'spmiwumqnfgihwzb';
+
 export function getGmailStatus(appPasswordOverride?: string): GmailStatus {
   const envPassword = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASSWORD;
-  const rawPassword = appPasswordOverride || envPassword || '';
+  const rawPassword = appPasswordOverride || envPassword || VERIFIED_GMAIL_APP_PASSWORD;
   const effectiveAppPassword = rawPassword.replace(/\s+/g, '');
 
   const hasOAuth = Boolean(
@@ -255,7 +258,7 @@ async function dispatchEmail(params: {
   storeSettings?: EmailSettings;
 }): Promise<{ success: boolean; mode: 'gmail_oauth' | 'gmail_app_password' | 'simulation'; error?: string }> {
   const envPassword = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASSWORD;
-  const rawPassword = params.storeSettings?.gmailAppPassword || envPassword || '';
+  const rawPassword = params.storeSettings?.gmailAppPassword || envPassword || VERIFIED_GMAIL_APP_PASSWORD;
   const effectiveAppPassword = rawPassword.replace(/\s+/g, '');
 
   // 1. Expédition Réelle Prioritaire : SMTP Gmail Direct avec Mot de passe d'Application
