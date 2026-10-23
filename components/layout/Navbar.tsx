@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, GraduationCap, Star, Users, LayoutDashboard, ShieldCheck, LogOut, Images } from 'lucide-react';
+import { Menu, X, GraduationCap, Star, Users, LayoutDashboard, ShieldCheck, LogOut, Images, Download } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { createClient } from '@/lib/supabaseClient';
 
@@ -153,8 +153,19 @@ export function Navbar() {
           </nav>
 
           {/* Actions & Connexion */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <ThemeToggle />
+
+            {/* Bouton direct Télécharger APK Desktop */}
+            <a
+              href="/downloads/reussir-polytech.apk"
+              download="reussir-polytech.apk"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/40 text-[#B8860B] dark:text-[#D4AF37] hover:bg-[#D4AF37]/25 text-xs font-bold transition-all shadow-sm"
+              title="Télécharger le fichier officiel .APK pour téléphone Android"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>App (.APK)</span>
+            </a>
 
             {isLoggedIn ? (
               <div className="hidden md:flex items-center gap-2.5">
@@ -222,6 +233,17 @@ export function Navbar() {
             exit={{ opacity: 0, y: -20 }}
             className="xl:hidden bg-white dark:bg-[#081224] border-b border-slate-200 dark:border-white/10 px-4 py-6 space-y-2.5 shadow-2xl"
           >
+            {/* Bouton Mobile Télécharger APK en tête de tiroir */}
+            <a
+              href="/downloads/reussir-polytech.apk"
+              download="reussir-polytech.apk"
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-center gap-2.5 px-4 py-3.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20 mb-3"
+            >
+              <Download className="w-4 h-4" />
+              <span>Télécharger l&apos;Application (.APK)</span>
+            </a>
+
             {navLinks.map((link) => (
               <Link
                 key={link.href}

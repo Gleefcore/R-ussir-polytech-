@@ -31,6 +31,7 @@ export function HeroSection() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIosGuide, setShowIosGuide] = useState(false);
   const [showAndroidGuide, setShowAndroidGuide] = useState(false);
+  const [showApkGuide, setShowApkGuide] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isWhatsAppBrowser, setIsWhatsAppBrowser] = useState(false);
   const [platform, setPlatform] = useState<'ios' | 'android' | 'desktop'>('desktop');
@@ -87,6 +88,24 @@ export function HeroSection() {
       };
     }
   }, []);
+
+  const handleApkDownload = () => {
+    // Si l'utilisateur est sur iOS (iPhone / iPad), ouvrir le guide d'installation adapté
+    if (platform === 'ios') {
+      setShowIosGuide(true);
+      return;
+    }
+
+    // Déclencher le téléchargement direct du fichier APK officiel
+    const link = document.createElement('a');
+    link.href = '/downloads/reussir-polytech.apk';
+    link.setAttribute('download', 'reussir-polytech.apk');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setShowApkGuide(true);
+  };
 
   const handleDownloadClick = async () => {
     if (isInstalled) {
@@ -208,14 +227,14 @@ export function HeroSection() {
               className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-3.5 mb-8"
             >
               <button
-                onClick={handleDownloadClick}
+                onClick={handleApkDownload}
                 className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-amber-400 to-[#B8860B] text-slate-950 font-black text-sm sm:text-base uppercase tracking-wider shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-[1.03] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border-2 border-amber-300/70 group"
               >
                 <div className="w-8 h-8 rounded-xl bg-slate-950 text-[#D4AF37] flex items-center justify-center group-hover:rotate-12 transition-transform">
                   <Download className="w-4 h-4" />
                 </div>
                 <span>
-                  {isInstalled ? 'Application Installée ✓' : 'Télécharger l\'Application'}
+                  {platform === 'ios' ? 'Installer sur iPhone / iPad' : 'Télécharger l\'Application (.APK)'}
                 </span>
               </button>
 
@@ -510,6 +529,108 @@ export function HeroSection() {
                 <button
                   onClick={() => setShowAndroidGuide(false)}
                   className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs"
+                >
+                  Fermer
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ═══ MODALE ACCOMPAGNEMENT TÉLÉCHARGEMENT DIRECT .APK ═══ */}
+      <AnimatePresence>
+        {showApkGuide && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.95 }}
+              className="bg-white border-2 border-[#D4AF37] rounded-3xl p-6 sm:p-7 w-full max-w-md text-slate-900 shadow-2xl relative"
+            >
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 font-heading">
+                      Téléchargement de l&apos;APK lancé !
+                    </h3>
+                    <p className="text-[11px] font-mono text-[#B8860B] font-bold">
+                      reussir-polytech.apk (3.6 Mo)
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowApkGuide(false)}
+                  className="p-1 text-slate-400 hover:text-slate-800"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-3 mb-5 text-xs">
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="w-6 h-6 rounded-full bg-[#D4AF37] text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0">
+                    1
+                  </span>
+                  <div>
+                    <p className="font-bold text-slate-900 mb-0.5">Notification de téléchargement</p>
+                    <p className="text-slate-600 leading-snug">
+                      Vérifiez vos notifications ou votre dossier <strong>Téléchargements</strong>. Le fichier <strong>reussir-polytech.apk</strong> est prêt.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="w-6 h-6 rounded-full bg-[#D4AF37] text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0">
+                    2
+                  </span>
+                  <div>
+                    <p className="font-bold text-slate-900 mb-0.5">Appuyez pour ouvrir</p>
+                    <p className="text-slate-600 leading-snug">
+                      Touchez <strong>reussir-polytech.apk</strong>. Si votre téléphone affiche <em>&laquo; Fichier potentiellement dangereux &raquo;</em> ou <em>&laquo; Autoriser cette source &raquo;</em>, validez <strong>&laquo; Télécharger quand même &raquo;</strong> ou <strong>&laquo; Autoriser &raquo;</strong> (sécurité habituelle Android pour les fichiers installés hors Play Store).
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="w-6 h-6 rounded-full bg-[#D4AF37] text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0">
+                    3
+                  </span>
+                  <div>
+                    <p className="font-bold text-slate-900 mb-0.5">Installation en 1 seconde</p>
+                    <p className="text-slate-600 leading-snug">
+                      Cliquez sur <strong>&laquo; Installer &raquo;</strong> : l&apos;application officielle Réussir Polytech est prête avec son icône ronde sur votre écran d&apos;accueil !
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <a
+                  href="/downloads/reussir-polytech.apk"
+                  download="reussir-polytech.apk"
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:scale-[1.02] active:scale-98 transition-all flex items-center justify-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Relancer le téléchargement direct (.APK)</span>
+                </a>
+
+                <button
+                  onClick={() => {
+                    setShowApkGuide(false);
+                    handleDownloadClick();
+                  }}
+                  className="w-full py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <span>Ou installer via Chrome sans téléchargement de fichier</span>
+                </button>
+
+                <button
+                  onClick={() => setShowApkGuide(false)}
+                  className="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs"
                 >
                   Fermer
                 </button>

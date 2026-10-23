@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.reussirpolytech.twa",
+        "sha256_cert_fingerprints": ["3A:79:D1:E4:8F:01:49:6F:2A:C9:45:98:36:A4:EB:B2:BD:92:4A:DD:82:27:CD:ED:46:70:3F:28:45:9C:D7:E8"]
+      }
+    }]
