@@ -99,6 +99,8 @@ export async function POST(req: NextRequest) {
         name: fullName.trim(),
         level: level || 'MSP1',
         matricule: cleanMatricule,
+        password: password,
+        actionType: 'welcome',
       }).catch((emailErr) => {
         console.warn('Notification bienvenue non-bloquante:', emailErr);
       });

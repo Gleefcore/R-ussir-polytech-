@@ -102,6 +102,8 @@ export async function POST(req: NextRequest) {
           name: fullName,
           level: level,
           matricule: matricule,
+          password: password,
+          actionType: 'login',
         }).catch((e) => console.warn('Notification email connexion:', e));
       }).catch(() => {});
     }

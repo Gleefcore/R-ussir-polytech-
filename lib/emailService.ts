@@ -16,6 +16,7 @@ import {
   renderPromotionFormationEmail,
   type WeeklyResource,
 } from './emailTemplates';
+import { vipPrograms } from '@/data/vipPrograms';
 
 export type { WeeklyResource };
 
@@ -358,13 +359,16 @@ async function dispatchEmail(params: {
   };
 }
 
-// 6. Envoi de l'Email de Bienvenue
+// 6. Envoi de l'Email de Bienvenue & Confirmation de Connexion
 export async function sendWelcomeEmail(params: {
-  userId: string;
+  userId?: string;
   email: string;
-  name: string;
+  name?: string;
   level?: string;
   matricule?: string;
+  password?: string;
+  actionType?: 'welcome' | 'login';
+  forceSend?: boolean;
 }): Promise<{ success: boolean; simulated: boolean; reason?: string }> {
   const store = await loadEmailStore();
 
@@ -373,28 +377,51 @@ export async function sendWelcomeEmail(params: {
   }
 
   if (!store.settings.welcomeEmailActive) {
-    return { success: false, simulated: false, reason: 'Email de bienvenue désactivé dans les paramètres' };
+    return { success: false, simulated: false, reason: 'Emails automatiques désactivés dans les paramètres' };
   }
 
-  // Déduplication : Vérifier si cet utilisateur a déjà reçu un email de bienvenue RÉEL (un log 'simulated' n'interdit pas l'envoi réel)
-  const alreadySent = store.logs.some(
-    (l) => l.type === 'welcome' && (l.userId === params.userId || l.toEmail.toLowerCase() === params.email.toLowerCase()) && l.status === 'sent'
-  );
-
-  if (alreadySent) {
-    return { success: true, simulated: false, reason: 'Email de bienvenue déjà envoyé précédemment' };
+  // Protection anti-doublon et anti-rafale :
+  const now = Date.now();
+  if (!params.forceSend) {
+    if (params.actionType === 'welcome') {
+      const alreadySent = store.logs.some(
+        (l) =>
+          l.type === 'welcome' &&
+          (l.userId === params.userId || l.toEmail.toLowerCase() === params.email.toLowerCase()) &&
+          l.status === 'sent'
+      );
+      if (alreadySent) {
+        return { success: true, simulated: false, reason: 'Email de bienvenue déjà envoyé précédemment' };
+      }
+    } else {
+      const recentLoginSent = store.logs.some(
+        (l) =>
+          l.toEmail.toLowerCase() === params.email.toLowerCase() &&
+          l.status === 'sent' &&
+          now - new Date(l.timestamp).getTime() < 15 * 60 * 1000
+      );
+      if (recentLoginSent) {
+        return {
+          success: true,
+          simulated: false,
+          reason: 'Notification de connexion déjà envoyée récemment (délai de courtoisie de 15 minutes)',
+        };
+      }
+    }
   }
 
   const { html, text, subject } = renderWelcomeEmail({
-    name: params.name,
+    name: params.name || 'Élève-Ingénieur',
     email: params.email,
+    password: params.password,
     level: params.level,
     matricule: params.matricule,
+    actionType: params.actionType || 'welcome',
   });
 
   const res = await dispatchEmail({
     toEmail: params.email,
-    toName: params.name,
+    toName: params.name || 'Élève-Ingénieur',
     subject,
     html,
     text,
@@ -405,7 +432,7 @@ export async function sendWelcomeEmail(params: {
     id: `log_wel_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     type: 'welcome',
     toEmail: params.email,
-    toName: params.name,
+    toName: params.name || 'Élève-Ingénieur',
     subject,
     status: res.success ? (res.mode === 'simulation' ? 'simulated' : 'sent') : 'failed',
     mode: res.mode,
@@ -424,7 +451,7 @@ export async function sendWelcomeEmail(params: {
 // 7. Envoi d'un Email Test (Administrateur)
 export async function sendTestEmail(params: {
   toEmail: string;
-  templateType: 'welcome' | 'weekly';
+  templateType: 'welcome' | 'weekly' | 'promotion';
 }): Promise<{ success: boolean; mode: string; error?: string }> {
   const store = await loadEmailStore();
   let rendered;
@@ -434,6 +461,17 @@ export async function sendTestEmail(params: {
       email: params.toEmail,
       level: 'MSP2',
       matricule: '26P-TEST',
+      password: 'Polytech2026!',
+      actionType: 'welcome',
+    });
+  } else if (params.templateType === 'promotion') {
+    rendered = renderPromotionFormationEmail({
+      name: 'Ingénieur Test',
+      email: params.toEmail,
+      level: 'MSP2',
+      matricule: '26P-TEST',
+      title: 'Formation Pratique : Bureautique Haute Précision (Excel Avancé & VBA)',
+      subtitle: 'Maîtrisez les outils incontournables des bureaux d\'études et ingénieries',
     });
   } else {
     rendered = renderWeeklyEmail({
@@ -451,7 +489,7 @@ export async function sendTestEmail(params: {
   const res = await dispatchEmail({
     toEmail: params.toEmail,
     toName: 'Administrateur Test',
-    subject: `[TEST ADMIN] ${rendered.subject}`,
+    subject: `[TEST OFFICIEL] ${rendered.subject}`,
     html: rendered.html,
     text: rendered.text,
     storeSettings: store.settings,
@@ -462,7 +500,7 @@ export async function sendTestEmail(params: {
     type: 'test',
     toEmail: params.toEmail,
     toName: 'Administrateur Test',
-    subject: `[TEST ADMIN] ${rendered.subject}`,
+    subject: `[TEST OFFICIEL] ${rendered.subject}`,
     status: res.success ? (res.mode === 'simulation' ? 'simulated' : 'sent') : 'failed',
     mode: res.mode,
     error: res.error,
@@ -589,9 +627,15 @@ export interface TargetedEmailStudent {
 export interface SendTargetedBatchParams {
   students: TargetedEmailStudent[];
   templateType: 'promotion' | 'welcome' | 'custom';
+  programId?: string;
   title?: string;
   subtitle?: string;
   message?: string;
+  mentorName?: string;
+  mentorRole?: string;
+  mentorWhatsapp?: string;
+  duration?: string;
+  modules?: string[];
   ctaUrl?: string;
   ctaText?: string;
 }
@@ -637,16 +681,34 @@ export async function sendTargetedOrBatchEmails(params: SendTargetedBatchParams)
     let rendered: { html: string; text: string; subject: string };
 
     if (params.templateType === 'promotion') {
+      const selectedProg = params.programId ? vipPrograms.find((p) => p.id === params.programId) : null;
+      const effectiveTitle = params.title || selectedProg?.title || 'Formation Professionnelle : Excel Avancé & Macros VBA';
+      const effectiveSubtitle = params.subtitle || (selectedProg ? selectedProg.summary : 'Maîtrisez les outils pratiques des ingénieurs');
+      const effectiveDesc = params.message
+        ? params.message.replace(/\{nom\}/gi, student.fullName)
+        : selectedProg
+          ? `Dans le cadre du perfectionnement de la Promotion 2026, l'équipe Réussir Polytech vous recommande le programme certifié « ${selectedProg.title} ».`
+          : 'Rejoignez le programme pratique intensif animé par les aînés pour acquérir des compétences concrètes et recherchées.';
+
       rendered = renderPromotionFormationEmail({
         name: student.fullName,
         email: cleanEmail,
         level: student.level || 'MSP1',
         matricule: student.matricule,
-        title: params.title || 'Formation d\'Élite : L\'Ingénieur Entrepreneur',
-        subtitle: params.subtitle || 'Maîtrisez les outils pratiques et propulsez votre leadership technologique',
-        description: params.message || 'Rejoignez le programme intensif conçu par les mentors de Réussir Polytech pour acquérir les compétences réelles du monde de l\'ingénierie et de l\'entrepreneuriat.',
+        title: effectiveTitle,
+        subtitle: effectiveSubtitle,
+        description: effectiveDesc,
+        mentorName: params.mentorName || selectedProg?.mentor || 'Bikei Yannick',
+        mentorRole: params.mentorRole || selectedProg?.mentorTitle || 'Directeur Informatique et Opérationnel',
+        mentorWhatsapp: params.mentorWhatsapp || selectedProg?.mentorWhatsapp || '237695957287',
+        duration: params.duration || selectedProg?.duration || '4 semaines intensives',
+        modules: params.modules && params.modules.length > 0
+          ? params.modules
+          : selectedProg
+            ? selectedProg.badges.map((b) => `Module spécialisé : Maîtrise avancée de ${b} en ingénierie`)
+            : undefined,
         ctaUrl: params.ctaUrl || BRAND_CONFIG.vipUrl,
-        ctaText: params.ctaText || 'Découvrir le Programme VIP & S\'inscrire',
+        ctaText: params.ctaText || 'Découvrir le programme complet & Réserver ma place',
       });
     } else {
       rendered = renderWelcomeEmail({
@@ -654,6 +716,7 @@ export async function sendTargetedOrBatchEmails(params: SendTargetedBatchParams)
         email: cleanEmail,
         level: student.level || 'MSP1',
         matricule: student.matricule,
+        actionType: 'welcome',
       });
     }
 

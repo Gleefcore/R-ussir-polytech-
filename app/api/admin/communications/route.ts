@@ -6,6 +6,7 @@ import {
   getGmailStatus,
   sendWeeklyCampaign,
   sendTargetedOrBatchEmails,
+  sendTestEmail,
   WeeklyResource,
 } from '@/lib/emailService';
 
@@ -81,6 +82,18 @@ export async function GET(req: NextRequest) {
         : '',
     };
 
+    const studentList = allUsers.map((u) => ({
+      id: u.id,
+      email: u.email || '',
+      fullName: u.user_metadata?.full_name || u.email?.split('@')[0] || 'Élève-Ingénieur',
+      matricule: u.user_metadata?.matricule || '',
+      level: u.user_metadata?.level || 'MSP1',
+      phone: u.user_metadata?.phone || '',
+      isUnsubscribed: unsubscribedSet.has((u.email || '').toLowerCase()),
+      isInternalPlaceholder: !u.email || u.email.endsWith('@polytech.rp'),
+      createdAt: u.created_at,
+    }));
+
     return NextResponse.json({
       success: true,
       gmailStatus,
@@ -89,6 +102,7 @@ export async function GET(req: NextRequest) {
       logs: store.logs.slice(0, 50),
       unsubscribedEmails: store.unsubscribedEmails,
       suggestedResources,
+      students: studentList,
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Erreur interne';
@@ -154,7 +168,21 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'send_targeted_batch') {
-      const { students, templateType, title, subtitle, message, ctaUrl, ctaText } = body;
+      const {
+        students,
+        templateType,
+        programId,
+        title,
+        subtitle,
+        message,
+        mentorName,
+        mentorRole,
+        mentorWhatsapp,
+        duration,
+        modules,
+        ctaUrl,
+        ctaText,
+      } = body;
 
       if (!Array.isArray(students) || students.length === 0) {
         return NextResponse.json(
@@ -166,11 +194,31 @@ export async function POST(req: NextRequest) {
       const result = await sendTargetedOrBatchEmails({
         students,
         templateType: templateType || 'promotion',
+        programId,
         title,
         subtitle,
         message,
+        mentorName,
+        mentorRole,
+        mentorWhatsapp,
+        duration,
+        modules,
         ctaUrl,
         ctaText,
+      });
+
+      return NextResponse.json({ success: true, result });
+    }
+
+    if (action === 'send_test_email') {
+      const { toEmail, templateType } = body;
+      if (!toEmail || !toEmail.includes('@')) {
+        return NextResponse.json({ error: 'Adresse email de test invalide.' }, { status: 400 });
+      }
+
+      const result = await sendTestEmail({
+        toEmail: toEmail.trim().toLowerCase(),
+        templateType: templateType || 'welcome',
       });
 
       return NextResponse.json({ success: true, result });
