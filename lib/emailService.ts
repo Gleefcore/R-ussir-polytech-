@@ -356,9 +356,9 @@ export async function sendWelcomeEmail(params: {
     return { success: false, simulated: false, reason: 'Email de bienvenue désactivé dans les paramètres' };
   }
 
-  // Déduplication absolue : Vérifier si cet utilisateur a déjà reçu un email de bienvenue
+  // Déduplication : Vérifier si cet utilisateur a déjà reçu un email de bienvenue RÉEL (un log 'simulated' n'interdit pas l'envoi réel)
   const alreadySent = store.logs.some(
-    (l) => l.type === 'welcome' && (l.userId === params.userId || l.toEmail.toLowerCase() === params.email.toLowerCase()) && (l.status === 'sent' || l.status === 'simulated')
+    (l) => l.type === 'welcome' && (l.userId === params.userId || l.toEmail.toLowerCase() === params.email.toLowerCase()) && l.status === 'sent'
   );
 
   if (alreadySent) {
