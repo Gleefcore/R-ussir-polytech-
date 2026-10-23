@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, MessageCircle, X, Loader2, BookOpen, FileText, Award, Download, Sparkles, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { type Subject, type Resource } from '@/data/curriculum';
@@ -29,6 +29,7 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
   const [cloudItems, setCloudItems] = useState<CloudDoc[]>(initialCloudDocs);
   const [loading, setLoading] = useState(false);
   const [celebrationDoc, setCelebrationDoc] = useState<{ title: string; url: string } | null>(null);
+  const [activeTab, setActiveTab] = useState<'ALL' | 'COURS' | 'TD' | 'EXAMEN'>('ALL');
 
   const fetchCloudDocs = useCallback(async () => {
     setLoading(true);
@@ -49,7 +50,6 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
     }
   }, [subject.code]);
 
-  // Si aucun document initial, tenter une requête directe
   useEffect(() => {
     fetchCloudDocs();
   }, [fetchCloudDocs]);
@@ -62,47 +62,62 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
     correction: 'CORRECTION',
   };
 
-  // Filtrer les documents cloud correspondant au type de ressource
-  const matchedCloud = cloudItems.filter(
-    (r) => typeMap[r.type?.toLowerCase()] === resource.type
-  );
+  // Compiler tous les documents disponibles pour la matière
+  const allDocs = useMemo(() => {
+    const list: Array<{ title: string; url: string; date?: string; type: 'COURS' | 'TD' | 'EXAMEN'; isCloud?: boolean }> = [];
 
-  // Compiler la liste globale des documents
-  const allDocs: Array<{ title: string; url: string; date?: string; isCloud?: boolean }> = [];
+    // 1. Documents Cloud Supabase
+    for (const c of cloudItems) {
+      const mapped = (typeMap[c.type?.toLowerCase()] || 'COURS') as 'COURS' | 'TD' | 'EXAMEN';
+      list.push({
+        title: c.title,
+        url: c.file_url,
+        date: c.description ? c.description.replace('Session : ', '') : 'En ligne',
+        type: mapped,
+        isCloud: true,
+      });
+    }
 
-  // 1. Documents Cloud Supabase
-  for (const c of matchedCloud) {
-    allDocs.push({
-      title: c.title,
-      url: c.file_url,
-      date: c.description ? c.description.replace('Session : ', '') : 'En ligne',
-      isCloud: true,
-    });
-  }
-
-  // 2. Documents locaux du curriculum (items)
-  if (resource.items && resource.items.length > 0) {
-    for (const item of resource.items) {
-      if (!allDocs.some((d) => d.title.toLowerCase().trim() === item.title.toLowerCase().trim())) {
-        allDocs.push({
-          title: item.title,
-          url: item.url,
-          date: item.date || 'Officiel',
+    // 2. Documents locaux du curriculum
+    for (const res of subject.resources) {
+      if (res.type === 'CORRECTION') continue;
+      if (res.items && res.items.length > 0) {
+        for (const item of res.items) {
+          if (!list.some((d) => d.title.toLowerCase().trim() === item.title.toLowerCase().trim())) {
+            list.push({
+              title: item.title,
+              url: item.url,
+              date: item.date || 'Officiel',
+              type: res.type as 'COURS' | 'TD' | 'EXAMEN',
+              isCloud: false,
+            });
+          }
+        }
+      } else if (res.url && !list.some((d) => d.url === res.url)) {
+        list.push({
+          title: `Polycopié officiel — ${subject.name}`,
+          url: res.url,
+          date: 'Programme officiel',
+          type: res.type as 'COURS' | 'TD' | 'EXAMEN',
           isCloud: false,
         });
       }
     }
-  }
 
-  // 3. Document direct (url) s'il existe et non présent
-  if (resource.url && !allDocs.some((d) => d.url === resource.url)) {
-    allDocs.push({
-      title: `Polycopié officiel — ${subject.name}`,
-      url: resource.url,
-      date: 'Programme officiel',
-      isCloud: false,
-    });
-  }
+    return list;
+  }, [cloudItems, subject]);
+
+  const displayedDocs = useMemo(() => {
+    if (activeTab === 'ALL') return allDocs;
+    return allDocs.filter((d) => d.type === activeTab);
+  }, [allDocs, activeTab]);
+
+  const counts = useMemo(() => ({
+    all: allDocs.length,
+    courses: allDocs.filter((d) => d.type === 'COURS').length,
+    td: allDocs.filter((d) => d.type === 'TD').length,
+    exams: allDocs.filter((d) => d.type === 'EXAMEN').length,
+  }), [allDocs]);
 
   return (
     <motion.div
@@ -123,7 +138,7 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
         }}
       >
         {/* En-tête modal */}
-        <div className="flex justify-between items-start mb-5">
+        <div className="flex justify-between items-start mb-4">
           <div>
             <div className="inline-flex items-center gap-2 bg-[#D4AF37]/15 border border-[#D4AF37]/35 rounded-full px-3 py-1 mb-2">
               <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
@@ -132,10 +147,10 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
               <span className="text-slate-700 dark:text-slate-300 text-xs font-bold">{subject.name}</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-heading">
-              {resource.label}
+              Ressources Académiques
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
-              Documents officiels vérifiés — Téléchargement libre & direct
+            <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+              {allDocs.length} document{allDocs.length > 1 ? 's' : ''} certifié{allDocs.length > 1 ? 's' : ''} disponible{allDocs.length > 1 ? 's' : ''} pour cette matière
             </p>
           </div>
           <div className="flex items-center gap-1">
@@ -156,8 +171,56 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
           </div>
         </div>
 
+        {/* Onglets de filtrage interne dans la modale */}
+        <div className="flex gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 mb-4 text-xs font-bold">
+          <button
+            type="button"
+            onClick={() => setActiveTab('ALL')}
+            className={`flex-1 py-1.5 px-2 rounded-lg transition-all text-center ${
+              activeTab === 'ALL'
+                ? 'bg-[#D4AF37] text-slate-950 font-black shadow-sm'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
+            }`}
+          >
+            Tous ({counts.all})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('COURS')}
+            className={`flex-1 py-1.5 px-2 rounded-lg transition-all text-center ${
+              activeTab === 'COURS'
+                ? 'bg-[#D4AF37] text-slate-950 font-black shadow-sm'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
+            }`}
+          >
+            Cours ({counts.courses})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('TD')}
+            className={`flex-1 py-1.5 px-2 rounded-lg transition-all text-center ${
+              activeTab === 'TD'
+                ? 'bg-[#D4AF37] text-slate-950 font-black shadow-sm'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
+            }`}
+          >
+            TD ({counts.td})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('EXAMEN')}
+            className={`flex-1 py-1.5 px-2 rounded-lg transition-all text-center ${
+              activeTab === 'EXAMEN'
+                ? 'bg-[#D4AF37] text-slate-950 font-black shadow-sm'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
+            }`}
+          >
+            Examens ({counts.exams})
+          </button>
+        </div>
+
         {/* Liste des documents */}
-        <div className="space-y-3 mb-6 max-h-[55vh] overflow-y-auto pr-1">
+        <div className="space-y-3 mb-6 max-h-[50vh] overflow-y-auto pr-1">
           {loading && allDocs.length === 0 ? (
             <div className="py-12 flex flex-col items-center justify-center gap-3">
               <Loader2 className="w-7 h-7 text-[#D4AF37] animate-spin" />
@@ -165,8 +228,8 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
                 Recherche des documents en ligne...
               </p>
             </div>
-          ) : allDocs.length > 0 ? (
-            allDocs.map((item, i) => (
+          ) : displayedDocs.length > 0 ? (
+            displayedDocs.map((item, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
@@ -513,12 +576,9 @@ export function SubjectCard({ subject, index }: SubjectCardProps) {
               <span className="text-xs font-mono text-sky-600 dark:text-sky-400 bg-sky-500/10 border border-sky-500/25 px-2.5 py-0.5 rounded-full font-bold">
                 {subject.code}
               </span>
-              {cloudDocs.length > 0 && (
-                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <CheckCircle2 className="w-2.5 h-2.5" />
-                  {cloudDocs.length} récent{cloudDocs.length > 1 ? 's' : ''}
-                </span>
-              )}
+              <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-2 py-0.5 rounded-full">
+                {subject.level} • S{subject.semester}
+              </span>
             </div>
             <h3 className="text-slate-900 dark:text-white font-bold mt-2.5 text-base leading-snug font-heading">
               {subject.name}

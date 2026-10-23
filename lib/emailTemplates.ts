@@ -50,7 +50,7 @@ export function renderWelcomeEmail({ name, email, level = 'MSP1', matricule }: W
   const safeName = escapeHtml(name || 'Élève-Ingénieur');
   const safeLevel = escapeHtml(level.toUpperCase());
   const safeMatricule = matricule ? escapeHtml(matricule) : '';
-  const subject = 'Bienvenue sur Réussir Polytech — l\'excellence se construit ensemble';
+  const subject = `Félicitations ${safeName} ! Vous n'êtes plus seul sur Réussir Polytech 🎉`;
 
   const html = `<!doctype html>
 <html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
@@ -86,7 +86,7 @@ export function renderWelcomeEmail({ name, email, level = 'MSP1', matricule }: W
 <body style="margin:0;padding:0;background-color:#070D18;">
   <!-- Pré-en-tête masqué pour aperçu boîte de réception -->
   <div style="display:none;font-size:1px;line-height:1px;color:#070D18;max-height:0;max-width:0;opacity:0;overflow:hidden;">
-    Bienvenue sur Réussir Polytech, ${safeName} ! Votre espace académique ${safeLevel} est prêt. Accédez immédiatement à vos cours et épreuves.
+    Félicitations ${safeName} ! Vous n'êtes plus seul sur Réussir Polytech. Vos cours et annales ${safeLevel} sont prêts.
   </div>
 
   <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#070D18;">
@@ -138,12 +138,18 @@ export function renderWelcomeEmail({ name, email, level = 'MSP1', matricule }: W
 
               <!-- Titre d'Accueil -->
               <h1 class="hero-title" style="margin:0 0 16px;font-family:'Outfit','Plus Jakarta Sans',sans-serif;font-size:28px;line-height:36px;font-weight:900;color:#0F172A;letter-spacing:-0.5px;">
-                Bienvenue dans la communauté, ${safeName} !
+                Félicitations ${safeName} ! Vous n&apos;êtes plus seul.
               </h1>
 
-              <p style="margin:0 0 18px;font-size:15px;line-height:26px;color:#334155;font-weight:400;">
-                Félicitations pour votre inscription sur <strong>Réussir Polytech</strong>. Vous intégrez le réseau d&apos;élite des élèves-ingénieurs polytechniciens du Cameroun, unis par une même volonté d&apos;excellence, d&apos;entraide et de rigueur scientifique.
+              <p style="margin:0 0 16px;font-size:15px;line-height:26px;color:#334155;font-weight:400;">
+                Toutes nos félicitations pour votre inscription sur <strong>Réussir Polytech</strong> ! Sachez que désormais, <strong>vous n&apos;êtes plus seul</strong> : vous rejoignez une communauté active d&apos;élèves-ingénieurs déterminés qui apprennent, s&apos;entraident et progressent ensemble à tout moment sur la plateforme.
               </p>
+
+              <div style="margin:0 0 24px;padding:16px 20px;background:#FFFBEB;border:1px solid #FCD34D;border-radius:12px;">
+                <p style="margin:0;font-size:14px;line-height:22px;color:#92400E;font-weight:600;">
+                  🔥 <em>Pendant que d&apos;autres dorment ou hésitent, vos camarades sont déjà en train de réviser. Qu&apos;attendez-vous pour ouvrir vos cours et prendre de l&apos;avance ? Vos polycopiés certifiés et annales d&apos;examens vous attendent dès maintenant.</em>
+                </p>
+              </div>
 
               <!-- CARTE CERTIFICAT D'ACCÈS ÉTUDIANT -->
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 26px;background:#F8FAFC;border:1px solid #E2E8F0;border-left:4px solid #D4AF37;border-radius:14px;overflow:hidden;">

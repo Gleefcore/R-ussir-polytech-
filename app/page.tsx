@@ -1,5 +1,5 @@
 import { HeroSection } from '@/components/home/HeroSection';
-import { CurriculumCatalogSection } from '@/components/home/CurriculumCatalogSection';
+import { AcademicPortalsSection } from '@/components/home/AcademicPortalsSection';
 import { FamilyGalleryMarquee } from '@/components/home/FamilyGalleryMarquee';
 import { BottomCtaBanner } from '@/components/home/BottomCtaBanner';
 
@@ -10,7 +10,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <CurriculumCatalogSection />
+      <AcademicPortalsSection />
       <FamilyGalleryMarquee />
       <BottomCtaBanner />
     </>
