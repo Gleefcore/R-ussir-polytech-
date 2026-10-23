@@ -580,3 +580,191 @@ ${unsubscribeUrl}`;
 
   return { html, text, subject };
 }
+
+export interface PromotionEmailParams {
+  name: string;
+  email: string;
+  level?: string;
+  matricule?: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  modules?: string[];
+  ctaUrl?: string;
+  ctaText?: string;
+}
+
+export function renderPromotionFormationEmail({
+  name,
+  email,
+  level = 'MSP1',
+  matricule,
+  title = 'Formation d\'Élite : L\'Ingénieur Entrepreneur',
+  subtitle = 'Maîtrisez les outils pratiques et propulsez votre leadership technologique',
+  description = 'Rejoignez le programme intensif conçu par les mentors de Réussir Polytech pour acquérir les compétences réelles du monde de l\'ingénierie et de l\'entrepreneuriat.',
+  modules = [
+    'Bureautique Avancée (Excel Expert, Automatisation & Reporting financier)',
+    'Conception Assistée par Ordinateur 3D (SolidWorks, AutoCAD & Prototypage)',
+    'Programmation Python Appliquée & Analyse de Données Ingénieur',
+    'Leadership, Prise de parole & Stratégie de Montage de Projets'
+  ],
+  ctaUrl = BRAND_CONFIG.vipUrl,
+  ctaText = 'Découvrir le Programme VIP & S\'inscrire',
+}: PromotionEmailParams) {
+  const safeName = escapeHtml(name || 'Élève-Ingénieur');
+  const safeLevel = escapeHtml(level.toUpperCase());
+  const safeMatricule = matricule ? escapeHtml(matricule) : '';
+  const safeTitle = escapeHtml(title);
+  const safeSubtitle = escapeHtml(subtitle);
+  const safeDescription = escapeHtml(description);
+  const safeCtaText = escapeHtml(ctaText);
+  const subject = `[RÉUSSIR POLYTECH] ${title} — Accélérez votre potentiel`;
+
+  const unsubscribeUrl = `${BRAND_CONFIG.siteUrl}/api/newsletter/unsubscribe?email=${encodeURIComponent(email)}`;
+
+  const modulesHtml = modules.map((mod, idx) => `
+    <tr>
+      <td style="padding: 8px 0; vertical-align: top; width: 28px;">
+        <div style="width: 22px; height: 22px; border-radius: 6px; background-color: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.4); color: ${BRAND_CONFIG.colors.gold}; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800; text-align: center; line-height: 22px;">
+          ${idx + 1}
+        </div>
+      </td>
+      <td style="padding: 8px 0 8px 10px; font-family: 'Plus Jakarta Sans', Arial, sans-serif; font-size: 13px; line-height: 20px; color: #E2E8F0; font-weight: 500;">
+        ${escapeHtml(mod)}
+      </td>
+    </tr>
+  `).join('');
+
+  const html = `<!doctype html>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${safeTitle}</title>
+  <style type="text/css">
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #030712; font-family: 'Plus Jakarta Sans', Arial, sans-serif;">
+  <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #030712; padding: 24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #050B14; border-radius: 20px; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.35); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);">
+          
+          <!-- EN-TÊTE NOIR & OR -->
+          <tr>
+            <td style="padding: 32px 30px 24px; text-align: center; background: radial-gradient(circle at top, #0A1628 0%, #050B14 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+              <div style="display: inline-block; padding: 4px 14px; border-radius: 100px; background-color: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.4); margin-bottom: 14px;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800; color: #D4AF37; text-transform: uppercase; letter-spacing: 1.5px;">
+                  ACCÉLÉRATEUR DE CARRIÈRE • ÉDITION 2026
+                </span>
+              </div>
+              <h1 style="margin: 0 0 6px; font-family: 'Outfit', Arial, sans-serif; font-size: 26px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px;">
+                RÉUSSIR POLYTECH
+              </h1>
+              <p style="margin: 0; font-family: 'Outfit', Arial, sans-serif; font-size: 13px; font-weight: 600; color: #D4AF37;">
+                « ${BRAND_CONFIG.slogan} »
+              </p>
+            </td>
+          </tr>
+
+          <!-- CORPS -->
+          <tr>
+            <td style="padding: 32px 30px;">
+              <p style="margin: 0 0 16px; font-size: 15px; font-weight: 700; color: #FFFFFF;">
+                Bonjour ${safeName},
+              </p>
+              
+              <div style="padding: 20px; border-radius: 16px; background-color: #0A1628; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 24px;">
+                <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; background-color: #D4AF37; color: #050B14; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 900; text-transform: uppercase; margin-bottom: 8px;">
+                  PROMOTION SPÉCIALE ÉLÈVES ${safeLevel}
+                </span>
+                <h2 style="margin: 0 0 6px; font-family: 'Outfit', Arial, sans-serif; font-size: 20px; font-weight: 800; color: #FFFFFF; line-height: 1.25;">
+                  ${safeTitle}
+                </h2>
+                <p style="margin: 0; font-size: 13px; color: #94A3B8; line-height: 20px;">
+                  ${safeSubtitle}
+                </p>
+              </div>
+
+              <p style="margin: 0 0 20px; font-size: 14px; line-height: 22px; color: #CBD5E1;">
+                ${safeDescription}
+              </p>
+
+              <!-- PROGRAMME DES MODULES -->
+              <div style="margin-bottom: 28px;">
+                <p style="margin: 0 0 12px; font-size: 12px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #D4AF37; text-transform: uppercase; letter-spacing: 1px;">
+                  Programme & Compétences Clés :
+                </p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0">
+                  ${modulesHtml}
+                </table>
+              </div>
+
+              <!-- BOUTON D'ACTION OR MÉTALLISÉ -->
+              <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 28px;">
+                <tr>
+                  <td align="center">
+                    <a href="${ctaUrl}" target="_blank" style="display: inline-block; padding: 15px 36px; border-radius: 12px; background: linear-gradient(135deg, #D4AF37 0%, #F59E0B 50%, #B8860B 100%); color: #050B14; font-family: 'Outfit', Arial, sans-serif; font-size: 14px; font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 8px 24px rgba(212, 175, 55, 0.4);">
+                      ${safeCtaText} →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- SIGNATURE -->
+              <div style="padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 12px; color: #94A3B8; line-height: 18px;">
+                <p style="margin: 0 0 4px; font-weight: 700; color: #FFFFFF;">
+                  L'équipe de Direction Réussir Polytech
+                </p>
+                <p style="margin: 0;">
+                  Eugène Samuel GWET (Cofondateur & PCA) • Yannick BIKEI (Directeur Informatique)
+                </p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- PIED DE PAGE -->
+          <tr>
+            <td style="padding: 20px 30px; background-color: #030712; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.06); font-size: 11px; color: #64748B;">
+              <p style="margin: 0 0 6px;">
+                Cet email a été adressé à votre compte officiel élève-ingénieur (${email}).
+              </p>
+              <a href="${unsubscribeUrl}" style="color: #94A3B8; text-decoration: underline;">
+                Se désabonner des communications
+              </a>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  const text = `RÉUSSIR POLYTECH — ${title}
+========================================================================
+Bonjour ${name},
+
+${title}
+${subtitle}
+
+${description}
+
+Programme & Compétences Clés :
+${modules.map((m, i) => `${i + 1}. ${m}`).join('\n')}
+
+Pour découvrir le programme et réserver votre place :
+${ctaUrl}
+
+« ${BRAND_CONFIG.slogan} »
+L'équipe RÉUSSIR POLYTECH
+Eugène Samuel GWET & Yannick BIKEI
+
+Pour vous désabonner :
+${unsubscribeUrl}`;
+
+  return { html, text, subject };
+}
+

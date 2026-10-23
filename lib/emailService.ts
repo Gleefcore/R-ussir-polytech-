@@ -12,6 +12,7 @@ import {
   BRAND_CONFIG,
   renderWelcomeEmail,
   renderWeeklyEmail,
+  renderPromotionFormationEmail,
   type WeeklyResource,
 } from './emailTemplates';
 
@@ -24,7 +25,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export interface EmailLogEntry {
   id: string;
-  type: 'welcome' | 'weekly' | 'test';
+  type: 'welcome' | 'weekly' | 'test' | 'promotion' | 'targeted';
   toEmail: string;
   toName: string;
   subject: string;
@@ -509,3 +510,150 @@ export async function sendWeeklyCampaign(params: {
     errors,
   };
 }
+
+export interface TargetedEmailStudent {
+  id?: string;
+  email: string;
+  fullName: string;
+  level?: string;
+  matricule?: string;
+}
+
+export interface SendTargetedBatchParams {
+  students: TargetedEmailStudent[];
+  templateType: 'promotion' | 'welcome' | 'custom';
+  title?: string;
+  subtitle?: string;
+  message?: string;
+  ctaUrl?: string;
+  ctaText?: string;
+}
+
+export async function sendTargetedOrBatchEmails(params: SendTargetedBatchParams) {
+  const store = await loadEmailStore();
+  const unsubscribedSet = new Set(store.unsubscribedEmails.map((e) => e.toLowerCase()));
+  const batchId = `batch_${Date.now()}`;
+
+  let sentCount = 0;
+  let simulatedCount = 0;
+  let failedCount = 0;
+  const detailedResults: Array<{
+    email: string;
+    fullName: string;
+    status: 'sent' | 'simulated' | 'failed' | 'unsubscribed';
+    message?: string;
+  }> = [];
+
+  for (const student of params.students) {
+    const cleanEmail = student.email?.trim().toLowerCase();
+    if (!cleanEmail || cleanEmail.endsWith('@polytech.rp')) {
+      detailedResults.push({
+        email: student.email || 'N/A',
+        fullName: student.fullName,
+        status: 'failed',
+        message: 'Adresse email non valide ou matricule interne',
+      });
+      failedCount++;
+      continue;
+    }
+
+    if (unsubscribedSet.has(cleanEmail)) {
+      detailedResults.push({
+        email: cleanEmail,
+        fullName: student.fullName,
+        status: 'unsubscribed',
+        message: 'Étudiant désabonné des communications',
+      });
+      continue;
+    }
+
+    let rendered: { html: string; text: string; subject: string };
+
+    if (params.templateType === 'promotion') {
+      rendered = renderPromotionFormationEmail({
+        name: student.fullName,
+        email: cleanEmail,
+        level: student.level || 'MSP1',
+        matricule: student.matricule,
+        title: params.title || 'Formation d\'Élite : L\'Ingénieur Entrepreneur',
+        subtitle: params.subtitle || 'Maîtrisez les outils pratiques et propulsez votre leadership technologique',
+        description: params.message || 'Rejoignez le programme intensif conçu par les mentors de Réussir Polytech pour acquérir les compétences réelles du monde de l\'ingénierie et de l\'entrepreneuriat.',
+        ctaUrl: params.ctaUrl || BRAND_CONFIG.vipUrl,
+        ctaText: params.ctaText || 'Découvrir le Programme VIP & S\'inscrire',
+      });
+    } else {
+      rendered = renderWelcomeEmail({
+        name: student.fullName,
+        email: cleanEmail,
+        level: student.level || 'MSP1',
+        matricule: student.matricule,
+      });
+    }
+
+    const sendRes = await dispatchEmail({
+      toEmail: cleanEmail,
+      toName: student.fullName,
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+    });
+
+    if (sendRes.success) {
+      if (sendRes.mode === 'simulation') {
+        simulatedCount++;
+        detailedResults.push({
+          email: cleanEmail,
+          fullName: student.fullName,
+          status: 'simulated',
+          message: 'Envoi simulé avec succès (Mode Diagnostic)',
+        });
+      } else {
+        sentCount++;
+        detailedResults.push({
+          email: cleanEmail,
+          fullName: student.fullName,
+          status: 'sent',
+          message: 'Envoyé avec succès via Gmail API',
+        });
+      }
+    } else {
+      failedCount++;
+      detailedResults.push({
+        email: cleanEmail,
+        fullName: student.fullName,
+        status: 'failed',
+        message: sendRes.error || 'Erreur lors de l\'envoi',
+      });
+    }
+
+    store.logs.unshift({
+      id: `log_tgt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      type: params.templateType === 'promotion' ? 'promotion' : 'targeted',
+      toEmail: cleanEmail,
+      toName: student.fullName,
+      subject: rendered.subject,
+      status: sendRes.success ? (sendRes.mode === 'simulation' ? 'simulated' : 'sent') : 'failed',
+      mode: sendRes.mode,
+      error: sendRes.error,
+      timestamp: new Date().toISOString(),
+      campaignId: batchId,
+      userId: student.id,
+    });
+
+    // Pause de courtoisie entre envois séquentiels
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+
+  if (store.logs.length > 500) store.logs = store.logs.slice(0, 500);
+  await saveEmailStore(store);
+
+  return {
+    success: true,
+    totalTarget: params.students.length,
+    sentCount,
+    simulatedCount,
+    failedCount,
+    detailedResults,
+  };
+}
+

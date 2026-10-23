@@ -5,6 +5,7 @@ import {
   saveEmailStore,
   getGmailStatus,
   sendWeeklyCampaign,
+  sendTargetedOrBatchEmails,
   WeeklyResource,
 } from '@/lib/emailService';
 
@@ -122,6 +123,29 @@ export async function POST(req: NextRequest) {
         resources: Array.isArray(resources) && resources.length > 0 ? resources : [],
         customMessage,
         targetLevel,
+      });
+
+      return NextResponse.json({ success: true, result });
+    }
+
+    if (action === 'send_targeted_batch') {
+      const { students, templateType, title, subtitle, message, ctaUrl, ctaText } = body;
+
+      if (!Array.isArray(students) || students.length === 0) {
+        return NextResponse.json(
+          { error: 'Aucun étudiant sélectionné pour cet envoi.' },
+          { status: 400 }
+        );
+      }
+
+      const result = await sendTargetedOrBatchEmails({
+        students,
+        templateType: templateType || 'promotion',
+        title,
+        subtitle,
+        message,
+        ctaUrl,
+        ctaText,
       });
 
       return NextResponse.json({ success: true, result });

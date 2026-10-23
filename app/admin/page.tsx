@@ -199,6 +199,17 @@ export default function AdminCockpitPage() {
   // Deletion Modal
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Targeted / Batch Email State
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [emailCampaignType, setEmailCampaignType] = useState<'promotion' | 'welcome' | 'custom'>('promotion');
+  const [emailCustomTitle, setEmailCustomTitle] = useState('Formation d\'Élite : L\'Ingénieur Entrepreneur');
+  const [emailCustomSubtitle, setEmailCustomSubtitle] = useState('Maîtrisez les outils pratiques et propulsez votre leadership technologique');
+  const [emailCustomMessage, setEmailCustomMessage] = useState('');
+  const [isSendingEmails, setIsSendingEmails] = useState(false);
+  const [emailSendProgress, setEmailSendProgress] = useState<{ current: number; total: number; studentName: string } | null>(null);
+  const [emailSendResult, setEmailSendResult] = useState<{ success: boolean; sent: number; simulated: number; failed: number } | null>(null);
+
   // 1. Check Session Storage on Mount
   useEffect(() => {
     try {
@@ -416,6 +427,90 @@ export default function AdminCockpitPage() {
     } catch (err) {
       console.error(err);
       alert('Erreur réseau lors de la suppression.');
+    }
+  };
+
+  // Gestion des sélections et envois d'emails ciblés
+  const handleSelectAllStudents = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedStudentIds(filteredStudents.map((s) => s.id));
+    } else {
+      setSelectedStudentIds([]);
+    }
+  };
+
+  const handleToggleStudent = (id: string) => {
+    setSelectedStudentIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleOpenEmailForSingleStudent = (student: Student) => {
+    setSelectedStudentIds([student.id]);
+    setEmailModalOpen(true);
+    setEmailSendResult(null);
+  };
+
+  const handleOpenEmailForBatch = () => {
+    if (selectedStudentIds.length === 0) {
+      alert('Veuillez sélectionner au moins un élève-ingénieur.');
+      return;
+    }
+    setEmailModalOpen(true);
+    setEmailSendResult(null);
+  };
+
+  const handleExecuteBatchEmail = async () => {
+    const keyToUse =
+      (accessCode && accessCode.trim().length > 0 ? accessCode.trim() : null) ||
+      (typeof window !== 'undefined' ? sessionStorage.getItem('rp_admin_master_key') : null) ||
+      'RP-ADMIN-EXCELLENCE-2026';
+
+    const targetStudents = students.filter((s) => selectedStudentIds.includes(s.id));
+    if (targetStudents.length === 0) return;
+
+    setIsSendingEmails(true);
+    setEmailSendResult(null);
+
+    try {
+      const res = await fetch('/api/admin/communications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': keyToUse,
+        },
+        body: JSON.stringify({
+          action: 'send_targeted_batch',
+          templateType: emailCampaignType,
+          title: emailCustomTitle,
+          subtitle: emailCustomSubtitle,
+          message: emailCustomMessage,
+          students: targetStudents.map((s) => ({
+            id: s.id,
+            email: s.email,
+            fullName: s.fullName,
+            level: s.level,
+            matricule: s.matricule,
+          })),
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setEmailSendResult({
+          success: true,
+          sent: data.result.sentCount,
+          simulated: data.result.simulatedCount,
+          failed: data.result.failedCount,
+        });
+      } else {
+        alert(data.error || 'Erreur lors de l\'envoi des emails.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erreur réseau lors de l\'envoi.');
+    } finally {
+      setIsSendingEmails(false);
     }
   };
 
@@ -2129,89 +2224,337 @@ export default function AdminCockpitPage() {
                   {filteredStudents.length} compte{filteredStudents.length > 1 ? 's' : ''} validé{filteredStudents.length > 1 ? 's' : ''} sur la plateforme
                 </p>
               </div>
+
+              {/* BARRE D'ACTIONS GROUPÉES */}
+              <div className="flex items-center gap-2">
+                {selectedStudentIds.length > 0 && (
+                  <button
+                    onClick={handleOpenEmailForBatch}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-amber-500 text-slate-950 font-black text-xs hover:scale-105 active:scale-95 transition-all shadow-md shadow-amber-500/20"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>Envoyer un Email aux {selectedStudentIds.length} sélectionnés</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setSelectedStudentIds(filteredStudents.map((s) => s.id));
+                    setEmailModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-[#D4AF37]/20 hover:text-[#D4AF37] text-slate-700 dark:text-slate-300 font-bold text-xs border border-slate-200 dark:border-white/10 transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  <span>Écrire à tous ({filteredStudents.length})</span>
+                </button>
+              </div>
             </div>
+
+            {/* BANDEAU INDICATEUR DE SÉLECTION */}
+            {selectedStudentIds.length > 0 && (
+              <div className="mb-4 p-3 rounded-2xl bg-amber-500/10 border border-[#D4AF37]/40 flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse" />
+                  <span>{selectedStudentIds.length} élève{selectedStudentIds.length > 1 ? 's' : ''} coché{selectedStudentIds.length > 1 ? 's' : ''} pour l&apos;envoi groupé</span>
+                </span>
+                <button
+                  onClick={() => setSelectedStudentIds([])}
+                  className="text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white underline font-semibold"
+                >
+                  Désélectionner tout
+                </button>
+              </div>
+            )}
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-slate-800/80 text-slate-400 font-bold uppercase tracking-wider">
+                    <th className="pb-3 px-3 w-8">
+                      <input
+                        type="checkbox"
+                        checked={selectedStudentIds.length === filteredStudents.length && filteredStudents.length > 0}
+                        onChange={handleSelectAllStudents}
+                        className="rounded border-slate-300 text-[#D4AF37] focus:ring-[#D4AF37] cursor-pointer"
+                        title="Sélectionner tous les élèves"
+                      />
+                    </th>
                     <th className="pb-3 px-3">Élève Ingénieur</th>
                     <th className="pb-3 px-3">Matricule</th>
                     <th className="pb-3 px-3">Niveau</th>
                     <th className="pb-3 px-3">Email</th>
                     <th className="pb-3 px-3">WhatsApp</th>
                     <th className="pb-3 px-3">Statut</th>
-                    <th className="pb-3 px-3 text-right">Contacter</th>
+                    <th className="pb-3 px-3 text-right">Actions Directes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
-                  {filteredStudents.map((student) => (
-                    <tr key={student.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="py-3.5 px-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] font-black flex items-center justify-center text-xs">
-                            {student.fullName.charAt(0)}
+                  {filteredStudents.map((student) => {
+                    const isSelected = selectedStudentIds.includes(student.id);
+                    return (
+                      <tr
+                        key={student.id}
+                        className={`transition-colors ${isSelected ? 'bg-amber-500/5 dark:bg-amber-500/10' : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/30'}`}
+                      >
+                        <td className="py-3.5 px-3">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleToggleStudent(student.id)}
+                            className="rounded border-slate-300 text-[#D4AF37] focus:ring-[#D4AF37] cursor-pointer"
+                          />
+                        </td>
+                        <td className="py-3.5 px-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] font-black flex items-center justify-center text-xs">
+                              {student.fullName.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-900 dark:text-white">{student.fullName}</p>
+                              <span className="text-[10px] text-slate-400">Inscrit récemment</span>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-bold text-slate-900 dark:text-white">{student.fullName}</p>
-                            <span className="text-[10px] text-slate-400">Inscrit récemment</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-3">
-                        <span className="font-mono font-bold text-sky-600 dark:text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">
-                          {student.matricule}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3">
-                        <span className="font-bold text-slate-700 dark:text-slate-300">
-                          {student.level}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3 text-slate-600 dark:text-slate-400 font-mono">
-                        {student.email}
-                      </td>
-                      <td className="py-3.5 px-3 text-slate-600 dark:text-slate-400 font-mono">
-                        {student.phone}
-                      </td>
-                      <td className="py-3.5 px-3">
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                          <CheckCircle2 className="w-3 h-3" />
-                          Actif & Confirmé
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {student.phone && student.phone !== 'N/A' && (
-                            <a
-                              href={`https://wa.me/${student.phone.replace(/[^0-9]/g, '')}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 transition-colors font-bold text-[11px]"
+                        </td>
+                        <td className="py-3.5 px-3">
+                          <span className="font-mono font-bold text-sky-600 dark:text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">
+                            {student.matricule}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3">
+                          <span className="font-bold text-slate-700 dark:text-slate-300">
+                            {student.level}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-slate-600 dark:text-slate-400 font-mono">
+                          {student.email}
+                        </td>
+                        <td className="py-3.5 px-3 text-slate-600 dark:text-slate-400 font-mono">
+                          {student.phone}
+                        </td>
+                        <td className="py-3.5 px-3">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Actif & Confirmé
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* BOUTON ENVOI EMAIL DIRECT */}
+                            <button
+                              onClick={() => handleOpenEmailForSingleStudent(student)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#D4AF37]/15 hover:bg-[#D4AF37] text-slate-900 dark:text-[#D4AF37] hover:text-slate-950 transition-all font-bold text-[11px] border border-[#D4AF37]/40 shadow-sm"
+                              title={`Envoyer un email à ${student.fullName}`}
                             >
-                              <MessageCircle className="w-3 h-3" />
-                              <span>Message</span>
-                            </a>
-                          )}
-                          <button
-                            onClick={() => {
-                              if (confirm(`Confirmez-vous la suppression définitive du compte de ${student.fullName} ?`)) {
-                                handleDeleteStudent(student.id);
-                              }
-                            }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500/25 transition-colors font-bold text-[11px]"
-                            title="Supprimer le compte"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                            <span>Supprimer</span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                              <Mail className="w-3 h-3" />
+                              <span>Email</span>
+                            </button>
+
+                            {student.phone && student.phone !== 'N/A' && (
+                              <a
+                                href={`https://wa.me/${student.phone.replace(/[^0-9]/g, '')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 transition-colors font-bold text-[11px]"
+                              >
+                                <MessageCircle className="w-3 h-3" />
+                                <span>WhatsApp</span>
+                              </a>
+                            )}
+                            <button
+                              onClick={() => {
+                                if (confirm(`Confirmez-vous la suppression définitive du compte de ${student.fullName} ?`)) {
+                                  handleDeleteStudent(student.id);
+                                }
+                              }}
+                              className="inline-flex items-center gap-1 p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/15 transition-colors font-bold text-[11px]"
+                              title="Supprimer le compte"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+
+            {/* MODALE COMPOSITION & ENVOI D'EMAILS CIBLÉS / GROUPÉS */}
+            <AnimatePresence>
+              {emailModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="bg-[#0A1628] border-2 border-[#D4AF37]/50 rounded-3xl p-6 sm:p-8 w-full max-w-xl text-white shadow-2xl relative max-h-[90vh] overflow-y-auto"
+                  >
+                    <div className="flex items-center justify-between pb-4 mb-5 border-b border-white/10">
+                      <div>
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#D4AF37]">
+                          Communication Officielle Réussir Polytech
+                        </span>
+                        <h3 className="text-xl font-black text-white font-heading">
+                          Envoyer un Email Ciblé
+                        </h3>
+                      </div>
+                      <button
+                        onClick={() => setEmailModalOpen(false)}
+                        className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/10"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {/* LISTE DES DESTINATAIRES */}
+                    <div className="mb-4 p-3 rounded-xl bg-white/5 border border-white/10 text-xs">
+                      <p className="font-bold text-[#D4AF37] mb-1">
+                        Destinataires sélectionnés ({selectedStudentIds.length}) :
+                      </p>
+                      <p className="text-slate-300 font-mono text-[11px] line-clamp-2">
+                        {students
+                          .filter((s) => selectedStudentIds.includes(s.id))
+                          .map((s) => s.fullName)
+                          .join(', ')}
+                      </p>
+                    </div>
+
+                    {/* CHOIX DU MODÈLE */}
+                    <div className="space-y-4 mb-6">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2 font-mono">
+                          Modèle d&apos;Email :
+                        </label>
+                        <div className="grid grid-cols-2 gap-2.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEmailCampaignType('promotion');
+                              setEmailCustomTitle('Formation d\'Élite : L\'Ingénieur Entrepreneur');
+                              setEmailCustomSubtitle('Maîtrisez les outils pratiques et propulsez votre leadership technologique');
+                            }}
+                            className={`p-3 rounded-xl text-left border text-xs font-bold transition-all ${
+                              emailCampaignType === 'promotion'
+                                ? 'bg-[#D4AF37]/20 border-[#D4AF37] text-white shadow-md'
+                                : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            <p className="font-black text-[#D4AF37]">🎓 Promotion Formation</p>
+                            <p className="text-[10px] text-slate-400 font-normal mt-0.5">Ingénieur Entrepreneur VIP</p>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEmailCampaignType('welcome');
+                              setEmailCustomTitle('Bienvenue sur Réussir Polytech');
+                              setEmailCustomSubtitle('L\'excellence se construit ensemble');
+                            }}
+                            className={`p-3 rounded-xl text-left border text-xs font-bold transition-all ${
+                              emailCampaignType === 'welcome'
+                                ? 'bg-sky-500/20 border-sky-400 text-white shadow-md'
+                                : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            <p className="font-black text-sky-400">🚀 Email de Bienvenue</p>
+                            <p className="text-[10px] text-slate-400 font-normal mt-0.5">Certificat & démarrage</p>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* TITRE DE L'OFFRE / OBJET */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 mb-1">
+                          Titre de la Campagne / Objet :
+                        </label>
+                        <input
+                          type="text"
+                          value={emailCustomTitle}
+                          onChange={(e) => setEmailCustomTitle(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37]"
+                          placeholder="Ex : Formation d'Élite : L'Ingénieur Entrepreneur"
+                        />
+                      </div>
+
+                      {/* SOUS-TITRE */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 mb-1">
+                          Sous-titre explicatif :
+                        </label>
+                        <input
+                          type="text"
+                          value={emailCustomSubtitle}
+                          onChange={(e) => setEmailCustomSubtitle(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37]"
+                          placeholder="Ex : Maîtrisez les outils pratiques et propulsez votre leadership"
+                        />
+                      </div>
+
+                      {/* MESSAGE SPÉCIFIQUE OPTIONNEL */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 mb-1">
+                          Message personnalisé de la direction (optionnel) :
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={emailCustomMessage}
+                          onChange={(e) => setEmailCustomMessage(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-medium focus:outline-none focus:border-[#D4AF37]"
+                          placeholder="Ajoutez un mot personnel d'Eugène Samuel GWET ou de Yannick BIKEI..."
+                        />
+                      </div>
+                    </div>
+
+                    {/* RÉSULTAT DU DERNIER ENVOI */}
+                    {emailSendResult && (
+                      <div className="mb-5 p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-xs">
+                        <p className="font-black text-emerald-400 flex items-center gap-1.5 mb-1">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Campagne traitée avec succès !</span>
+                        </p>
+                        <p className="text-slate-300">
+                          {emailSendResult.sent > 0 && <span>• {emailSendResult.sent} email(s) envoyés en production via Gmail API. </span>}
+                          {emailSendResult.simulated > 0 && <span>• {emailSendResult.simulated} envoi(s) simulés (mode diagnostic). </span>}
+                          {emailSendResult.failed > 0 && <span className="text-rose-400">• {emailSendResult.failed} échec(s).</span>}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* BOUTONS D'ACTION */}
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                      <button
+                        type="button"
+                        onClick={() => setEmailModalOpen(false)}
+                        className="px-4 py-2.5 rounded-xl text-slate-400 hover:text-white text-xs font-bold"
+                        disabled={isSendingEmails}
+                      >
+                        Annuler
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleExecuteBatchEmail}
+                        disabled={isSendingEmails || selectedStudentIds.length === 0}
+                        className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-amber-400 to-[#B8860B] text-slate-950 font-black text-xs uppercase tracking-wider hover:scale-105 active:scale-95 transition-all shadow-lg shadow-amber-500/30 flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {isSendingEmails ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Envoi séquentiel en cours...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Mail className="w-4 h-4" />
+                            <span>Lancer l&apos;envoi aux {selectedStudentIds.length} élèves</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
+
           </div>
         )}
 

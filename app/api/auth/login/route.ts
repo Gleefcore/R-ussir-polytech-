@@ -91,6 +91,20 @@ export async function POST(req: NextRequest) {
     const session = authData.session;
     const level = user?.user_metadata?.level || 'MSP1';
     const fullName = user?.user_metadata?.full_name || cleanId;
+    const matricule = user?.user_metadata?.matricule || cleanId;
+
+    // Déclenchement automatique non-bloquant de l'email officiel lors de la connexion
+    if (targetEmail && !targetEmail.endsWith('@polytech.rp')) {
+      import('@/lib/emailService').then(({ sendWelcomeEmail }) => {
+        sendWelcomeEmail({
+          userId: user?.id,
+          email: targetEmail,
+          name: fullName,
+          level: level,
+          matricule: matricule,
+        }).catch((e) => console.warn('Notification email connexion:', e));
+      }).catch(() => {});
+    }
 
     return NextResponse.json({
       success: true,
@@ -99,7 +113,7 @@ export async function POST(req: NextRequest) {
       level,
       fullName,
       email: targetEmail,
-      matricule: user?.user_metadata?.matricule || cleanId,
+      matricule,
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Erreur interne de connexion';
