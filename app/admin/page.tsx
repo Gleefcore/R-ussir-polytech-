@@ -697,6 +697,14 @@ export default function AdminCockpitPage() {
     ];
   }, [summary]);
 
+  const getDocSubjectCode = (doc: ResourceItem) => {
+    if (doc.subject_id && subjectStats.length > 0) {
+      const found = subjectStats.find((s) => s.id === doc.subject_id);
+      if (found) return found.code;
+    }
+    return doc.storage_path?.split('/')[1]?.toUpperCase() || 'MTH111';
+  };
+
   // ========================================================
   // ÉCRAN DE VERROUILLAGE (GATEKEEPER HAUTE SÉCURITÉ)
   // ========================================================
@@ -1365,7 +1373,7 @@ export default function AdminCockpitPage() {
                       <tr key={doc.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
                         <td className="py-3 px-2">
                           <span className="font-mono font-bold text-[#D4AF37] bg-[#D4AF37]/10 px-2 py-0.5 rounded border border-[#D4AF37]/20">
-                            {doc.storage_path?.split('/')[1]?.toUpperCase() || 'MTH111'}
+                            {getDocSubjectCode(doc)}
                           </span>
                         </td>
                         <td className="py-3 px-2 max-w-xs">
@@ -1574,7 +1582,7 @@ export default function AdminCockpitPage() {
                     <tr key={doc.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
                       <td className="py-3.5 px-3">
                         <span className="font-mono font-bold text-[#D4AF37] bg-[#D4AF37]/10 px-2 py-0.5 rounded border border-[#D4AF37]/20">
-                          {doc.storage_path?.split('/')[1]?.toUpperCase() || 'MTH111'}
+                          {getDocSubjectCode(doc)}
                         </span>
                       </td>
                       <td className="py-3.5 px-3 max-w-md">
@@ -1876,7 +1884,7 @@ export default function AdminCockpitPage() {
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-2">
                         <span className="font-mono text-[10px] font-black text-[#D4AF37] bg-[#D4AF37]/10 px-2 py-0.5 rounded">
-                          {doc.storage_path?.split('/')[1]?.toUpperCase() || 'OFFICIEL'}
+                          {getDocSubjectCode(doc)}
                         </span>
                         <span className="text-[10px] font-bold text-slate-400 capitalize">
                           {doc.type === 'course' ? 'Polycopié' : doc.type === 'td' ? 'TD' : 'Examen'}

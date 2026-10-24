@@ -133,7 +133,7 @@ export async function GET(req: NextRequest) {
     // Calcul par matière
     const subjectStats = Object.entries(SUBJECTS_CATALOG).map(([key, meta]) => {
       const matched = rawResources.filter((r) => {
-        if (r.subject_id === meta.id) return true;
+        if (r.subject_id) return r.subject_id === meta.id;
         if (r.storage_path && r.storage_path.toLowerCase().includes(`/${key}/`)) return true;
         return false;
       });

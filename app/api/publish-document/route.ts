@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
         .order('created_at', { ascending: false });
 
       if (meta?.id) {
-        query = query.or(`subject_id.eq.${meta.id},storage_path.ilike.%/${subjectCode}/%`);
+        query = query.eq('subject_id', meta.id);
       } else {
         query = query.ilike('storage_path', `%/${subjectCode}/%`);
       }
