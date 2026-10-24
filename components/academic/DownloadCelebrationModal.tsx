@@ -106,12 +106,39 @@ export function DownloadCelebrationModal({
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-2 font-heading">
-            Document <span className="text-gold-gradient">téléchargé !</span> 🚀
+            Document <span className="text-gold-gradient">téléchargé &amp; certifié !</span> 🚀
           </h2>
 
-          <div className="p-3 rounded-2xl bg-white/5 border border-white/10 my-4 text-left">
-            <p className="text-xs text-[#D4AF37] font-bold font-mono uppercase">{subjectName}</p>
-            <p className="text-sm font-black text-white line-clamp-2 mt-0.5">{documentTitle}</p>
+          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 my-4 text-left">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <span className="text-xs text-[#D4AF37] font-bold font-mono uppercase">{subjectName}</span>
+              <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                ✓ Signature Authentifiée
+              </span>
+            </div>
+            <p className="text-sm font-black text-white line-clamp-2">{documentTitle}</p>
+          </div>
+
+          {/* Sceau & Cachet Officiel Réussir Polytech */}
+          <div className="my-4 p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-sky-500/10 to-amber-500/10 border border-[#D4AF37]/40 flex items-center gap-3.5 text-left">
+            <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-lg flex-shrink-0 bg-white">
+              <img
+                src="/assets/cachet-direction-generale.jpg"
+                alt="Cachet Officiel Réussir Polytech"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-black uppercase tracking-wider text-[#D4AF37]">
+                Direction Générale &bull; Réussir Polytech
+              </p>
+              <p className="text-[10px] font-semibold text-slate-300 mt-0.5 leading-snug">
+                Groupe d&apos;Étude Académique — Éséka &bull; Document certifié authentique.
+              </p>
+              <p className="text-[9px] font-mono text-slate-400 mt-1">
+                Réf. Téléchargement : <strong>RP-CERT-2026-AUTHLOG</strong>
+              </p>
+            </div>
           </div>
 
           {/* Message de motivation profonde */}
@@ -129,7 +156,7 @@ export function DownloadCelebrationModal({
               className="w-full sm:flex-1 py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] via-amber-400 to-amber-300 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-amber-500/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <ExternalLink className="w-4 h-4" />
-              <span>Ouvrir & Commencer à lire</span>
+              <span>Ouvrir &amp; Commencer à lire</span>
             </a>
 
             <button

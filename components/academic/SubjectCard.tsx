@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, MessageCircle, X, Loader2, BookOpen, FileText, Award, Download, Sparkles, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Lock, MessageCircle, X, Loader2, BookOpen, FileText, Award, Download, Sparkles, RefreshCw, CheckCircle2, Eye } from 'lucide-react';
 import { type Subject, type Resource } from '@/data/curriculum';
 import { sendWhatsAppNotification } from '@/lib/whatsapp';
 import { createClient } from '@/lib/supabaseClient';
 import { DownloadCelebrationModal } from './DownloadCelebrationModal';
+import { DocumentReaderModal } from './DocumentReaderModal';
 
 interface CloudDoc {
   id: string;
@@ -29,6 +30,7 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
   const [cloudItems, setCloudItems] = useState<CloudDoc[]>(initialCloudDocs);
   const [loading, setLoading] = useState(false);
   const [celebrationDoc, setCelebrationDoc] = useState<{ title: string; url: string } | null>(null);
+  const [readingDoc, setReadingDoc] = useState<{ title: string; url: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'ALL' | 'COURS' | 'TD' | 'EXAMEN'>('ALL');
 
   const fetchCloudDocs = useCallback(async () => {
@@ -258,22 +260,36 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
                   </div>
                 </div>
 
-                <button
-                  onClick={() => {
-                    setCelebrationDoc({ title: item.title, url: item.url });
-                    const link = document.createElement('a');
-                    link.href = item.url;
-                    link.download = item.title || 'cours-polytech.pdf';
-                    link.target = '_blank';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  }}
-                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-amber-400 to-[#F3E5AB] text-[#050B14] font-black text-xs shadow-md shadow-[#D4AF37]/25 hover:scale-105 active:scale-95 transition-all flex-shrink-0"
-                >
-                  <Download className="w-4 h-4 text-[#050B14]" />
-                  <span>Télécharger</span>
-                </button>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setReadingDoc({ title: item.title, url: item.url })}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-800 dark:text-slate-100 font-bold text-xs border border-slate-200 dark:border-white/10 transition-all active:scale-95 shadow-sm"
+                    title="Lire directement le document sur l'application"
+                  >
+                    <Eye className="w-3.5 h-3.5 text-[#0284C7]" />
+                    <span>Ouvrir</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCelebrationDoc({ title: item.title, url: item.url });
+                      const link = document.createElement('a');
+                      link.href = item.url;
+                      link.download = item.title || 'cours-polytech.pdf';
+                      link.target = '_blank';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] via-amber-400 to-[#F3E5AB] text-[#050B14] font-black text-xs shadow-md shadow-[#D4AF37]/25 hover:scale-105 active:scale-95 transition-all flex-shrink-0"
+                    title="Télécharger une copie officielle avec signature"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#050B14]" />
+                    <span>Télécharger</span>
+                  </button>
+                </div>
               </motion.div>
             ))
           ) : (
@@ -306,6 +322,28 @@ function ResourceListModal({ resource, subject, initialCloudDocs, onClose }: Res
         >
           Fermer la liste
         </button>
+
+        {/* Modal du lecteur in-app certifié Réussir Polytech */}
+        {readingDoc && (
+          <DocumentReaderModal
+            isOpen={!!readingDoc}
+            documentTitle={readingDoc.title}
+            documentUrl={readingDoc.url}
+            subjectName={subject.name}
+            subjectCode={subject.code}
+            onClose={() => setReadingDoc(null)}
+            onDownload={() => {
+              setCelebrationDoc({ title: readingDoc.title, url: readingDoc.url });
+              const link = document.createElement('a');
+              link.href = readingDoc.url;
+              link.download = readingDoc.title || 'cours-polytech.pdf';
+              link.target = '_blank';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
+          />
+        )}
 
         {/* Modal d'animation explosive de félicitations */}
         {celebrationDoc && (

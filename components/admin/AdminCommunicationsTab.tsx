@@ -104,9 +104,10 @@ interface CommunicationsData {
 
 interface AdminCommunicationsTabProps {
   accessKey: string;
+  initialSubTab?: 'composer' | 'notifications' | 'promotions' | 'students' | 'settings';
 }
 
-export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProps) {
+export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }: AdminCommunicationsTabProps) {
   const [data, setData] = useState<CommunicationsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -114,7 +115,13 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Sous-onglets du Cockpit de Communications
-  const [activeSubTab, setActiveSubTab] = useState<'composer' | 'notifications' | 'promotions' | 'students' | 'settings'>('composer');
+  const [activeSubTab, setActiveSubTab] = useState<'composer' | 'notifications' | 'promotions' | 'students' | 'settings'>(initialSubTab);
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setActiveSubTab(initialSubTab);
+    }
+  }, [initialSubTab]);
 
   // Sélection de formation VIP
   const [selectedProgramId, setSelectedProgramId] = useState<string>(vipPrograms[0]?.id || 'bureautique');

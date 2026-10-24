@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Download,
@@ -226,22 +227,21 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
 
         if (list.length > 0) {
           const newest = list[0];
-          // Si on n'a pas encore initialisé, on mémorise le premier sans biper
-          if (!lastSeenNotifIdRef.current) {
-            lastSeenNotifIdRef.current = newest.id;
-            return;
-          }
+          const lastNotifiedId = typeof window !== 'undefined' ? localStorage.getItem('rp_last_notified_notif_id') : null;
 
-          // Si une nouvelle notification réelle arrive
-          if (newest.id !== lastSeenNotifIdRef.current && !newest.read) {
+          // Alerter l'étudiant à sa connexion s'il a une notification non lue jamais signalée
+          if (newest.id !== lastNotifiedId && !newest.read) {
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('rp_last_notified_notif_id', newest.id);
+            }
             lastSeenNotifIdRef.current = newest.id;
 
-            // Déclencher la sonnerie réelle !
+            // Déclencher la sonnerie officielle Réussir Polytech
             playNotificationSound();
 
             // Vibreur téléphone
             if ('vibrate' in navigator) {
-              navigator.vibrate([200, 100, 200]);
+              navigator.vibrate([250, 100, 250]);
             }
 
             setCurrentNotification({
@@ -252,10 +252,10 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
               time: 'À l\'instant',
             });
 
-            // Fermer après 7 secondes
+            // Fermer automatiquement après 8 secondes
             setTimeout(() => {
               setCurrentNotification((curr) => (curr?.id === newest.id ? null : curr));
-            }, 7000);
+            }, 8000);
           }
         }
       } catch {}
@@ -352,39 +352,64 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
             initial={{ opacity: 0, y: -40, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -30, scale: 0.95 }}
-            className="fixed top-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 z-50 pointer-events-auto"
+            className="fixed top-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-[420px] z-50 pointer-events-auto"
           >
-            <div className="bg-white/95 dark:bg-[#0B1528]/95 border-2 border-[#0284C7]/40 dark:border-[#0284C7]/50 rounded-2xl p-4 shadow-2xl backdrop-blur-md flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-[#0284C7] flex-shrink-0 mt-0.5">
-                <Bell className="w-4 h-4 animate-bounce text-[#0284C7]" />
-              </div>
+            <div className="bg-gradient-to-b from-white via-white to-sky-50/40 dark:from-[#0B1528] dark:via-[#0F1D38] dark:to-[#070D18] border-2 border-[#D4AF37] rounded-3xl p-4 sm:p-5 shadow-[0_10px_40px_rgba(2,132,199,0.25)] backdrop-blur-xl relative overflow-hidden">
+              <div className="flex items-start gap-3.5">
+                <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#0284C7] to-sky-400 flex items-center justify-center text-white shadow-lg shadow-sky-500/30 flex-shrink-0 animate-pulse">
+                  <Bell className="w-5 h-5 text-white" />
+                </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <p className="text-[12px] font-black text-slate-900 dark:text-white font-heading">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className="text-[10px] font-mono font-black uppercase tracking-wider text-[#D4AF37] bg-[#D4AF37]/15 border border-[#D4AF37]/35 px-2 py-0.5 rounded-full">
+                      🔔 Nouvelle Notification
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      {currentNotification.time || 'En direct'}
+                    </span>
+                  </div>
+
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white font-heading leading-snug">
+                    Vous avez une nouvelle notification
+                  </h4>
+
+                  <p className="text-xs font-bold text-[#0284C7] dark:text-sky-300 mt-1 line-clamp-1">
                     {currentNotification.title}
                   </p>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    {currentNotification.time || 'En direct'}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-snug">
-                  {currentNotification.message}
-                </p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-[9px] font-bold text-sky-600 dark:text-sky-400 flex items-center gap-1">
-                    <Volume2 className="w-3 h-3" /> Alerte sonore active
-                  </span>
-                </div>
-              </div>
 
-              <button
-                onClick={() => setCurrentNotification(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5"
-                title="Fermer"
-              >
-                <X className="w-4 h-4" />
-              </button>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 line-clamp-2 leading-relaxed">
+                    {currentNotification.message}
+                  </p>
+
+                  <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100 dark:border-white/10">
+                    <Link
+                      href="/notifications"
+                      onClick={() => setCurrentNotification(null)}
+                      className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#0284C7] to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-black text-[11px] shadow-sm flex items-center gap-1.5 transition-all"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Consulter les notifications</span>
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => setCurrentNotification(null)}
+                      className="px-3 py-1.5 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white text-[11px] font-bold transition-all"
+                    >
+                      Masquer
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setCurrentNotification(null)}
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg"
+                  title="Fermer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </motion.div>
         )}

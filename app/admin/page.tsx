@@ -45,6 +45,8 @@ import {
   MapPin,
   Calendar,
   Mail,
+  Bell,
+  BellRing,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -157,7 +159,7 @@ export default function AdminCockpitPage() {
   const [showPassKey, setShowPassKey] = useState(false);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'subjects' | 'documents' | 'students' | 'publish' | 'gallery' | 'communications'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'subjects' | 'documents' | 'students' | 'publish' | 'gallery' | 'communications' | 'notifications'>('dashboard');
 
   // Data State
   const [loading, setLoading] = useState(false);
@@ -946,10 +948,27 @@ export default function AdminCockpitPage() {
             >
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-sky-500" />
-                <span>Communications &amp; Emails</span>
+                <span>Envoi Emails (1 par 1)</span>
               </div>
               <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-sky-500/20 text-sky-600 dark:text-sky-400">
-                Gmail API
+                Anti-blocage
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('notifications')}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
+                activeTab === 'notifications'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] shadow-md shadow-[#D4AF37]/20 font-black'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <BellRing className="w-4 h-4 text-amber-500" />
+                <span>Diffusion Notifications</span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                Push &amp; Son
               </span>
             </button>
           </nav>
@@ -2607,7 +2626,7 @@ export default function AdminCockpitPage() {
           </div>
         )}
 
-        {/* ONGLET 4 : COMMUNICATIONS & EMAILS AUTOMATIQUES (GMAIL API) */}
+        {/* ONGLET 4 : ENVOI D'EMAILS SÉQUENTIEL 1 PAR 1 (ANTI-BLOCAGE) */}
         {activeTab === 'communications' && (
           <AdminCommunicationsTab
             accessKey={
@@ -2615,6 +2634,19 @@ export default function AdminCockpitPage() {
               (typeof window !== 'undefined' ? sessionStorage.getItem('rp_admin_master_key') : null) ||
               'RP-ADMIN-EXCELLENCE-2026'
             }
+            initialSubTab="composer"
+          />
+        )}
+
+        {/* ONGLET 5 : DIFFUSION DE NOTIFICATIONS OFFICIELLES (PUSH & SON) */}
+        {activeTab === 'notifications' && (
+          <AdminCommunicationsTab
+            accessKey={
+              (accessCode && accessCode.trim().length > 0 ? accessCode.trim() : null) ||
+              (typeof window !== 'undefined' ? sessionStorage.getItem('rp_admin_master_key') : null) ||
+              'RP-ADMIN-EXCELLENCE-2026'
+            }
+            initialSubTab="notifications"
           />
         )}
 

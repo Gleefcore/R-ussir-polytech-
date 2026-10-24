@@ -30,11 +30,20 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const unreadCount = (notifications || []).filter((n) => !n.read).length;
+    // Déduplication stricte pour éviter tout affichage répétitif ou spam
+    const seen = new Set<string>();
+    const deduplicated = (notifications || []).filter((n) => {
+      const key = `${n.title.trim().toLowerCase()}__${n.message.trim().toLowerCase()}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    const unreadCount = deduplicated.filter((n) => !n.read).length;
 
     return NextResponse.json({
       success: true,
-      notifications: notifications || [],
+      notifications: deduplicated,
       unreadCount,
     });
   } catch (err: unknown) {
