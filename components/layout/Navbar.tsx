@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, GraduationCap, Star, Users, LayoutDashboard, ShieldCheck, LogOut, Images, Download, Smartphone, Share, PlusSquare, CheckCircle2 } from 'lucide-react';
+import { Menu, X, GraduationCap, Star, Users, LayoutDashboard, ShieldCheck, LogOut, Images, Download, Smartphone, Share, PlusSquare, CheckCircle2, Bell } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { createClient } from '@/lib/supabaseClient';
 
@@ -194,7 +194,15 @@ export function Navbar() {
             </button>
 
             {isLoggedIn ? (
-              <div className="hidden md:flex items-center gap-2.5">
+              <div className="hidden md:flex items-center gap-2">
+                <Link
+                  href="/notifications"
+                  className="p-2 rounded-full border border-slate-200 dark:border-white/10 hover:border-[#0284C7] text-slate-700 dark:text-slate-300 hover:text-[#0284C7] dark:hover:text-[#38BDF8] transition-all"
+                  title="Notifications & Actualités"
+                >
+                  <Bell className="w-4 h-4" />
+                </Link>
+
                 <Link
                   href={effectiveLevel === 'MSP2' ? '/msp2' : '/msp1'}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-white/5 border border-[#D4AF37]/40 hover:bg-[#D4AF37]/10 transition-all shadow-sm group"
@@ -310,6 +318,16 @@ export function Navbar() {
                     <p className="text-[11px] text-[#D4AF37] font-mono">Tableau de bord {effectiveLevel}</p>
                   </div>
                 </Link>
+
+                <Link
+                  href="/notifications"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-800 dark:text-white font-bold bg-sky-500/10 border border-sky-500/30"
+                >
+                  <Bell className="w-4 h-4 text-[#0284C7]" />
+                  <span>Centre de Notifications</span>
+                </Link>
+
                 <button
                   onClick={handleSignOut}
                   className="w-full text-left px-4 py-3 rounded-xl text-sm text-rose-600 dark:text-rose-400 font-semibold"

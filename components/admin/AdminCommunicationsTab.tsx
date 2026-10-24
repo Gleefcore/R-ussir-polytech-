@@ -27,7 +27,14 @@ import {
   ExternalLink,
   BookOpen,
   SendHorizontal,
+  BellRing,
+  Radio,
+  Pause,
+  Play,
+  Square,
+  Volume2,
 } from 'lucide-react';
+import { playNotificationSound } from '@/lib/sound';
 import {
   BRAND_CONFIG,
   renderWelcomeEmail,
@@ -107,7 +114,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Sous-onglets du Cockpit de Communications
-  const [activeSubTab, setActiveSubTab] = useState<'promotions' | 'official' | 'students' | 'settings'>('promotions');
+  const [activeSubTab, setActiveSubTab] = useState<'composer' | 'notifications' | 'promotions' | 'students' | 'settings'>('composer');
 
   // Sélection de formation VIP
   const [selectedProgramId, setSelectedProgramId] = useState<string>(vipPrograms[0]?.id || 'bureautique');
@@ -115,19 +122,62 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
   const [promoCustomMessage, setPromoCustomMessage] = useState<string>('');
   const [sendingPromo, setSendingPromo] = useState(false);
 
-  // Espace Mail Officiel de l'Administration
-  const [officialSubject, setOfficialSubject] = useState('Communiqué Officiel : Organisation des Séances d\'Encadrement');
+  // Espace Mail Officiel / Composeur à la Communauté
+  const [officialSubject, setOfficialSubject] = useState('Message de la Direction : Organisation des Séances d\'Encadrement & Nouveaux Cours');
   const [officialHeadline, setOfficialHeadline] = useState('Note d\'Information Officielle — Promotion 2026');
   const [officialSenderTitle, setOfficialSenderTitle] = useState('Direction Générale RÉUSSIR POLYTECH');
   const [officialSenderSignature, setOfficialSenderSignature] = useState('Eugène Samuel GWET — Président du Conseil d\'Administration');
   const [officialContent, setOfficialContent] = useState(
     'Chers élèves-ingénieurs,\n\nNous vous informons de la mise à jour des polycopiés certifiés et fiches de travaux dirigés sur la plateforme Réussir Polytech.\n\nNous vous recommandons de préparer rigoureusement chaque séance de cours en amont et de vous exercer sur les annales résolues mises à votre disposition dans votre cockpit d\'étude.\n\nRestez concentrés, constants et ambitieux dans vos révisions.'
   );
-  const [officialCtaText, setOfficialCtaText] = useState('Accéder à mon espace d\'étude');
+  const [officialCtaText, setOfficialCtaText] = useState('Accéder à mon cockpit d\'étude');
   const [officialCtaUrl, setOfficialCtaUrl] = useState('https://reussirpolytech.vercel.app');
   const [officialTargetLevel, setOfficialTargetLevel] = useState<'ALL' | 'MSP1' | 'MSP2'>('ALL');
   const [sendingOfficial, setSendingOfficial] = useState(false);
   const [sendingAppLaunch, setSendingAppLaunch] = useState(false);
+  const [composerPreviewDevice, setComposerPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+
+  // État de l'Envoi Séquentiel 1 par 1 (Anti-blocage & Anti-spam)
+  interface SequentialLogItem {
+    name: string;
+    email: string;
+    status: 'sent' | 'simulated' | 'failed';
+    time: string;
+    error?: string;
+  }
+
+  const [seqState, setSeqState] = useState<{
+    isActive: boolean;
+    isPaused: boolean;
+    total: number;
+    current: number;
+    currentStudent: string;
+    sentCount: number;
+    simulatedCount: number;
+    failedCount: number;
+    logs: SequentialLogItem[];
+  }>({
+    isActive: false,
+    isPaused: false,
+    total: 0,
+    current: 0,
+    currentStudent: '',
+    sentCount: 0,
+    simulatedCount: 0,
+    failedCount: 0,
+    logs: [],
+  });
+
+  const isPausedRef = React.useRef(false);
+  const isCancelledRef = React.useRef(false);
+
+  // Diffusion de Notification Push & Sonore aux Téléphones
+  const [notifTitle, setNotifTitle] = useState('📚 Nouveau cours disponible');
+  const [notifMessage, setNotifMessage] = useState('Les annales résolues et fiches de travaux dirigés sont disponibles dans votre cockpit. Connectez-vous pour réviser.');
+  const [notifTargetLevel, setNotifTargetLevel] = useState<'ALL' | 'MSP1' | 'MSP2'>('ALL');
+  const [notifUrl, setNotifUrl] = useState('/notifications');
+  const [sendingNotif, setSendingNotif] = useState(false);
+  const [pushDevicesCount, setPushDevicesCount] = useState<number | null>(null);
 
   // Recherche & Sélection d'Étudiants
   const [searchQuery, setSearchQuery] = useState('');
@@ -269,14 +319,18 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
     }
   };
 
-  // 2. Envoi d'un Mail Officiel de l'Administration
-  const handleSendOfficialBroadcast = async () => {
+  // 2. Envoi Séquentiel 1 par 1 (Anti-blocage & Anti-spam avec progression en temps réel)
+  const handleStartSequentialSend = async () => {
     let targetStudents: StudentItem[] = [];
 
     if (selectedStudentIds.size > 0) {
-      targetStudents = (data?.students || []).filter((s) => selectedStudentIds.has(s.id) && !s.isInternalPlaceholder && !s.isUnsubscribed);
+      targetStudents = (data?.students || []).filter(
+        (s) => selectedStudentIds.has(s.id) && !s.isInternalPlaceholder && !s.isUnsubscribed
+      );
     } else {
-      targetStudents = realEmailStudents.filter((s) => officialTargetLevel === 'ALL' || s.level.toUpperCase() === officialTargetLevel);
+      targetStudents = realEmailStudents.filter(
+        (s) => officialTargetLevel === 'ALL' || s.level.toUpperCase() === officialTargetLevel
+      );
     }
 
     if (targetStudents.length === 0) {
@@ -285,56 +339,199 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
     }
 
     if (!officialContent.trim()) {
-      setFeedback({ type: 'error', text: 'Veuillez saisir le texte de votre communiqué officiel.' });
+      setFeedback({ type: 'error', text: 'Veuillez rédiger le corps de votre message avant de lancer l\'envoi.' });
       return;
     }
 
-    if (!confirm(`Confirmez-vous l'envoi de ce Mail Officiel à ${targetStudents.length} élève(s)-ingénieur(s) ?`)) {
+    if (!confirm(`Confirmez-vous le lancement de l'envoi séquentiel 1 par 1 à ${targetStudents.length} élève(s)-ingénieur(s) ?`)) {
       return;
     }
 
+    isPausedRef.current = false;
+    isCancelledRef.current = false;
     setSendingOfficial(true);
     setFeedback(null);
+
+    setSeqState({
+      isActive: true,
+      isPaused: false,
+      total: targetStudents.length,
+      current: 0,
+      currentStudent: targetStudents[0]?.fullName || '',
+      sentCount: 0,
+      simulatedCount: 0,
+      failedCount: 0,
+      logs: [],
+    });
+
+    let sent = 0;
+    let simulated = 0;
+    let failed = 0;
+    const progressLogs: SequentialLogItem[] = [];
+
+    for (let i = 0; i < targetStudents.length; i++) {
+      if (isCancelledRef.current) break;
+
+      while (isPausedRef.current) {
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        if (isCancelledRef.current) break;
+      }
+      if (isCancelledRef.current) break;
+
+      const student = targetStudents[i];
+      setSeqState((prev) => ({
+        ...prev,
+        current: i + 1,
+        currentStudent: `${student.fullName} (${student.email})`,
+      }));
+
+      try {
+        const res = await fetch('/api/admin/communications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-key': accessKey },
+          body: JSON.stringify({
+            action: 'send_official_email',
+            subject: officialSubject,
+            headline: officialHeadline,
+            senderTitle: officialSenderTitle,
+            senderSignature: officialSenderSignature,
+            messageContent: officialContent,
+            ctaText: officialCtaText.trim() || undefined,
+            ctaUrl: officialCtaUrl.trim() || undefined,
+            targetLevel: officialTargetLevel === 'ALL' ? undefined : officialTargetLevel,
+            students: [
+              {
+                id: student.id,
+                email: student.email,
+                fullName: student.fullName,
+                level: student.level,
+                matricule: student.matricule,
+              },
+            ],
+          }),
+        });
+
+        const json = await res.json();
+        const timeNow = new Date().toLocaleTimeString('fr-FR');
+
+        if (json.success && json.result) {
+          const itemRes = json.result.detailedResults?.[0];
+          const status =
+            itemRes?.status === 'sent' ? 'sent' : itemRes?.status === 'simulated' ? 'simulated' : 'failed';
+
+          if (status === 'sent') sent++;
+          else if (status === 'simulated') simulated++;
+          else failed++;
+
+          progressLogs.unshift({
+            name: student.fullName,
+            email: student.email,
+            status,
+            time: timeNow,
+            error: itemRes?.message,
+          });
+        } else {
+          failed++;
+          progressLogs.unshift({
+            name: student.fullName,
+            email: student.email,
+            status: 'failed',
+            time: timeNow,
+            error: json.error || 'Erreur d\'envoi',
+          });
+        }
+      } catch (e: unknown) {
+        failed++;
+        progressLogs.unshift({
+          name: student.fullName,
+          email: student.email,
+          status: 'failed',
+          time: new Date().toLocaleTimeString('fr-FR'),
+          error: 'Erreur réseau',
+        });
+      }
+
+      setSeqState((prev) => ({
+        ...prev,
+        sentCount: sent,
+        simulatedCount: simulated,
+        failedCount: failed,
+        logs: [...progressLogs],
+      }));
+
+      // Temporisation de courtoisie de 650 ms entre chaque envoi pour éviter le blocage Gmail
+      if (i < targetStudents.length - 1 && !isCancelledRef.current) {
+        await new Promise((r) => setTimeout(r, 650));
+      }
+    }
+
+    playNotificationSound();
+    setSeqState((prev) => ({ ...prev, isActive: false, isPaused: false }));
+    setSendingOfficial(false);
+
+    if (isCancelledRef.current) {
+      setFeedback({
+        type: 'error',
+        text: `Envoi séquentiel interrompu : ${sent} envoyé(s), ${failed} échec(s).`,
+      });
+    } else {
+      setFeedback({
+        type: 'success',
+        text: `Diffusion terminée avec succès : ${sent} envoyé(s), ${simulated} simulé(s), ${failed} échec(s).`,
+      });
+    }
+    fetchCommunications();
+  };
+
+  const handleTogglePauseSequential = () => {
+    isPausedRef.current = !isPausedRef.current;
+    setSeqState((prev) => ({ ...prev, isPaused: isPausedRef.current }));
+  };
+
+  const handleCancelSequential = () => {
+    if (confirm('Voulez-vous vraiment stopper la file d\'envoi séquentiel ?')) {
+      isCancelledRef.current = true;
+    }
+  };
+
+  // 3. Diffusion de Notification Push & Sonore en direct
+  const handleSendPushBroadcast = async () => {
+    if (!notifTitle.trim() || !notifMessage.trim()) {
+      setFeedback({ type: 'error', text: 'Veuillez saisir un titre et un message pour la notification.' });
+      return;
+    }
+
+    if (!confirm('Confirmez-vous la diffusion de cette alerte sonore en direct à tous les téléphones et cockpit ?')) {
+      return;
+    }
+
+    setSendingNotif(true);
+    setFeedback(null);
     try {
-      const res = await fetch('/api/admin/communications', {
+      const res = await fetch('/api/admin/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': accessKey },
         body: JSON.stringify({
-          action: 'send_official_email',
-          subject: officialSubject,
-          headline: officialHeadline,
-          senderTitle: officialSenderTitle,
-          senderSignature: officialSenderSignature,
-          messageContent: officialContent,
-          ctaText: officialCtaText.trim() || undefined,
-          ctaUrl: officialCtaUrl.trim() || undefined,
-          targetLevel: officialTargetLevel === 'ALL' ? undefined : officialTargetLevel,
-          students: targetStudents.map((s) => ({
-            id: s.id,
-            email: s.email,
-            fullName: s.fullName,
-            level: s.level,
-            matricule: s.matricule,
-          })),
+          title: notifTitle,
+          message: notifMessage,
+          targetLevel: notifTargetLevel,
+          url: notifUrl.trim() || '/notifications',
         }),
       });
 
       const json = await res.json();
       if (json.success) {
-        const { sentCount, simulatedCount, failedCount } = json.result;
-        setFeedback({
-          type: 'success',
-          text: `Mail Officiel délivré : ${sentCount} envoyé(s), ${simulatedCount} simulé(s), ${failedCount} échec(s).`,
-        });
-        setSelectedStudentIds(new Set());
-        fetchCommunications();
+        playNotificationSound();
+        setFeedback({ type: 'success', text: json.message || 'Notification diffusée avec succès !' });
+        setNotifTitle('');
+        setNotifMessage('');
       } else {
-        setFeedback({ type: 'error', text: json.error || 'Erreur lors de l\'envoi du mail officiel.' });
+        setFeedback({ type: 'error', text: json.error || 'Erreur lors de la diffusion.' });
       }
     } catch {
-      setFeedback({ type: 'error', text: 'Erreur réseau lors de l\'envoi.' });
+      setFeedback({ type: 'error', text: 'Erreur réseau lors de la diffusion.' });
     } finally {
-      setSendingOfficial(false);
+      setSendingNotif(false);
     }
   };
 
@@ -631,51 +828,63 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
       {/* 2. BARRE D'ONGLETS DU MODULE (ORGANISÉ & CLAIR) */}
       <div className="flex flex-wrap gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60">
         <button
+          onClick={() => setActiveSubTab('composer')}
+          className={`flex-1 min-w-[170px] py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+            activeSubTab === 'composer'
+              ? 'bg-white dark:bg-slate-900 text-[#0284C7] shadow-sm'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <Mail className="w-4 h-4 text-[#0284C7]" />
+          <span>✉️ Rédiger un Email (1 par 1)</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('notifications')}
+          className={`flex-1 min-w-[170px] py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+            activeSubTab === 'notifications'
+              ? 'bg-white dark:bg-slate-900 text-[#0284C7] shadow-sm'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <BellRing className="w-4 h-4 text-amber-500" />
+          <span>📢 Diffuser Notification (Push &amp; Son)</span>
+        </button>
+
+        <button
           onClick={() => setActiveSubTab('promotions')}
-          className={`flex-1 min-w-[160px] py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 min-w-[150px] py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
             activeSubTab === 'promotions'
               ? 'bg-white dark:bg-slate-900 text-[#0284C7] shadow-sm'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <Award className="w-4 h-4 text-[#D4AF37]" />
-          <span>⭐ Formations VIP en 1 Clic</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('official')}
-          className={`flex-1 min-w-[160px] py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
-            activeSubTab === 'official'
-              ? 'bg-white dark:bg-slate-900 text-[#0284C7] shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-          }`}
-        >
-          <SendHorizontal className="w-4 h-4 text-sky-500" />
-          <span>📢 Espace Mail Officiel Administrateur</span>
+          <span>⭐ Formations VIP</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('students')}
-          className={`flex-1 min-w-[160px] py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 min-w-[150px] py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
             activeSubTab === 'students'
               ? 'bg-white dark:bg-slate-900 text-[#0284C7] shadow-sm'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>👥 Répertoire &amp; Envois Directs ({filteredStudents.length})</span>
+          <span>👥 Répertoire ({filteredStudents.length})</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('settings')}
-          className={`flex-1 min-w-[160px] py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 min-w-[150px] py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
             activeSubTab === 'settings'
               ? 'bg-white dark:bg-slate-900 text-[#0284C7] shadow-sm'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <ShieldCheck className="w-4 h-4 text-emerald-500" />
-          <span>⚙️ Paramètres &amp; Test Gmail</span>
+          <span>⚙️ Paramètres</span>
         </button>
       </div>
 
@@ -853,42 +1062,129 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
         </div>
       )}
 
-      {/* SOUS-ONGLET 2 : ESPACE MAIL OFFICIEL DE L'ADMINISTRATION */}
-      {activeSubTab === 'official' && (
-        <div className="bg-white dark:bg-[#0F172A] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-5">
-          <div className="border-b border-slate-100 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[#0284C7] font-mono block">
-                Espace Direction &bull; Réussir Polytech
-              </span>
-              <h4 className="text-lg font-black text-slate-900 dark:text-white font-heading mt-0.5">
-                Rédiger &amp; Expédier un Mail Officiel aux Étudiants
-              </h4>
-            </div>
-            <button
-              onClick={() => {
-                setPreviewTemplate('official');
-                setShowPreviewModal(true);
-              }}
-              className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 w-fit"
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>Aperçu de ce communiqué</span>
-            </button>
-          </div>
+      {/* SOUS-ONGLET 1 : COMPOSEUR D'EMAIL SÉQUENTIEL 1 PAR 1 (ANTI-BLOCAGE) */}
+      {activeSubTab === 'composer' && (
+        <div className="space-y-6">
+          {/* Panneau d'expédition séquentielle en direct (s'affiche si actif ou en pause) */}
+          {seqState.isActive && (
+            <div className="bg-white dark:bg-[#0F172A] rounded-3xl p-6 sm:p-7 border-2 border-[#0284C7] shadow-xl relative overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#0284C7] to-sky-400 flex items-center justify-center text-white shadow-lg shadow-sky-500/30 animate-pulse">
+                    <Radio className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-base font-black text-slate-900 dark:text-white font-heading">
+                        Expédition Séquentielle 1 par 1 en Direct
+                      </h4>
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                        seqState.isPaused
+                          ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30'
+                          : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 animate-pulse'
+                      }`}>
+                        {seqState.isPaused ? '⏸️ En pause' : '🟢 En cours'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Protection anti-spam active &bull; Temporisation de 650 ms par étudiant pour préserver la réputation Gmail.
+                    </p>
+                  </div>
+                </div>
 
-          {/* BANNIÈRE CAMPAGNE APPLICATION MOBILE */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sky-500/10 via-blue-500/10 to-emerald-500/10 border border-sky-200 dark:border-sky-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#0284C7] flex items-center justify-center text-white flex-shrink-0 shadow-md">
-                <Smartphone className="w-5 h-5" />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleTogglePauseSequential}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
+                      seqState.isPaused
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        : 'bg-amber-500 hover:bg-amber-600 text-white'
+                    }`}
+                  >
+                    {seqState.isPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
+                    <span>{seqState.isPaused ? 'Reprendre' : 'Mettre en pause'}</span>
+                  </button>
+
+                  <button
+                    onClick={handleCancelSequential}
+                    className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all"
+                  >
+                    <Square className="w-3.5 h-3.5" />
+                    <span>Stopper l&apos;envoi</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Barre de progression animée */}
+              <div className="mt-5 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">
+                    Progression : {seqState.current} sur {seqState.total} élèves
+                  </span>
+                  <span className="font-mono font-black text-[#0284C7]">
+                    {seqState.total > 0 ? Math.round((seqState.current / seqState.total) * 100) : 0}%
+                  </span>
+                </div>
+                <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] rounded-full transition-all duration-300"
+                    style={{ width: `${seqState.total > 0 ? (seqState.current / seqState.total) * 100 : 0}%` }}
+                  />
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Destinataire actuel : <strong className="text-slate-900 dark:text-white font-mono">{seqState.currentStudent || 'Initialisation...'}</strong>
+                </p>
+              </div>
+
+              {/* Compteurs de statuts */}
+              <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                  <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Délivrés</p>
+                  <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">{seqState.sentCount}</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+                  <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Simulés</p>
+                  <p className="text-lg font-black text-amber-600 dark:text-amber-400">{seqState.simulatedCount}</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-center">
+                  <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">Échecs</p>
+                  <p className="text-lg font-black text-rose-600 dark:text-rose-400">{seqState.failedCount}</p>
+                </div>
+              </div>
+
+              {/* Audit en temps réel des derniers envois de la session */}
+              {seqState.logs.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <p className="text-[11px] font-mono font-bold text-slate-400 uppercase mb-2">Historique de la session en cours</p>
+                  <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                    {seqState.logs.slice(0, 15).map((l, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60">
+                        <div className="flex items-center gap-2 truncate">
+                          <span className={`w-2 h-2 rounded-full ${l.status === 'sent' ? 'bg-emerald-500' : l.status === 'simulated' ? 'bg-amber-500' : 'bg-rose-500'}`} />
+                          <span className="font-bold text-slate-800 dark:text-slate-200 truncate">{l.name}</span>
+                          <span className="text-[11px] font-mono text-slate-400 truncate">({l.email})</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-slate-400 flex-shrink-0">{l.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Bannière d'envoi de la campagne Application Mobile */}
+          <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-sky-500/10 via-blue-500/10 to-emerald-500/10 border border-sky-200 dark:border-sky-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-[#0284C7] flex items-center justify-center text-white flex-shrink-0 shadow-md">
+                <Smartphone className="w-6 h-6" />
               </div>
               <div>
                 <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                  Campagne Spéciale : Annonce Application Mobile (iPhone &amp; Android)
+                  Campagne Application Mobile : Annonce &amp; Téléchargement Direct
                 </p>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                  Félicite chaque étudiant pour sa connexion et détaille l&apos;installation directe sur <strong>iPhone</strong> (Safari) et <strong>Android</strong> (.APK de 3,6 Mo &amp; Chrome).
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
+                  Félicite chaque étudiant pour sa connexion et détaille l&apos;installation directe sur <strong>iPhone</strong> (Safari &rarr; Sur l&apos;écran d&apos;accueil) et <strong>Android</strong> (.APK de 3,6 Mo &amp; Chrome).
                 </p>
               </div>
             </div>
@@ -902,7 +1198,7 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
                 className="py-2.5 px-3.5 rounded-xl border border-sky-300 dark:border-sky-700 bg-white dark:bg-slate-800 text-xs font-bold text-sky-700 dark:text-sky-300 hover:bg-sky-50 flex items-center gap-1.5"
               >
                 <Eye className="w-3.5 h-3.5" />
-                <span>Aperçu Mobile</span>
+                <span>Aperçu Maquette</span>
               </button>
               <button
                 type="button"
@@ -925,170 +1221,457 @@ export function AdminCommunicationsTab({ accessKey }: AdminCommunicationsTabProp
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
-                Objet Officiel du Message
-              </label>
-              <input
-                type="text"
-                value={officialSubject}
-                onChange={(e) => setOfficialSubject(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
-              />
-            </div>
+          {/* Grille principale : Formulaire Rédacteur à gauche + Aperçu Live à droite */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Formulaire Rédacteur */}
+            <div className="lg:col-span-7 bg-white dark:bg-[#0F172A] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#0284C7] block">
+                    Direction Réussir Polytech
+                  </span>
+                  <h4 className="text-base font-black text-slate-900 dark:text-white font-heading">
+                    Rédacteur d&apos;Email à la Communauté
+                  </h4>
+                </div>
 
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
-                Titre d&apos;Accroche dans le Mail
-              </label>
-              <input
-                type="text"
-                value={officialHeadline}
-                onChange={(e) => setOfficialHeadline(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
-              />
-            </div>
-          </div>
+                {/* Modèles Pré-remplis */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOfficialSubject('📚 Nouveaux polycopiés et travaux dirigés certifiés disponibles');
+                      setOfficialHeadline('Ressources académiques certifiées — Semestre 2026');
+                      setOfficialContent(
+                        'Bonjour {nom},\n\nDe nouveaux polycopiés conformes au programme officiel et des fiches de TD résolues viennent d\'être publiés sur votre plateforme Réussir Polytech.\n\nNous vous invitons à les télécharger immédiatement et à préparer vos séances en amont pour maximiser votre compréhension en amphi.\n\nL\'excellence académique s\'acquiert par la répétition et l\'anticipation.'
+                      );
+                      setOfficialCtaText('Consulter mes cours');
+                      setOfficialCtaUrl('https://reussirpolytech.vercel.app');
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-[#0284C7] text-[11px] font-bold border border-sky-200 dark:border-sky-800 hover:bg-sky-100"
+                  >
+                    📚 Polycopiés
+                  </button>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
-                Entité Expéditrice (Titre)
-              </label>
-              <input
-                type="text"
-                value={officialSenderTitle}
-                onChange={(e) => setOfficialSenderTitle(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
-              />
-            </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOfficialSubject('🎯 Conseils méthodologiques & préparation aux évaluations');
+                      setOfficialHeadline('Note d\'Encadrement & Stratégie de Travail');
+                      setOfficialContent(
+                        'Bonjour {nom},\n\nLa réussite en cycle préparatoire et école d\'ingénieurs repose sur votre méthode de travail.\n\nPrenez le temps de revoir les théorèmes clés, de refaire sans aide les exercices types des TD, et de mesurer votre vitesse de rédaction sur les annales disponibles dans votre cockpit.\n\nNos équipes restent mobilisées pour vous accompagner vers les sommets du classement.'
+                      );
+                      setOfficialCtaText('Ouvrir mon cockpit');
+                      setOfficialCtaUrl('https://reussirpolytech.vercel.app');
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 text-[11px] font-bold border border-amber-200 dark:border-amber-800 hover:bg-amber-100"
+                  >
+                    🎯 Méthode
+                  </button>
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
-                Signature Nominale du Dirigeant
-              </label>
-              <input
-                type="text"
-                value={officialSenderSignature}
-                onChange={(e) => setOfficialSenderSignature(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
-              />
-            </div>
-          </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                  Objet Officiel du Message
+                </label>
+                <input
+                  type="text"
+                  value={officialSubject}
+                  onChange={(e) => setOfficialSubject(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                />
+              </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-                Corps du Communiqué Officiel
-              </label>
-              <span className="text-[11px] text-[#0284C7] font-bold">
-                Balise disponible : <code>{'{nom}'}</code> pour insérer le nom de l&apos;élève
-              </span>
-            </div>
-            <textarea
-              value={officialContent}
-              onChange={(e) => setOfficialContent(e.target.value)}
-              rows={6}
-              className="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
-            />
-          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                    Titre d&apos;Accroche
+                  </label>
+                  <input
+                    type="text"
+                    value={officialHeadline}
+                    onChange={(e) => setOfficialHeadline(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                  />
+                </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
-                Bouton d&apos;Action (Libellé optionnel)
-              </label>
-              <input
-                type="text"
-                value={officialCtaText}
-                onChange={(e) => setOfficialCtaText(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
-                Lien de Destination
-              </label>
-              <input
-                type="url"
-                value={officialCtaUrl}
-                onChange={(e) => setOfficialCtaUrl(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
-              />
-            </div>
-          </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                    Entité Expéditrice
+                  </label>
+                  <input
+                    type="text"
+                    value={officialSenderTitle}
+                    onChange={(e) => setOfficialSenderTitle(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
 
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-2">
-              Audience Ciblée
-            </label>
-            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                  Signature Nominale
+                </label>
+                <input
+                  type="text"
+                  value={officialSenderSignature}
+                  onChange={(e) => setOfficialSenderSignature(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
+                    Corps du Message Officiel
+                  </label>
+                  <span className="text-[11px] text-[#0284C7] font-bold">
+                    Balise : <code>{'{nom}'}</code> = prénom et nom de l&apos;élève
+                  </span>
+                </div>
+                <textarea
+                  value={officialContent}
+                  onChange={(e) => setOfficialContent(e.target.value)}
+                  rows={6}
+                  placeholder="Écrivez votre message officiel ici. Utilisez {nom} pour personnaliser chaque email."
+                  className="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                    Bouton d&apos;Action (Libellé)
+                  </label>
+                  <input
+                    type="text"
+                    value={officialCtaText}
+                    onChange={(e) => setOfficialCtaText(e.target.value)}
+                    placeholder="Accéder à mon cockpit d'étude"
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                    Lien du Bouton
+                  </label>
+                  <input
+                    type="url"
+                    value={officialCtaUrl}
+                    onChange={(e) => setOfficialCtaUrl(e.target.value)}
+                    placeholder="https://reussirpolytech.vercel.app"
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-2">
+                  Audience Ciblée pour cet Envoi
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setOfficialTargetLevel('ALL')}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
+                      officialTargetLevel === 'ALL'
+                        ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    Tous ({realEmailStudents.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOfficialTargetLevel('MSP1')}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
+                      officialTargetLevel === 'MSP1'
+                        ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    MSP1 ({realEmailStudents.filter((s) => s.level.toUpperCase() === 'MSP1').length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOfficialTargetLevel('MSP2')}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
+                      officialTargetLevel === 'MSP2'
+                        ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    MSP2 ({realEmailStudents.filter((s) => s.level.toUpperCase() === 'MSP2').length})
+                  </button>
+                </div>
+                {selectedStudentIds.size > 0 && (
+                  <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-2">
+                    ℹ️ {selectedStudentIds.size} élève(s) sont cochés manuellement dans le répertoire. L&apos;envoi ciblera uniquement ces élèves.
+                  </p>
+                )}
+              </div>
+
               <button
-                type="button"
-                onClick={() => setOfficialTargetLevel('ALL')}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
-                  officialTargetLevel === 'ALL'
-                    ? 'bg-[#0284C7] text-white border-[#0284C7]'
-                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
-                }`}
+                onClick={handleStartSequentialSend}
+                disabled={sendingOfficial || data?.settings.isGlobalPaused}
+                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-black text-xs uppercase tracking-wider shadow-lg hover:opacity-95 active:scale-98 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
               >
-                Tous les Étudiants ({realEmailStudents.length})
+                {sendingOfficial ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Envoi séquentiel en cours...</span>
+                  </>
+                ) : (
+                  <>
+                    <SendHorizontal className="w-4 h-4" />
+                    <span>
+                      Lancer l&apos;Envoi Séquentiel 1 par 1 (
+                      {selectedStudentIds.size > 0
+                        ? `${selectedStudentIds.size} élèves cochés`
+                        : officialTargetLevel === 'ALL'
+                        ? `${realEmailStudents.length} élèves`
+                        : `${realEmailStudents.filter((s) => s.level.toUpperCase() === officialTargetLevel).length} élèves (${officialTargetLevel})`}
+                      )
+                    </span>
+                  </>
+                )}
               </button>
-              <button
-                type="button"
-                onClick={() => setOfficialTargetLevel('MSP1')}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
-                  officialTargetLevel === 'MSP1'
-                    ? 'bg-[#0284C7] text-white border-[#0284C7]'
-                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                Promotion MSP1 ({realEmailStudents.filter((s) => s.level.toUpperCase() === 'MSP1').length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setOfficialTargetLevel('MSP2')}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
-                  officialTargetLevel === 'MSP2'
-                    ? 'bg-[#0284C7] text-white border-[#0284C7]'
-                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                Promotion MSP2 ({realEmailStudents.filter((s) => s.level.toUpperCase() === 'MSP2').length})
-              </button>
-            </div>
-            {selectedStudentIds.size > 0 && (
-              <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-2">
-                ℹ️ {selectedStudentIds.size} élève(s) sont sélectionnés manuellement dans le répertoire. L&apos;envoi ciblera uniquement ces élèves.
+
+              <p className="text-[11px] text-center text-slate-400">
+                🔒 Envoi automatique échelonné (650 ms d&apos;intervalle) pour éviter tout risque de signalement spam ou de quota SMTP Gmail.
               </p>
-            )}
+            </div>
+
+            {/* Aperçu Live Réactif */}
+            <div className="lg:col-span-5 bg-white dark:bg-[#0F172A] rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800/80 shadow-sm flex flex-col">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-3">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-[#0284C7]" />
+                  <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider font-heading">
+                    Aperçu Direct du Rendu
+                  </span>
+                </div>
+
+                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setComposerPreviewDevice('desktop')}
+                    className={`p-1.5 rounded-lg transition-all ${
+                      composerPreviewDevice === 'desktop'
+                        ? 'bg-white dark:bg-slate-700 text-[#0284C7] shadow-sm'
+                        : 'text-slate-400 hover:text-slate-600'
+                    }`}
+                    title="Aperçu Ordinateur"
+                  >
+                    <Monitor className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setComposerPreviewDevice('mobile')}
+                    className={`p-1.5 rounded-lg transition-all ${
+                      composerPreviewDevice === 'mobile'
+                        ? 'bg-white dark:bg-slate-700 text-[#0284C7] shadow-sm'
+                        : 'text-slate-400 hover:text-slate-600'
+                    }`}
+                    title="Aperçu Téléphone Mobile"
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 bg-slate-100 dark:bg-[#070D18] rounded-2xl p-2 sm:p-3 overflow-hidden flex items-center justify-center min-h-[480px]">
+                <div
+                  className={`transition-all bg-white shadow-lg rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 ${
+                    composerPreviewDevice === 'mobile' ? 'w-[320px] h-[520px]' : 'w-full h-[520px]'
+                  }`}
+                >
+                  <iframe
+                    title="Aperçu En Direct"
+                    srcDoc={renderOfficialAdminEmail({
+                      recipientName: 'Alexandre NGOUA',
+                      recipientEmail: 'alexandre.ngoua@polytech.rp',
+                      subject: officialSubject,
+                      headline: officialHeadline,
+                      senderTitle: officialSenderTitle,
+                      senderSignature: officialSenderSignature,
+                      messageContent: officialContent.replace(/\{nom\}/g, 'Alexandre NGOUA'),
+                      ctaText: officialCtaText.trim() || undefined,
+                      ctaUrl: officialCtaUrl.trim() || undefined,
+                      targetLevel: officialTargetLevel,
+                    }).html}
+                    className="w-full h-full border-0"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SOUS-ONGLET 2 : DIFFUSION DE NOTIFICATION PUSH & SONORE AUX TÉLÉPHONES */}
+      {activeSubTab === 'notifications' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Formulaire de Diffusion */}
+          <div className="lg:col-span-7 bg-white dark:bg-[#0F172A] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-4">
+            <div className="pb-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-amber-500 block">
+                  Web Push &bull; Sonnerie Harmonique
+                </span>
+                <h4 className="text-base font-black text-slate-900 dark:text-white font-heading">
+                  Diffuser une Notification en Direct aux Mobiles
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => playNotificationSound()}
+                className="px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold hover:bg-amber-500/25 transition-all flex items-center gap-1.5"
+              >
+                <Volume2 className="w-3.5 h-3.5" />
+                <span>Tester la Sonnerie 🔔</span>
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                Titre de la Notification
+              </label>
+              <input
+                type="text"
+                value={notifTitle}
+                onChange={(e) => setNotifTitle(e.target.value)}
+                placeholder="ex: 📚 Nouveau cours d'Algèbre disponible"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {['📚 Nouveau cours', '🔔 Annonce Officielle', '⚡ Séance d\'encadrement', '🎯 Annales résolues'].map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setNotifTitle(t)}
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                Message Court (affiché sur l&apos;écran du téléphone)
+              </label>
+              <textarea
+                value={notifMessage}
+                onChange={(e) => setNotifMessage(e.target.value)}
+                rows={4}
+                placeholder="Saisissez le texte de l'alerte..."
+                className="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                  Niveau Ciblé
+                </label>
+                <select
+                  value={notifTargetLevel}
+                  onChange={(e) => setNotifTargetLevel(e.target.value as 'ALL' | 'MSP1' | 'MSP2')}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white focus:outline-none"
+                >
+                  <option value="ALL">Tous les étudiants (MSP1 &amp; MSP2)</option>
+                  <option value="MSP1">Promotion MSP1 uniquement</option>
+                  <option value="MSP2">Promotion MSP2 uniquement</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                  Lien de Redirection au Clic
+                </label>
+                <input
+                  type="text"
+                  value={notifUrl}
+                  onChange={(e) => setNotifUrl(e.target.value)}
+                  placeholder="/notifications"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-white focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleSendPushBroadcast}
+              disabled={sendingNotif}
+              className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-white font-black text-xs uppercase tracking-wider shadow-lg hover:opacity-95 active:scale-98 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+            >
+              {sendingNotif ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Diffusion de la notification sonore...</span>
+                </>
+              ) : (
+                <>
+                  <BellRing className="w-4 h-4" />
+                  <span>Diffuser l&apos;Alerte Sonore &amp; Push à tous les Mobiles</span>
+                </>
+              )}
+            </button>
           </div>
 
-          <button
-            onClick={handleSendOfficialBroadcast}
-            disabled={sendingOfficial || data?.settings.isGlobalPaused}
-            className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-black text-xs uppercase tracking-wider shadow-lg hover:opacity-95 active:scale-98 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-          >
-            {sendingOfficial ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Expédition en cours...</span>
-              </>
-            ) : (
-              <>
-                <SendHorizontal className="w-4 h-4" />
-                <span>
-                  Expédier ce Mail Officiel à{' '}
-                  {selectedStudentIds.size > 0
-                    ? `${selectedStudentIds.size} élève(s) sélectionné(s)`
-                    : officialTargetLevel === 'ALL'
-                    ? `${realEmailStudents.length} élèves inscrits`
-                    : `${realEmailStudents.filter((s) => s.level.toUpperCase() === officialTargetLevel).length} élèves (${officialTargetLevel})`}
-                </span>
-              </>
-            )}
-          </button>
+          {/* Aperçu Téléphone & Caractéristiques */}
+          <div className="lg:col-span-5 space-y-4">
+            <div className="bg-white dark:bg-[#0F172A] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-4">
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
+                Aperçu sur Téléphone Portable
+              </span>
+
+              {/* Notification Banner Mockup */}
+              <div className="p-4 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-xl space-y-2">
+                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded bg-[#0284C7] flex items-center justify-center text-[9px] font-black text-white">
+                      RP
+                    </div>
+                    <span className="font-bold text-slate-200">RÉUSSIR POLYTECH</span>
+                  </div>
+                  <span>Maintenant &bull; 🔔 Sonnerie</span>
+                </div>
+                <p className="text-xs font-black text-white">{notifTitle || 'Titre de la notification'}</p>
+                <p className="text-xs text-slate-300 leading-relaxed">{notifMessage || 'Contenu du message de la notification...'}</p>
+              </div>
+
+              {/* Points clés du système de push */}
+              <div className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Arrière-plan réel :</strong> Fonctionne même quand l&apos;application ou le navigateur est complètement fermé.
+                  </span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Sonnerie officielle Réussir Polytech :</strong> Déclenche la double harmonique sonore C6 &rarr; G6 et la vibration.
+                  </span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Centre de notifications étudiant :</strong> Archivé directement dans la page <code>/notifications</code> de chaque élève.
+                  </span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Zéro simulation :</strong> Seuls les vrais étudiants connectés reçoivent les alertes en direct.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

@@ -4,7 +4,7 @@
  * Règle impérative : Ne jamais mettre en cache les routes sensibles (/admin, /api/*, /auth).
  */
 
-const CACHE_NAME = 'rp-cache-v1';
+const CACHE_NAME = 'rp-cache-v2';
 
 const STATIC_ASSETS = [
   '/',
@@ -13,6 +13,7 @@ const STATIC_ASSETS = [
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
   '/assets/logo-polytech.png',
+  '/sounds/notification.wav',
 ];
 
 // 1. Installation du Service Worker
@@ -115,7 +116,8 @@ self.addEventListener('push', (event) => {
   let payload = {
     title: 'RÉUSSIR POLYTECH',
     body: '« L\'excellence est notre seul standard. » — Retrouvez vos cours et annales.',
-    url: '/',
+    url: '/notifications',
+    tag: `polytech_alert_${Date.now()}`,
   };
 
   try {
@@ -133,16 +135,24 @@ self.addEventListener('push', (event) => {
     body: payload.body,
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-192x192.png',
-    vibrate: [100, 50, 100],
+    vibrate: [250, 100, 250, 100, 250],
+    sound: '/sounds/notification.wav',
+    tag: payload.tag || 'polytech-alert',
+    renotify: true,
     data: {
-      url: payload.url || '/',
+      url: payload.url || '/notifications',
       dateOfArrival: Date.now(),
     },
     actions: [
-      { action: 'open', title: 'Ouvrir la plateforme' },
+      { action: 'open', title: 'Ouvrir' },
       { action: 'close', title: 'Fermer' },
     ],
   };
+
+  // Mettre à jour le badge sur l'icône de l'écran d'accueil
+  if ('setAppBadge' in navigator) {
+    (navigator as unknown as { setAppBadge: (count?: number) => Promise<void> }).setAppBadge(1).catch(() => {});
+  }
 
   event.waitUntil(
     self.registration.showNotification(payload.title, options)
@@ -153,11 +163,16 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
+  // Effacer le badge
+  if ('clearAppBadge' in navigator) {
+    (navigator as unknown as { clearAppBadge: () => Promise<void> }).clearAppBadge().catch(() => {});
+  }
+
   if (event.action === 'close') {
     return;
   }
 
-  const targetUrl = event.notification.data?.url || '/';
+  const targetUrl = event.notification.data?.url || '/notifications';
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {

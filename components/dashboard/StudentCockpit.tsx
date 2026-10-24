@@ -11,7 +11,9 @@ import {
   Flame,
   Search,
   Sparkles,
+  Bell,
 } from 'lucide-react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabaseClient';
 import { SubjectCard } from '@/components/academic/SubjectCard';
 import { getSubjectsByLevelAndSemester } from '@/data/curriculum';
@@ -37,56 +39,39 @@ export function StudentCockpit({ level, title, subtitle }: StudentCockpitProps) 
     avatarUrl?: string | null;
   }>({});
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [simulatedActive, setSimulatedActive] = useState(31);
-  const [joinedCount, setJoinedCount] = useState(0);
+  const [unreadNotifsCount, setUnreadNotifsCount] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [recentNotification, setRecentNotification] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    // 1. Initialiser ou récupérer l'affluence de la session
-    const savedActive = sessionStorage.getItem(`rp_active_${level}`);
-    const initialBase = savedActive ? parseInt(savedActive, 10) : 31;
-    setSimulatedActive(initialBase);
-
-    // 2. Timer d'écoulement du temps (chaque seconde)
+    // Timer d'écoulement du temps de révision
     const elapsedInterval = setInterval(() => {
       setElapsedSeconds((prev) => prev + 1);
     }, 1000);
 
-    // 3. Plus le temps passe, plus le nombre de camarades connectés AUGMENTE !
-    // Toutes les 15 à 30 secondes, un nouveau camarade se connecte
-    const activities = [
-      'vient d\'ouvrir le cours d\'Algèbre Linéaire',
-      'vient de télécharger l\'épreuve de Physique CC',
-      'vient de lancer la révision d\'Analyse',
-      'vient de rejoindre la salle d\'étude',
-      'est en train de s\'entraîner sur les annales d\'examens',
-      'consulte la fiche de TD n°2',
-      'vient de commencer un marathon de révision',
-    ];
+    return () => clearInterval(elapsedInterval);
+  }, []);
 
-    const comradesInterval = setInterval(() => {
-      setSimulatedActive((prev) => {
-        const next = prev + 1;
-        sessionStorage.setItem(`rp_active_${level}`, next.toString());
-        return next;
-      });
-      setJoinedCount((prev) => prev + 1);
+  // Récupérer le nombre de notifications non lues réelles de l'étudiant
+  useEffect(() => {
+    if (!student.id) return;
 
-      // Notification discrète d'activité
-      const randomActivity = activities[Math.floor(Math.random() * activities.length)];
-      setRecentNotification(`+1 camarade ${randomActivity} !`);
-      setTimeout(() => setRecentNotification(null), 4000);
-    }, 22000); // Toutes les 22 secondes
-
-    return () => {
-      clearInterval(elapsedInterval);
-      clearInterval(comradesInterval);
+    const fetchNotifsCount = async () => {
+      try {
+        const res = await fetch(`/api/notifications?userId=${student.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setUnreadNotifsCount(data.unreadCount || 0);
+        }
+      } catch {}
     };
-  }, [level]);
+
+    fetchNotifsCount();
+    const interval = setInterval(fetchNotifsCount, 40000);
+    return () => clearInterval(interval);
+  }, [student.id]);
 
   useEffect(() => {
     // 2. Récupérer la session locale
@@ -278,6 +263,20 @@ export function StudentCockpit({ level, title, subtitle }: StudentCockpitProps) 
               <span>Mon Profil</span>
             </button>
 
+            <Link
+              href="/notifications"
+              className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all bg-white/10 hover:bg-white/15 text-white border border-white/10 relative"
+              title="Centre de notifications & alertes sonores"
+            >
+              <Bell className="w-4 h-4 text-[#D4AF37]" />
+              <span>Notifications</span>
+              {unreadNotifsCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-[#D4AF37] text-slate-950 font-black text-[10px]">
+                  {unreadNotifsCount}
+                </span>
+              )}
+            </Link>
+
             <button
               onClick={handleSignOut}
               title="Déconnexion"
@@ -288,65 +287,52 @@ export function StudentCockpit({ level, title, subtitle }: StudentCockpitProps) 
           </div>
         </div>
 
-        {/* 2. BANNIÈRE SOCIALE & MOTIVATION ("L'application cause avec l'étudiant") */}
-        <div className="mt-6 pt-5 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-sky-500/10 p-4 sm:p-5 rounded-2xl border border-amber-500/30 relative">
+        {/* 2. BANNIÈRE SOCIALE & MOTIVATION RÉELLE DE L'INGÉNIEUR */}
+        <div className="mt-6 pt-5 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-gradient-to-r from-sky-500/15 via-[#0284C7]/15 to-amber-500/10 p-4 sm:p-5 rounded-2xl border border-sky-400/30 relative">
           <div className="flex items-start gap-3.5">
-            <div className="p-3 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex-shrink-0 relative">
-              <Flame className="w-6 h-6 text-amber-400 animate-pulse" />
-              {joinedCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.2 rounded-full bg-emerald-500 text-slate-950 font-black text-[9px] animate-bounce">
-                  +{joinedCount}
-                </span>
-              )}
+            <div className="p-3 rounded-2xl bg-[#0284C7]/20 text-sky-300 border border-sky-400/40 flex-shrink-0">
+              <Flame className="w-6 h-6 text-[#D4AF37]" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                <span className="text-xs font-black uppercase tracking-wider text-amber-300 font-mono">
-                  En Direct — Salle d'Étude {level}
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-xs font-black uppercase tracking-wider text-sky-200 font-mono">
+                  Promotion 2026 — Filière {level}
                 </span>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-slate-200 border border-white/15">
                   ⏱️ Connecté depuis {Math.floor(elapsedSeconds / 60)} min {elapsedSeconds % 60} s
                 </span>
               </div>
               <p className="text-base sm:text-lg font-black text-white leading-snug">
-                <span className="text-amber-300 font-black text-lg sm:text-xl drop-shadow-[0_0_12px_rgba(251,191,36,0.5)]">
-                  {simulatedActive} camarades
-                </span>{' '}
-                sont en train d&apos;apprendre en ce moment même !
+                Communauté académique active &bull; Réussir Polytech
               </p>
-              <p className="text-xs sm:text-sm text-amber-100/90 font-medium mt-1">
-                {joinedCount > 0 ? (
-                  <span className="text-emerald-300 font-bold">
-                    🔥 <strong>+{joinedCount} nouveaux camarades</strong> ont commencé à bosser depuis que tu es sur cette page.
-                  </span>
-                ) : (
-                  <span>L&apos;affluence monte dans la promo.</span>
-                )}{' '}
-                <em>Qu&apos;attends-tu pour continuer à lire tes cours ? Pendant que tu dors ou hésites, les autres prennent de l&apos;avance !</em>
+              <p className="text-xs sm:text-sm text-sky-100/90 font-medium mt-1">
+                Polycopiés certifiés, travaux dirigés et annales d&apos;examens résolus : travaillez avec méthode et rigueur quotidienne pour viser le haut du classement.
               </p>
-
-              {/* Notification dynamique en direct d'un camarade qui rejoint */}
-              {recentNotification && (
-                <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold animate-fadeIn">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>{recentNotification}</span>
-                </div>
-              )}
             </div>
           </div>
 
-          <button
-            onClick={() => {
-              setActiveTab('courses');
-              const el = document.getElementById('subjects-grid');
-              el?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-[#D4AF37] hover:scale-105 active:scale-95 text-slate-950 font-black text-xs uppercase tracking-wider transition-all self-stretch md:self-auto text-center flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 flex-shrink-0"
-          >
-            <Sparkles className="w-4 h-4 text-slate-950" />
-            <span>Ouvrir mes cours</span>
-          </button>
+          <div className="flex items-center gap-2.5 flex-shrink-0 flex-wrap">
+            <Link
+              href="/notifications"
+              className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white font-bold text-xs flex items-center gap-2 transition-all flex-shrink-0"
+            >
+              <Bell className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>Voir les actualités</span>
+            </Link>
+
+            <button
+              onClick={() => {
+                setActiveTab('courses');
+                const el = document.getElementById('subjects-grid');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-[#D4AF37] hover:scale-105 active:scale-95 text-slate-950 font-black text-xs uppercase tracking-wider transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 flex-shrink-0"
+            >
+              <Sparkles className="w-4 h-4 text-slate-950" />
+              <span>Ouvrir mes cours</span>
+            </button>
+          </div>
         </div>
       </div>
 

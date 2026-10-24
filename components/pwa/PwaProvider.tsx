@@ -1,55 +1,45 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, X, Bell, CheckCircle2, Smartphone, Share, PlusSquare, BookOpen, Users, Sparkles } from 'lucide-react';
+import {
+  Download,
+  X,
+  Bell,
+  CheckCircle2,
+  Smartphone,
+  Share,
+  PlusSquare,
+  BookOpen,
+  Sparkles,
+  Volume2,
+} from 'lucide-react';
+import { playNotificationSound } from '@/lib/sound';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-interface ActivityNotification {
+interface RealNotificationItem {
   id: string;
   title: string;
   message: string;
-  icon: 'user' | 'book' | 'star';
-  time: string;
+  type?: string;
   url?: string;
+  time?: string;
 }
 
-const SIMULATED_ACTIVITIES: Array<Omit<ActivityNotification, 'id' | 'time'>> = [
-  {
-    title: '🟢 Camarade connecté',
-    message: 'Alexandre N. (MSP2) vient de se connecter pour réviser l\'Algèbre multilinéaire.',
-    icon: 'user',
-    url: '/msp2',
-  },
-  {
-    title: '📚 Émulation collective',
-    message: '+48 élèves-ingénieurs révisent activement sur Réussir Polytech en ce moment.',
-    icon: 'star',
-    url: '/',
-  },
-  {
-    title: '✨ Nouveau corrigé officiel',
-    message: 'Annales résolues disponibles en Mécanique Rationnelle & Ondes (MSP1).',
-    icon: 'book',
-    url: '/msp1',
-  },
-  {
-    title: '🟢 Camarade connecté',
-    message: 'Emmanuel K. (MSP1) a ouvert le polycopié de Physique II.',
-    icon: 'user',
-    url: '/msp1',
-  },
-  {
-    title: '🚀 Session d\'étude active',
-    message: 'Les fiches de TD d\'Algorithmique avancée et Python sont en cours de consultation.',
-    icon: 'book',
-    url: '/msp2',
-  },
-];
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
 
 export function PwaProvider({ children }: { children: React.ReactNode }) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -58,9 +48,12 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
   const [pushStatus, setPushStatus] = useState<'default' | 'granted' | 'denied' | 'unsupported'>('default');
   const [isStandalone, setIsStandalone] = useState(false);
   const [showPushBanner, setShowPushBanner] = useState(false);
-  const [currentNotification, setCurrentNotification] = useState<ActivityNotification | null>(null);
+  const [currentNotification, setCurrentNotification] = useState<RealNotificationItem | null>(null);
+  const [vapidKey, setVapidKey] = useState<string>('');
 
-  // 1. Initialisation PWA, Badging & Service Worker
+  const lastSeenNotifIdRef = useRef<string | null>(null);
+
+  // 1. Initialisation PWA, Service Worker & Détection
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -74,6 +67,16 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
     if ('clearAppBadge' in navigator) {
       (navigator as unknown as { clearAppBadge: () => Promise<void> }).clearAppBadge().catch(() => {});
     }
+
+    // Récupération de la clé VAPID publique pour Web Push
+    fetch('/api/push/subscribe')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.vapidPublicKey) {
+          setVapidKey(data.vapidPublicKey);
+        }
+      })
+      .catch(() => {});
 
     // Détection iOS Safari pour guide d'installation
     const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream;
@@ -90,6 +93,12 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
+        .then((reg) => {
+          // Si les notifications sont déjà accordées, synchroniser l'abonnement push
+          if ('Notification' in window && Notification.permission === 'granted') {
+            syncPushSubscription(reg);
+          }
+        })
         .catch((err) => {
           console.warn('[PWA] Service Worker reporté:', err);
         });
@@ -133,7 +142,7 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
         const timer = setTimeout(() => {
           const dismissedPush = localStorage.getItem('rp_push_prompt_dismissed');
           if (!dismissedPush) setShowPushBanner(true);
-        }, 12000);
+        }, 10000);
         return () => clearTimeout(timer);
       }
     } else {
@@ -146,65 +155,128 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // 2. Déclenchement périodique d'alertes en direct (Social Proof & Émulation collective)
-  const triggerLiveActivity = useCallback((item: Omit<ActivityNotification, 'id' | 'time'>) => {
-    const notif: ActivityNotification = {
-      id: `act_${Date.now()}`,
-      title: item.title,
-      message: item.message,
-      icon: item.icon,
-      time: 'À l\'instant',
-      url: item.url,
-    };
+  // 2. Synchronisation de l'abonnement Push réel avec le serveur
+  const syncPushSubscription = useCallback(async (reg: ServiceWorkerRegistration) => {
+    try {
+      let sub = await reg.pushManager.getSubscription();
 
-    setCurrentNotification(notif);
-
-    // App Icon Badging (mise à jour de la pastille sur l'icône de l'écran d'accueil)
-    if ('setAppBadge' in navigator) {
-      (navigator as unknown as { setAppBadge: (count?: number) => Promise<void> }).setAppBadge(1).catch(() => {});
-    }
-
-    // Si notification autorisée par l'utilisateur, déclencher aussi une notification système native
-    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.ready.then((reg) => {
-          reg.showNotification(item.title, {
-            body: item.message,
-            icon: '/icons/icon-192x192.png',
-            badge: '/icons/icon-192x192.png',
-            data: { url: item.url || '/' },
-          } as unknown as NotificationOptions).catch(() => {});
+      if (!sub) {
+        const key = vapidKey || 'BIBL1ZYu_0FtmsLWPaPQhIr8yb-bOBHsZLzIpmLV-uqIyzXh0jymKuz87r8af-750IJ_cWV978KA65pJnmDNevM';
+        const convertedKey = urlBase64ToUint8Array(key);
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedKey as unknown as BufferSource,
         });
       }
+
+      if (sub) {
+        let userData: { id?: string; email?: string; name?: string; level?: string } = {};
+        try {
+          const saved = localStorage.getItem('polytech_user_session');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            userData = {
+              id: parsed.id,
+              email: parsed.email,
+              name: parsed.name,
+              level: parsed.level,
+            };
+          }
+        } catch {}
+
+        await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subscription: sub.toJSON(),
+            userId: userData.id,
+            userEmail: userData.email,
+            userName: userData.name,
+            level: userData.level,
+          }),
+        });
+      }
+    } catch (e) {
+      console.warn('[Push] Erreur synchronisation push:', e);
     }
+  }, [vapidKey]);
 
-    // Auto-fermeture du toast après 6 secondes
-    const hideTimer = setTimeout(() => {
-      setCurrentNotification(null);
-    }, 6000);
-
-    return () => clearTimeout(hideTimer);
-  }, []);
-
+  // 3. Écoute des VRAIES notifications depuis le serveur (aucune simulation)
   useEffect(() => {
-    // Premier déclenchement après 10s d'exploration
-    const initialTimer = setTimeout(() => {
-      triggerLiveActivity(SIMULATED_ACTIVITIES[0]);
-    }, 10000);
+    let interval: NodeJS.Timeout;
 
-    // Répétition toutes les 45 à 75 secondes
-    let idx = 1;
-    const interval = setInterval(() => {
-      const nextItem = SIMULATED_ACTIVITIES[idx % SIMULATED_ACTIVITIES.length];
-      triggerLiveActivity(nextItem);
-      idx++;
-    }, 55000);
+    const checkRealNotifications = async () => {
+      try {
+        let userId: string | null = null;
+        try {
+          const saved = localStorage.getItem('polytech_user_session');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            userId = parsed.id || null;
+          }
+        } catch {}
+
+        const url = userId ? `/api/notifications?userId=${userId}` : '/api/notifications';
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const list: Array<{ id: string; title: string; message: string; type?: string; created_at: string; read?: boolean }> =
+          data.notifications || [];
+
+        if (list.length > 0) {
+          const newest = list[0];
+          // Si on n'a pas encore initialisé, on mémorise le premier sans biper
+          if (!lastSeenNotifIdRef.current) {
+            lastSeenNotifIdRef.current = newest.id;
+            return;
+          }
+
+          // Si une nouvelle notification réelle arrive
+          if (newest.id !== lastSeenNotifIdRef.current && !newest.read) {
+            lastSeenNotifIdRef.current = newest.id;
+
+            // Déclencher la sonnerie réelle !
+            playNotificationSound();
+
+            // Vibreur téléphone
+            if ('vibrate' in navigator) {
+              navigator.vibrate([200, 100, 200]);
+            }
+
+            setCurrentNotification({
+              id: newest.id,
+              title: newest.title,
+              message: newest.message,
+              type: newest.type,
+              time: 'À l\'instant',
+            });
+
+            // Fermer après 7 secondes
+            setTimeout(() => {
+              setCurrentNotification((curr) => (curr?.id === newest.id ? null : curr));
+            }, 7000);
+          }
+        }
+      } catch {}
+    };
+
+    // Première vérification après 3 secondes
+    const initTimer = setTimeout(checkRealNotifications, 3000);
+    // Vérification périodique toutes les 35 secondes
+    interval = setInterval(checkRealNotifications, 35000);
+
+    const onFocus = () => {
+      checkRealNotifications();
+    };
+    window.addEventListener('focus', onFocus);
 
     return () => {
-      clearTimeout(initialTimer);
+      clearTimeout(initTimer);
       clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
     };
-  }, [triggerLiveActivity]);
+  }, []);
 
   const handleInstallClick = async () => {
     const promptEvent = deferredPrompt || (typeof window !== 'undefined' ? (window as unknown as { __rp_deferred_prompt?: BeforeInstallPromptEvent }).__rp_deferred_prompt : null);
@@ -239,13 +311,21 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
       setShowPushBanner(false);
 
       if (permission === 'granted') {
-        // Déclencher une notification de bienvenue immédiate
+        // Déclencher le son de confirmation
+        playNotificationSound();
+
+        // Enregistrer l'abonnement push réel
         if ('serviceWorker' in navigator) {
           const reg = await navigator.serviceWorker.ready;
+          await syncPushSubscription(reg);
+
+          // Notification native immédiate
           reg.showNotification('RÉUSSIR POLYTECH — Notifications Activées', {
-            body: '« L\'excellence est notre seul standard. » Vous recevrez désormais les alertes d\'étude et nouveaux cours.',
+            body: '« L\'excellence est notre seul standard. » Vous recevrez en direct les alertes lors de la mise en ligne de nouveaux cours.',
             icon: '/icons/icon-192x192.png',
             badge: '/icons/icon-192x192.png',
+            sound: '/sounds/notification.wav',
+            vibrate: [250, 100, 250],
           } as unknown as NotificationOptions).catch(() => {});
         }
       } else {
@@ -265,7 +345,7 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
     <>
       {children}
 
-      {/* TOAST D'ACTIVITÉ EN TEMPS RÉEL (SOCIAL PROOF POLYTECHNICIEN) */}
+      {/* TOAST DE NOTIFICATION RÉELLE EN DIRECT AVEC SONNERIE */}
       <AnimatePresence>
         {currentNotification && (
           <motion.div
@@ -274,29 +354,28 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
             exit={{ opacity: 0, y: -30, scale: 0.95 }}
             className="fixed top-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 z-50 pointer-events-auto"
           >
-            <div className="bg-white/95 dark:bg-[#0B1528]/95 border border-[#0284C7]/30 dark:border-[#0284C7]/40 rounded-2xl p-3.5 shadow-xl backdrop-blur-md flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-[#0284C7] flex-shrink-0 mt-0.5">
-                {currentNotification.icon === 'user' ? (
-                  <Users className="w-4 h-4" />
-                ) : currentNotification.icon === 'book' ? (
-                  <BookOpen className="w-4 h-4" />
-                ) : (
-                  <Sparkles className="w-4 h-4 text-[#D4AF37]" />
-                )}
+            <div className="bg-white/95 dark:bg-[#0B1528]/95 border-2 border-[#0284C7]/40 dark:border-[#0284C7]/50 rounded-2xl p-4 shadow-2xl backdrop-blur-md flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-[#0284C7] flex-shrink-0 mt-0.5">
+                <Bell className="w-4 h-4 animate-bounce text-[#0284C7]" />
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1">
-                  <p className="text-[11px] font-black text-slate-900 dark:text-white font-heading">
+                  <p className="text-[12px] font-black text-slate-900 dark:text-white font-heading">
                     {currentNotification.title}
                   </p>
-                  <span className="text-[9px] text-slate-400 font-mono">
-                    {currentNotification.time}
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    {currentNotification.time || 'En direct'}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-snug">
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-snug">
                   {currentNotification.message}
                 </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-[9px] font-bold text-sky-600 dark:text-sky-400 flex items-center gap-1">
+                    <Volume2 className="w-3 h-3" /> Alerte sonore active
+                  </span>
+                </div>
               </div>
 
               <button
@@ -304,7 +383,7 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5"
                 title="Fermer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </motion.div>
@@ -320,17 +399,17 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
             exit={{ opacity: 0, y: 50 }}
             className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 z-40"
           >
-            <div className="bg-gradient-to-r from-slate-900 to-[#0F172A] border border-[#D4AF37]/40 rounded-2xl p-4 shadow-2xl text-white flex items-center justify-between gap-3">
+            <div className="bg-gradient-to-r from-slate-900 to-[#0F172A] border border-[#D4AF37]/50 rounded-2xl p-4 shadow-2xl text-white flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center text-[#D4AF37] flex-shrink-0">
-                  <Bell className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center text-[#D4AF37] flex-shrink-0">
+                  <Bell className="w-5 h-5" />
                 </div>
                 <div>
                   <p className="text-xs font-black text-white font-heading">
-                    Notifications en Temps Réel
+                    Recevoir les Alertes avec Sonnerie
                   </p>
-                  <p className="text-[10px] text-slate-300">
-                    Soyez alerté des sessions d&apos;étude et des nouveaux corrigés
+                  <p className="text-[10px] text-slate-300 leading-tight mt-0.5">
+                    Soyez notifié sur votre téléphone lors de nouveaux cours et annonces, même application fermée.
                   </p>
                 </div>
               </div>
@@ -338,7 +417,7 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <button
                   onClick={handleEnablePush}
-                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] font-black text-xs hover:scale-105 active:scale-95 transition-transform shadow-md"
+                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#050B14] font-black text-xs hover:scale-105 active:scale-95 transition-transform shadow-md"
                 >
                   Activer
                 </button>

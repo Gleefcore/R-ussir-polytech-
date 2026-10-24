@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { broadcastPushNotification, createStudentNotifications } from '@/lib/pushService';
 
 // Assurer la résilience réseau en environnement local ou proxy
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -199,6 +200,25 @@ export async function POST(req: NextRequest) {
     if (insertError) {
       return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
+
+    // Déclencher les notifications réelles (Web Push + Espace Étudiant)
+    const targetLvl = meta.level === 'VIP' ? 'ALL' : meta.level;
+    const courseUrl = meta.level === 'MSP2' ? '/msp2' : meta.level === 'MSP1' ? '/msp1' : '/entrepreneur-vip';
+
+    createStudentNotifications({
+      title: `📚 Nouveau document : ${meta.name}`,
+      message: `Le document « ${title} » (${type.toUpperCase()}) vient d'être mis en ligne pour vos révisions.`,
+      type: 'academic',
+      targetLevel: targetLvl as 'ALL' | 'MSP1' | 'MSP2',
+      url: courseUrl,
+    }).catch((e) => console.warn('Erreur notif etudiant:', e));
+
+    broadcastPushNotification({
+      title: `📚 Nouveau cours en ${meta.name}`,
+      body: `« ${title} » est disponible en ligne pour votre promotion. Touchez pour réviser.`,
+      url: courseUrl,
+      level: targetLvl as 'ALL' | 'MSP1' | 'MSP2',
+    }).catch((e) => console.warn('Erreur push publication:', e));
 
     return NextResponse.json({
       success: true,
