@@ -42,9 +42,66 @@ function escapeHtml(str: string): string {
 }
 
 /* ========================================================================= */
+/* TYPOGRAPHIES MULTI-STYLES PERSONNALISABLES POUR LES EMAILS               */
+/* ========================================================================= */
+export type TypographyKey = 'modern' | 'serif' | 'mono' | 'classic' | 'display';
+
+export interface TypographyOption {
+  id: TypographyKey;
+  name: string;
+  fontFamily: string;
+  category: string;
+  description: string;
+}
+
+export const EMAIL_TYPOGRAPHIES: Record<TypographyKey, TypographyOption> = {
+  modern: {
+    id: 'modern',
+    name: 'Moderne Sans-Serif (Standard Polytech)',
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+    category: 'Sans-Serif',
+    description: 'Design épuré, dynamique et ultra-lisible sur iPhone et Android.',
+  },
+  serif: {
+    id: 'serif',
+    name: 'Prestige & Solennité (Serif Académique)',
+    fontFamily: "'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif",
+    category: 'Serif',
+    description: 'Typographie institutionnelle et solennelle pour communiqués officiels.',
+  },
+  mono: {
+    id: 'mono',
+    name: 'Ingénieur & Technique (Monospace)',
+    fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, Menlo, Monaco, 'Courier New', monospace",
+    category: 'Monospace',
+    description: 'Style laboratoire d\'ingénierie, calcul scientifique et code haute précision.',
+  },
+  classic: {
+    id: 'classic',
+    name: 'Humaniste Équilibré (Outfit & Jakarta)',
+    fontFamily: "'Plus Jakarta Sans', 'Outfit', 'Segoe UI', Roboto, Arial, sans-serif",
+    category: 'Humanist',
+    description: 'Élégante, chaleureuse et harmonieuse pour les lettres aux étudiants.',
+  },
+  display: {
+    id: 'display',
+    name: 'Impact & Dynamique (Annonce Urgente)',
+    fontFamily: "'Trebuchet MS', 'Arial Black', Impact, 'Helvetica Neue', sans-serif",
+    category: 'Display',
+    description: 'Typographie affirmée et percutante pour capter immédiatement l\'attention.',
+  },
+};
+
+export function resolveFontFamily(key?: string): string {
+  if (!key) return EMAIL_TYPOGRAPHIES.modern.fontFamily;
+  const match = EMAIL_TYPOGRAPHIES[key.toLowerCase() as TypographyKey];
+  return match ? match.fontFamily : EMAIL_TYPOGRAPHIES.modern.fontFamily;
+}
+
+/* ========================================================================= */
 /* MOTEUR RESPONSIVE MULTI-APPAREILS (iPhone, Android, Desktop, Outlook)     */
 /* ========================================================================= */
-function getBaseEmailStyles(): string {
+function getBaseEmailStyles(fontFamily: string = EMAIL_TYPOGRAPHIES.modern.fontFamily): string {
   return `
     :root {
       color-scheme: light;
@@ -59,13 +116,14 @@ function getBaseEmailStyles(): string {
       background-color: #F8FAFC !important;
       -webkit-text-size-adjust: 100% !important;
       -ms-text-size-adjust: 100% !important;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+      font-family: ${fontFamily} !important;
       -webkit-font-smoothing: antialiased !important;
     }
     table, td {
       mso-table-lspace: 0pt !important;
       mso-table-rspace: 0pt !important;
       border-collapse: collapse !important;
+      font-family: ${fontFamily} !important;
     }
     img {
       border: 0 !important;
@@ -209,13 +267,17 @@ function renderResponsiveShell({
   badgeText = 'PROMOTION 2026',
   contentHtml,
   footerDisclaimer,
+  typography,
 }: {
   subject: string;
   preheader: string;
   badgeText?: string;
   contentHtml: string;
   footerDisclaimer: string;
+  typography?: string;
 }): string {
+  const fontFamily = resolveFontFamily(typography);
+
   return `<!doctype html>
 <html lang="fr" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -237,16 +299,16 @@ function renderResponsiveShell({
   </noscript>
   <![endif]-->
   <style>
-${getBaseEmailStyles()}
+${getBaseEmailStyles(fontFamily)}
   </style>
 </head>
-<body style="margin:0;padding:0;background-color:#F8FAFC;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+<body style="margin:0;padding:0;background-color:#F8FAFC;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;font-family:${fontFamily};">
   <!-- Pré-en-tête discret -->
   <div style="display:none;font-size:1px;line-height:1px;color:#F8FAFC;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">
     ${escapeHtml(preheader)}
   </div>
 
-  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="wrapper-table" style="background-color:#F8FAFC;padding:32px 12px;width:100%;table-layout:fixed;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="wrapper-table" style="background-color:#F8FAFC;padding:32px 12px;width:100%;table-layout:fixed;font-family:${fontFamily};">
     <tr>
       <td align="center" class="wrapper-td">
         <!--[if (gte mso 9)|(IE)]>
@@ -254,13 +316,13 @@ ${getBaseEmailStyles()}
         <tr>
         <td align="center" valign="top" width="600">
         <![endif]-->
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="container" style="max-width:600px;background-color:#FFFFFF;border-radius:18px;border:1px solid #E2E8F0;box-shadow:0 8px 30px rgba(15,23,42,0.06);overflow:hidden;margin:0 auto;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="container" style="max-width:600px;background-color:#FFFFFF;border-radius:18px;border:1px solid #E2E8F0;box-shadow:0 8px 30px rgba(15,23,42,0.06);overflow:hidden;margin:0 auto;font-family:${fontFamily};">
           
           ${renderResponsiveHeader(badgeText)}
 
           <!-- CORPS PRINCIPAL ÉPURÉ -->
           <tr>
-            <td class="mobile-padding" style="padding:32px 32px 26px;">
+            <td class="mobile-padding" style="padding:32px 32px 26px;font-family:${fontFamily};">
               ${contentHtml}
             </td>
           </tr>
@@ -827,6 +889,9 @@ export interface OfficialAdminEmailParams {
   ctaText?: string;
   ctaUrl?: string;
   targetLevel?: string;
+  imageUrl?: string;
+  imageCaption?: string;
+  typography?: string;
 }
 
 export function renderOfficialAdminEmail({
@@ -840,6 +905,9 @@ export function renderOfficialAdminEmail({
   ctaText,
   ctaUrl,
   targetLevel,
+  imageUrl,
+  imageCaption,
+  typography = 'modern',
 }: OfficialAdminEmailParams) {
   const safeName = escapeHtml(recipientName || 'Élève-Ingénieur');
   const safeEmail = escapeHtml(recipientEmail);
@@ -848,6 +916,8 @@ export function renderOfficialAdminEmail({
   const safeSenderTitle = escapeHtml(senderTitle);
   const safeSenderSignature = escapeHtml(senderSignature);
   const safeTargetLevel = targetLevel ? escapeHtml(targetLevel.toUpperCase()) : 'PROMOTION 2026';
+  const safeImageUrl = imageUrl ? escapeHtml(imageUrl.trim()) : '';
+  const safeImageCaption = imageCaption ? escapeHtml(imageCaption.trim()) : '';
 
   // Formatage propre des sauts de ligne pour le corps du texte
   const formattedContent = escapeHtml(messageContent)
@@ -870,6 +940,22 @@ export function renderOfficialAdminEmail({
               <div style="font-size:12px;font-weight:700;color:#B8860B;margin-bottom:22px;">
                 Émis par : ${safeSenderTitle}
               </div>
+
+              <!-- PHOTO OFFICIELLE INCLUSE DANS LE MAIL (RESPONSIVE MULTI-APPAREILS) -->
+              ${safeImageUrl ? `
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:16px 0 24px;">
+                <tr>
+                  <td align="center" style="padding:0;">
+                    <div style="border-radius:14px;overflow:hidden;border:1px solid #E2E8F0;box-shadow:0 6px 20px rgba(15,23,42,0.08);background:#0F172A;max-width:100%;">
+                      <img src="${safeImageUrl}" alt="${safeImageCaption || safeHeadline || 'Photo officielle Réussir Polytech'}" style="display:block;width:100%;max-width:100%;height:auto;border-radius:13px;object-fit:cover;" />
+                    </div>
+                    ${safeImageCaption ? `
+                    <div style="font-size:11px;line-height:16px;color:#64748B;font-style:italic;margin-top:8px;text-align:center;">
+                      ${safeImageCaption}
+                    </div>` : ''}
+                  </td>
+                </tr>
+              </table>` : ''}
 
               <!-- Contenu du message -->
               <div style="margin-bottom:24px;">
@@ -918,6 +1004,7 @@ export function renderOfficialAdminEmail({
     badgeText: safeTargetLevel,
     contentHtml,
     footerDisclaimer: `Communiqué officiel de l'administration adressé à ${safeEmail}.`,
+    typography,
   });
 
   const text = `RÉUSSIR POLYTECH — COMMUNIQUÉ OFFICIEL
@@ -929,7 +1016,7 @@ ${headline}
 Bonjour ${recipientName || 'Élève-Ingénieur'},
 
 ${messageContent}
-
+${imageUrl ? `\n[Photo jointe : ${imageUrl}]\n` : ''}
 ${ctaText && ctaUrl ? `\nLien : ${ctaUrl}\n` : ''}
 
 Rigueur, entraide et ambition : ensemble, faisons rayonner l'ingénierie camerounaise.

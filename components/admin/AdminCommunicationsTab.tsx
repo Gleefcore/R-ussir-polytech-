@@ -33,6 +33,12 @@ import {
   Play,
   Square,
   Volume2,
+  Image as ImageIcon,
+  UploadCloud,
+  Trash2,
+  Type,
+  FileImage,
+  X,
 } from 'lucide-react';
 import { playNotificationSound } from '@/lib/sound';
 import {
@@ -42,7 +48,10 @@ import {
   renderOfficialAdminEmail,
   renderAppAnnouncementEmail,
   renderWeeklyEmail,
-  WeeklyResource,
+  EMAIL_TYPOGRAPHIES,
+  type TypographyKey,
+  resolveFontFamily,
+  type WeeklyResource,
 } from '@/lib/emailTemplates';
 import { vipPrograms, VipProgram } from '@/data/vipPrograms';
 
@@ -140,6 +149,10 @@ export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }
   const [officialCtaText, setOfficialCtaText] = useState('Accéder à mon cockpit d\'étude');
   const [officialCtaUrl, setOfficialCtaUrl] = useState('https://reussirpolytech.vercel.app');
   const [officialTargetLevel, setOfficialTargetLevel] = useState<'ALL' | 'MSP1' | 'MSP2'>('ALL');
+  const [officialImageUrl, setOfficialImageUrl] = useState<string>('');
+  const [officialImageCaption, setOfficialImageCaption] = useState<string>('');
+  const [officialTypography, setOfficialTypography] = useState<TypographyKey>('modern');
+  const [isUploadingEmailPhoto, setIsUploadingEmailPhoto] = useState(false);
   const [sendingOfficial, setSendingOfficial] = useState(false);
   const [sendingAppLaunch, setSendingAppLaunch] = useState(false);
   const [composerPreviewDevice, setComposerPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
@@ -183,8 +196,53 @@ export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }
   const [notifMessage, setNotifMessage] = useState('Les annales résolues et fiches de travaux dirigés sont disponibles dans votre cockpit. Connectez-vous pour réviser.');
   const [notifTargetLevel, setNotifTargetLevel] = useState<'ALL' | 'MSP1' | 'MSP2'>('ALL');
   const [notifUrl, setNotifUrl] = useState('/notifications');
+  const [notifImageUrl, setNotifImageUrl] = useState<string>('');
+  const [isUploadingNotifPhoto, setIsUploadingNotifPhoto] = useState(false);
   const [sendingNotif, setSendingNotif] = useState(false);
   const [pushDevicesCount, setPushDevicesCount] = useState<number | null>(null);
+
+  // Téléversement d'image (toute taille acceptée, hébergement Supabase Storage)
+  const handleUploadPhoto = async (
+    file: File,
+    target: 'email' | 'notification'
+  ) => {
+    if (!file) return;
+    if (target === 'email') setIsUploadingEmailPhoto(true);
+    else setIsUploadingNotifPhoto(true);
+    setFeedback(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', target === 'email' ? 'communications' : 'notifications');
+
+      const res = await fetch('/api/admin/upload-media', {
+        method: 'POST',
+        headers: {
+          'x-admin-key': accessKey,
+        },
+        body: formData,
+      });
+
+      const json = await res.json();
+      if (json.success && json.url) {
+        if (target === 'email') {
+          setOfficialImageUrl(json.url);
+          setFeedback({ type: 'success', text: `Photo attachée à l'email avec succès (${Math.round(file.size / 1024)} Ko) !` });
+        } else {
+          setNotifImageUrl(json.url);
+          setFeedback({ type: 'success', text: `Photo de notification prête (${Math.round(file.size / 1024)} Ko) !` });
+        }
+      } else {
+        setFeedback({ type: 'error', text: json.error || 'Erreur lors du téléversement de la photo.' });
+      }
+    } catch {
+      setFeedback({ type: 'error', text: 'Erreur réseau lors du téléversement de la photo.' });
+    } finally {
+      if (target === 'email') setIsUploadingEmailPhoto(false);
+      else setIsUploadingNotifPhoto(false);
+    }
+  };
 
   // Recherche & Sélection d'Étudiants
   const [searchQuery, setSearchQuery] = useState('');
@@ -406,6 +464,9 @@ export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }
             ctaText: officialCtaText.trim() || undefined,
             ctaUrl: officialCtaUrl.trim() || undefined,
             targetLevel: officialTargetLevel === 'ALL' ? undefined : officialTargetLevel,
+            imageUrl: officialImageUrl.trim() || undefined,
+            imageCaption: officialImageCaption.trim() || undefined,
+            typography: officialTypography,
             students: [
               {
                 id: student.id,
@@ -523,6 +584,7 @@ export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }
           message: notifMessage,
           targetLevel: notifTargetLevel,
           url: notifUrl.trim() || '/notifications',
+          imageUrl: notifImageUrl.trim() || undefined,
         }),
       });
 
@@ -532,6 +594,7 @@ export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }
         setFeedback({ type: 'success', text: json.message || 'Notification diffusée avec succès !' });
         setNotifTitle('');
         setNotifMessage('');
+        setNotifImageUrl('');
       } else {
         setFeedback({ type: 'error', text: json.error || 'Erreur lors de la diffusion.' });
       }
@@ -645,6 +708,19 @@ export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }
           action: 'send_test_email',
           toEmail: testEmailAddress.trim(),
           templateType: testTemplate,
+          officialParams: {
+            subject: officialSubject,
+            headline: officialHeadline,
+            senderTitle: officialSenderTitle,
+            senderSignature: officialSenderSignature,
+            messageContent: officialContent,
+            ctaText: officialCtaText,
+            ctaUrl: officialCtaUrl,
+            targetLevel: officialTargetLevel,
+            imageUrl: officialImageUrl.trim() || undefined,
+            imageCaption: officialImageCaption.trim() || undefined,
+            typography: officialTypography,
+          },
         }),
       });
       const json = await res.json();
@@ -716,6 +792,9 @@ export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }
         ctaText: officialCtaText || undefined,
         ctaUrl: officialCtaUrl || undefined,
         targetLevel: officialTargetLevel,
+        imageUrl: officialImageUrl.trim() || undefined,
+        imageCaption: officialImageCaption.trim() || undefined,
+        typography: officialTypography,
       }).html
     : previewTemplate === 'promotion'
     ? renderPromotionFormationEmail({
@@ -1346,6 +1425,159 @@ export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }
                 />
               </div>
 
+              {/* SÉLECTEUR DE TYPOGRAPHIE PERSONNALISABLE */}
+              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono flex items-center gap-1.5">
+                    <Type className="w-3.5 h-3.5 text-[#0284C7]" />
+                    <span>Style Typographique de l&apos;Email</span>
+                  </label>
+                  <span className="text-[11px] font-mono text-[#0284C7] font-semibold">
+                    {EMAIL_TYPOGRAPHIES[officialTypography]?.name}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                  {(Object.keys(EMAIL_TYPOGRAPHIES) as TypographyKey[]).map((typoKey) => {
+                    const option = EMAIL_TYPOGRAPHIES[typoKey];
+                    const isSelected = officialTypography === typoKey;
+                    return (
+                      <button
+                        key={typoKey}
+                        type="button"
+                        onClick={() => setOfficialTypography(typoKey)}
+                        className={`p-2.5 rounded-xl border text-left transition-all relative ${
+                          isSelected
+                            ? 'border-[#0284C7] bg-sky-50 dark:bg-sky-950/40 text-slate-900 dark:text-white shadow-sm ring-2 ring-[#0284C7]/20'
+                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                            {option.category}
+                          </span>
+                          {isSelected && <span className="w-2 h-2 rounded-full bg-[#0284C7]" />}
+                        </div>
+                        <div
+                          className="text-xs font-bold truncate"
+                          style={{ fontFamily: option.fontFamily }}
+                        >
+                          {option.name.split('(')[0].trim()}
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
+                          {option.description}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ESPACE D'ENVOI & TÉLÉVERSEMENT DE PHOTO OFFICIELLE (TOUTE TAILLE ACCEPTÉE) */}
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-[#0284C7]" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 font-mono">
+                      Photo ou Illustration de l&apos;Email (Toute taille supportée)
+                    </span>
+                  </div>
+                  {officialImageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOfficialImageUrl('');
+                        setOfficialImageCaption('');
+                      }}
+                      className="text-[11px] font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Retirer la photo</span>
+                    </button>
+                  )}
+                </div>
+
+                {officialImageUrl ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                      <img
+                        src={officialImageUrl}
+                        alt="Photo email"
+                        className="w-20 h-20 rounded-xl object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0 shadow-sm"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                            Photo intégrée
+                          </span>
+                        </div>
+                        <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate mt-1">
+                          Visible sur tous types d&apos;écrans (Mobile, Tablette, PC)
+                        </p>
+                        <p className="text-[11px] font-mono text-slate-400 truncate mt-0.5">
+                          {officialImageUrl}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">
+                        Légende sous la photo (optionnelle) :
+                      </label>
+                      <input
+                        type="text"
+                        value={officialImageCaption}
+                        onChange={(e) => setOfficialImageCaption(e.target.value)}
+                        placeholder="ex: Séances de travaux dirigés d'Analyse et Algèbre en amphi"
+                        className="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-100 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <label className="flex flex-col items-center justify-center p-5 border-2 border-dashed border-sky-300/80 dark:border-sky-700/60 rounded-xl bg-sky-50/40 dark:bg-sky-950/20 hover:bg-sky-50 dark:hover:bg-sky-950/40 cursor-pointer transition-colors text-center">
+                      {isUploadingEmailPhoto ? (
+                        <div className="flex items-center gap-2 text-[#0284C7] py-3">
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span className="text-xs font-bold">Téléversement et optimisation de la photo...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <UploadCloud className="w-7 h-7 text-[#0284C7] mb-1.5" />
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                            Cliquez ou glissez une photo de n&apos;importe quelle taille
+                          </span>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+                            JPG, PNG, WEBP &bull; Hébergement direct sur Cloud CDN &bull; S&apos;affiche sans blocage ni quota de pièces jointes.
+                          </span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={isUploadingEmailPhoto}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleUploadPhoto(file, 'email');
+                        }}
+                      />
+                    </label>
+
+                    {/* Saisie d'une URL directe si souhaité */}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="url"
+                        value={officialImageUrl}
+                        onChange={(e) => setOfficialImageUrl(e.target.value)}
+                        placeholder="Ou collez une URL d'image directe (https://...)"
+                        className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
@@ -1507,6 +1739,9 @@ export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }
                       ctaText: officialCtaText.trim() || undefined,
                       ctaUrl: officialCtaUrl.trim() || undefined,
                       targetLevel: officialTargetLevel,
+                      imageUrl: officialImageUrl.trim() || undefined,
+                      imageCaption: officialImageCaption.trim() || undefined,
+                      typography: officialTypography,
                     }).html}
                     className="w-full h-full border-0"
                   />
@@ -1609,6 +1844,88 @@ export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }
               </div>
             </div>
 
+            {/* ZONE PHOTO POUR LA NOTIFICATION (OPTIONNELLE — TOUTE TAILLE ACCEPTÉE) */}
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-amber-500" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 font-mono">
+                    Photo de la Notification (Optionnelle — toute taille acceptée)
+                  </span>
+                </div>
+                {notifImageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setNotifImageUrl('')}
+                    className="text-[11px] font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Supprimer</span>
+                  </button>
+                )}
+              </div>
+
+              {notifImageUrl ? (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                  <img
+                    src={notifImageUrl}
+                    alt="Photo notification"
+                    className="w-16 h-16 rounded-xl object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0 shadow-sm"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
+                      Photo prête pour diffusion push
+                    </p>
+                    <p className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 truncate mt-0.5">
+                      S&apos;affichera en bannière sur mobile et dans le centre de notifications élève
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-amber-300/80 dark:border-amber-700/60 rounded-xl bg-amber-50/40 dark:bg-amber-950/20 hover:bg-amber-50 dark:hover:bg-amber-950/40 cursor-pointer transition-colors text-center">
+                    {isUploadingNotifPhoto ? (
+                      <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 py-2">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span className="text-xs font-bold">Téléversement de la photo en cours...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <UploadCloud className="w-6 h-6 text-amber-500 mb-1" />
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                          Cliquez ou glissez une photo ici (toute taille acceptée)
+                        </span>
+                        <span className="text-[10px] text-slate-400 mt-0.5">
+                          JPG, PNG, WEBP — Hébergée sur CDN et envoyée aux téléphones
+                        </span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={isUploadingNotifPhoto}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleUploadPhoto(file, 'notification');
+                      }}
+                    />
+                  </label>
+
+                  {/* Saisie directe URL alternative */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="url"
+                      value={notifImageUrl}
+                      onChange={(e) => setNotifImageUrl(e.target.value)}
+                      placeholder="Ou collez directement l'URL d'une image (https://...)"
+                      className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={handleSendPushBroadcast}
               disabled={sendingNotif}
@@ -1648,6 +1965,11 @@ export function AdminCommunicationsTab({ accessKey, initialSubTab = 'composer' }
                 </div>
                 <p className="text-xs font-black text-white">{notifTitle || 'Titre de la notification'}</p>
                 <p className="text-xs text-slate-300 leading-relaxed">{notifMessage || 'Contenu du message de la notification...'}</p>
+                {notifImageUrl && (
+                  <div className="rounded-xl overflow-hidden max-h-44 border border-slate-700/60 my-2">
+                    <img src={notifImageUrl} alt="Aperçu notification" className="w-full h-36 object-cover" />
+                  </div>
+                )}
               </div>
 
               {/* Points clés du système de push */}

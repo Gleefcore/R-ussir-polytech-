@@ -51,6 +51,7 @@ export interface PushPayload {
   tag?: string;
   badge?: string;
   icon?: string;
+  image?: string;
   level?: 'ALL' | 'MSP1' | 'MSP2';
 }
 
@@ -163,6 +164,7 @@ export async function broadcastPushNotification(payload: PushPayload): Promise<{
     tag: payload.tag || `rp_alert_${Date.now()}`,
     icon: payload.icon || '/icons/icon-192x192.png',
     badge: payload.badge || '/icons/icon-192x192.png',
+    image: payload.image || undefined,
     sound: '/sounds/notification.wav',
     timestamp: Date.now(),
   });
@@ -219,6 +221,7 @@ export async function createStudentNotifications(params: {
   targetLevel?: 'ALL' | 'MSP1' | 'MSP2';
   targetUserId?: string;
   url?: string;
+  imageUrl?: string;
 }): Promise<{ count: number }> {
   try {
     let targetUserIds: string[] = [];
@@ -243,8 +246,14 @@ export async function createStudentNotifications(params: {
 
     if (targetUserIds.length === 0) return { count: 0 };
 
-    // Format du message avec lien optionnel
-    const fullMessage = params.url ? `${params.message}\n\n[Lien] : ${params.url}` : params.message;
+    // Format du message avec lien optionnel et image optionnelle
+    let fullMessage = params.message;
+    if (params.url) {
+      fullMessage += `\n\n[Lien] : ${params.url}`;
+    }
+    if (params.imageUrl) {
+      fullMessage += `\n[Image] : ${params.imageUrl}`;
+    }
 
     // Insertion par paquets dans la table Supabase `notifications`
     const rows = targetUserIds.map((userId) => ({

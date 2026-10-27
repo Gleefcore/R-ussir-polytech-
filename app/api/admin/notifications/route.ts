@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
       targetLevel = 'ALL',
       url = '/notifications',
       type = 'announcement',
+      imageUrl,
     } = body;
 
     if (!title || !message) {
@@ -80,6 +81,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const cleanImageUrl = imageUrl && typeof imageUrl === 'string' && imageUrl.trim().length > 0 ? imageUrl.trim() : undefined;
+
     // 1. Enregistrement dans la base de données Supabase pour l'espace étudiant
     const notifResult = await createStudentNotifications({
       title,
@@ -87,21 +90,23 @@ export async function POST(req: NextRequest) {
       type: type || 'announcement',
       targetLevel: targetLevel === 'ALL' ? undefined : targetLevel,
       url,
+      imageUrl: cleanImageUrl,
     });
 
-    // 2. Envoi de la Notification Web Push réelle aux téléphones inscrits
+    // 2. Envoi de la Notification Web Push réelle aux téléphones inscrits avec photo
     const pushResult = await broadcastPushNotification({
       title: `🔔 ${title}`,
       body: message,
       url: url || '/notifications',
       level: targetLevel === 'ALL' ? undefined : targetLevel,
+      image: cleanImageUrl,
     });
 
     return NextResponse.json({
       success: true,
       notifResult,
       pushResult,
-      message: `Notification diffusée avec succès : ${pushResult.sentCount} appareil(s) notifié(s), ${notifResult.count} compte(s) étudiant(s) mis à jour.`,
+      message: `Notification diffusée avec succès : ${pushResult.sentCount} appareil(s) notifié(s), ${notifResult.count} compte(s) étudiant(s) mis à jour.${cleanImageUrl ? ' (Photo jointe incluse)' : ''}`,
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Erreur interne lors de la diffusion';

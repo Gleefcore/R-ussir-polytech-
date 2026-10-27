@@ -18,6 +18,9 @@ import {
   ShieldCheck,
   Smartphone,
   RefreshCw,
+  Eye,
+  X,
+  Download,
 } from 'lucide-react';
 import { playNotificationSound } from '@/lib/sound';
 
@@ -38,6 +41,7 @@ export default function NotificationsPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [userSession, setUserSession] = useState<{ id?: string; name?: string; level?: string } | null>(null);
   const [testedSound, setTestedSound] = useState(false);
+  const [selectedImageModal, setSelectedImageModal] = useState<{ url: string; title: string } | null>(null);
 
   useEffect(() => {
     try {
@@ -119,8 +123,17 @@ export default function NotificationsPage() {
     return rawMatch ? rawMatch[0] : null;
   };
 
+  const extractImageUrl = (text: string): string | null => {
+    const match = text.match(/\[Image\]\s*:\s*(\S+)/i);
+    if (match) return match[1];
+    return null;
+  };
+
   const cleanMessage = (text: string): string => {
-    return text.replace(/\[Lien\]\s*:\s*(\S+)/gi, '').trim();
+    return text
+      .replace(/\[Lien\]\s*:\s*(\S+)/gi, '')
+      .replace(/\[Image\]\s*:\s*(\S+)/gi, '')
+      .trim();
   };
 
   return (
@@ -277,6 +290,8 @@ export default function NotificationsPage() {
                   })
                 : 'Récemment';
 
+              const notifImageUrl = extractImageUrl(notif.message);
+
               return (
                 <motion.div
                   key={notif.id}
@@ -324,6 +339,27 @@ export default function NotificationsPage() {
                         </span>
                       </div>
 
+                      {/* Photo jointe à la notification si présente */}
+                      {notifImageUrl && (
+                        <div className="my-2.5 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-950/10 dark:bg-slate-950/60 relative group max-w-lg">
+                          <img
+                            src={notifImageUrl}
+                            alt={notif.title}
+                            className="w-full max-h-64 object-cover object-center cursor-pointer transition-transform duration-300 group-hover:scale-[1.02]"
+                            onClick={() => setSelectedImageModal({ url: notifImageUrl, title: notif.title })}
+                            loading="lazy"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setSelectedImageModal({ url: notifImageUrl, title: notif.title })}
+                            className="absolute bottom-2 right-2 px-2.5 py-1 rounded-lg bg-black/70 hover:bg-black/90 backdrop-blur-sm text-white text-[11px] font-bold flex items-center gap-1.5 transition-all shadow-md"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>Agrandir</span>
+                          </button>
+                        </div>
+                      )}
+
                       <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line mb-3">
                         {cleanText}
                       </p>
@@ -357,6 +393,61 @@ export default function NotificationsPage() {
             })}
           </div>
         )}
+
+        {/* MODALE D'AGRANDISSEMENT DE PHOTO (LIGHTBOX) */}
+        <AnimatePresence>
+          {selectedImageModal && (
+            <div
+              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+              onClick={() => setSelectedImageModal(null)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white dark:bg-[#0B1528] rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[92vh]"
+              >
+                {/* Header modale */}
+                <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50 dark:bg-[#0F1C36]">
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#0284C7]" />
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white truncate">
+                      {selectedImageModal.title}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={selectedImageModal.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-300 flex items-center gap-1.5 transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Plein écran</span>
+                    </a>
+                    <button
+                      onClick={() => setSelectedImageModal(null)}
+                      className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Corps de l'image */}
+                <div className="p-3 sm:p-6 overflow-auto flex items-center justify-center bg-black/5 dark:bg-black/40 min-h-[300px]">
+                  <img
+                    src={selectedImageModal.url}
+                    alt={selectedImageModal.title}
+                    className="max-h-[75vh] w-auto max-w-full rounded-xl object-contain shadow-lg"
+                  />
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );

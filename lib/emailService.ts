@@ -453,7 +453,20 @@ export async function sendWelcomeEmail(params: {
 // 7. Envoi d'un Email Test (Administrateur)
 export async function sendTestEmail(params: {
   toEmail: string;
-  templateType: 'welcome' | 'weekly' | 'promotion';
+  templateType: 'welcome' | 'weekly' | 'promotion' | 'official' | 'app_announcement';
+  officialParams?: {
+    subject?: string;
+    headline?: string;
+    senderTitle?: string;
+    senderSignature?: string;
+    messageContent?: string;
+    ctaText?: string;
+    ctaUrl?: string;
+    targetLevel?: string;
+    imageUrl?: string;
+    imageCaption?: string;
+    typography?: string;
+  };
 }): Promise<{ success: boolean; mode: string; error?: string }> {
   const store = await loadEmailStore();
   let rendered;
@@ -466,6 +479,12 @@ export async function sendTestEmail(params: {
       password: 'Polytech2026!',
       actionType: 'welcome',
     });
+  } else if (params.templateType === 'app_announcement') {
+    rendered = renderAppAnnouncementEmail({
+      name: 'Ingénieur Test',
+      email: params.toEmail,
+      level: 'MSP2',
+    });
   } else if (params.templateType === 'promotion') {
     rendered = renderPromotionFormationEmail({
       name: 'Ingénieur Test',
@@ -474,6 +493,22 @@ export async function sendTestEmail(params: {
       matricule: '26P-TEST',
       title: 'Formation Pratique : Bureautique Haute Précision (Excel Avancé & VBA)',
       subtitle: 'Maîtrisez les outils incontournables des bureaux d\'études et ingénieries',
+    });
+  } else if (params.templateType === 'official') {
+    rendered = renderOfficialAdminEmail({
+      recipientName: 'Ingénieur Test (Administrateur)',
+      recipientEmail: params.toEmail,
+      subject: params.officialParams?.subject || 'Note d\'Information Officielle — Réussir Polytech',
+      headline: params.officialParams?.headline || 'Communiqué Officiel de la Direction',
+      senderTitle: params.officialParams?.senderTitle || 'Direction Générale RÉUSSIR POLYTECH',
+      senderSignature: params.officialParams?.senderSignature || 'Eugène Samuel GWET — Président du Conseil d\'Administration',
+      messageContent: params.officialParams?.messageContent || 'Ceci est un email officiel de test avec intégration visuelle et typographie personnalisée.',
+      ctaText: params.officialParams?.ctaText || 'Accéder à la plateforme',
+      ctaUrl: params.officialParams?.ctaUrl || BRAND_CONFIG.siteUrl,
+      targetLevel: params.officialParams?.targetLevel || 'MSP2',
+      imageUrl: params.officialParams?.imageUrl,
+      imageCaption: params.officialParams?.imageCaption,
+      typography: params.officialParams?.typography || 'modern',
     });
   } else {
     rendered = renderWeeklyEmail({
@@ -801,6 +836,9 @@ export interface SendOfficialAdminEmailParams {
   ctaText?: string;
   ctaUrl?: string;
   targetLevel?: string;
+  imageUrl?: string;
+  imageCaption?: string;
+  typography?: string;
 }
 
 export async function sendOfficialAdminEmail(params: SendOfficialAdminEmailParams) {
@@ -854,6 +892,9 @@ export async function sendOfficialAdminEmail(params: SendOfficialAdminEmailParam
       ctaText: params.ctaText,
       ctaUrl: params.ctaUrl,
       targetLevel: params.targetLevel || student.level,
+      imageUrl: params.imageUrl,
+      imageCaption: params.imageCaption,
+      typography: params.typography,
     });
 
     const sendRes = await dispatchEmail({

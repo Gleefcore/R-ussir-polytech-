@@ -223,6 +223,9 @@ export async function POST(req: NextRequest) {
         ctaText,
         ctaUrl,
         targetLevel,
+        imageUrl,
+        imageCaption,
+        typography,
       } = body;
 
       if (!Array.isArray(students) || students.length === 0) {
@@ -243,6 +246,9 @@ export async function POST(req: NextRequest) {
         ctaText,
         ctaUrl,
         targetLevel,
+        imageUrl,
+        imageCaption,
+        typography,
       });
 
       return NextResponse.json({ success: true, result });
@@ -258,7 +264,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'send_test_email') {
-      const { toEmail, templateType } = body;
+      const { toEmail, templateType, officialParams } = body;
       if (!toEmail || !toEmail.includes('@')) {
         return NextResponse.json({ error: 'Adresse email de test invalide.' }, { status: 400 });
       }
@@ -266,6 +272,7 @@ export async function POST(req: NextRequest) {
       const result = await sendTestEmail({
         toEmail: toEmail.trim().toLowerCase(),
         templateType: templateType || 'welcome',
+        officialParams,
       });
 
       return NextResponse.json({ success: true, result });

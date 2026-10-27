@@ -135,12 +135,14 @@ self.addEventListener('push', (event) => {
     body: payload.body,
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-192x192.png',
+    image: payload.image || undefined,
     vibrate: [250, 100, 250, 100, 250],
     sound: '/sounds/notification.wav',
     tag: payload.tag || 'polytech-alert',
     renotify: true,
     data: {
       url: payload.url || '/notifications',
+      imageUrl: payload.image || undefined,
       dateOfArrival: Date.now(),
     },
     actions: [
